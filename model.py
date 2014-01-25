@@ -12,15 +12,18 @@ class Struct(object):
         setattr(self, key, value)
 
 class Buff(Struct):
+    _last_id = 0
     def __init__(self, name, atk_mod=0, dmg_mod=0):
         self.name = name
         # Modifiers
         self.atk = intOrZero(atk_mod)
         self.dmg_roll = DamageRoll(None, None, dmg_mod)
         # UI Details
-        self.ui_id = None
+        self.id = self._last_id
+        self.ui_id = ''
+        Buff._last_id += 1
     def makeUI(self, id):
-        assert type(id) is int
+        assert id is None or id == self.id # Old feature no longer needed
         id = "Buff" + str(id)
         template = """
         <CheckBox
@@ -39,6 +42,7 @@ class Buff(Struct):
 
 
 class Attack(object):
+    _last_id = 0
     def __init__(self, name, atk, dmg_roll, crit_range, crit_mult):
         self.name = name
         self.base = Struct()
@@ -48,7 +52,9 @@ class Attack(object):
         self.base.crit_mult = crit_mult
         self.buffs = []
         # UI Details
-        self.ui_id = None
+        self.id = self._last_id
+        self.ui_id = ''
+        Attack._last_id += 1
 
     @property
     def atk(self):
@@ -94,8 +100,8 @@ class Attack(object):
                   (atk_roll, atk_roll+self.atk, dmg)
         return s
 
-    def makeUI(self, id):
-        assert type(id) is int
+    def makeUI(self, id=None):
+        assert id is None or id == self.id # Old feature no longer needed
         id = "Atk"+str(id)
         template = """
         <TableRow
