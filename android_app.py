@@ -11,7 +11,7 @@ except:
     except:
         raise RuntimeError("Could not connect to android device")
 
-from urllib2 import urlopen
+from urllib2 import urlopen, Request
 import json
 
 from model import Buff, Attack, DamageRoll
@@ -80,7 +80,10 @@ def eventloop_newBuff():
                 atk = droid.fullQueryDetail("buffAtk").result['text']
                 dmg = droid.fullQueryDetail("buffDmg").result['text']
                 print name, atk, dmg
-                buffs += [Buff(name, atk, dmg)]
+                new_buff =Buff(name, atk, dmg)
+                buffs += [new_buff]
+                # Post it to the webserver
+                buildPost(new_buff.makeDict())
                 break
             elif id[:10] == "btnCancel":
                 # User cancels, return
@@ -93,6 +96,16 @@ def eventloop_newBuff():
                 break
     return buffs
 
+def buildPost(d):
+    """Create a JSON paylod of diction and post"""
+    url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
+    payload = json.dumps(d)
+    header = {'Content-Type': 'application/json'}
+    req = Request(url, payload, header)
+    response = urlopen(req)
+    print response.getcode()
+    print '********'
+    print response.read()
 
 def alert_dialog(title, message, buttonText='Ok'):
   droid.dialogCreateAlert(title, message)

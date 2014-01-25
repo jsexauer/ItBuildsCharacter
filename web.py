@@ -5,7 +5,7 @@ based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-pyth
 """
 #!flask/bin/python
 from flask import Flask, jsonify, abort, request, make_response, url_for
-from model import Buff
+from model import Buff, DamageRoll
 
 app = Flask(__name__, static_url_path = "")
 
@@ -42,6 +42,11 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
+@app.errorhandler(500)
+def not_found(error):
+    return make_response(jsonify( { 'error': 'Error 500' } ), 200)
+
+
 buffs = [Buff('Favored Enemy (Human)',4,4),
          Buff('Favored Enemy (Monstrous Humanoid)',2,2),
          Buff('100 to damage',dmg_mod=95),
@@ -64,17 +69,15 @@ def get_buffs(task_id):
 @app.route('/IBC/api/v1.0/buffs', methods = ['POST'])
 @auth.login_required
 def create_buff():
-    raise NotImplementedError()
-    if not request.json or not 'title' in request.json:
+    #return jsonify({'ok':True}), 201
+    if not request.json:
         abort(400)
-    task = {
-        'id': tasks[-1]['id'] + 1,
-        'title': request.json['title'],
-        'description': request.json.get('description', ""),
-        'done': False
-    }
-    tasks.append(task)
-    return jsonify( { 'task': make_public_task(task) } ), 201
+    buff = Buff(request.json['name'],
+                atk_mod=request.json['atk'], 
+                dmg_mod=DamageRoll.fromString(request.json['dmg_roll']))
+    assert buff.id == request.json['id']
+    buffs.append(buff)
+    return jsonify( { 'new_buff': buff.makeDict() } ), 201
 
 @app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['PUT'])
 @auth.login_required

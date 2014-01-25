@@ -21,6 +21,8 @@ class Buff(Struct):
             self.dmg_roll = DamageRoll(None, None, dmg_mod)
         elif isinstance(dmg_mod, DamageRoll):
             self.dmg_roll = dmg_mod
+        elif isinstance(dmg_mod, basestring):
+            self.dmg_roll = DamageRoll(None, None, int(dmg_mod))
         else:
             raise ValueError("Unrecognized damage modifier %s" % dmg_mod)
         # UI Details
