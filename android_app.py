@@ -11,13 +11,25 @@ except:
     except:
         raise RuntimeError("Could not connect to android device")
 
+from urllib2 import urlopen
+import json
 
 from model import Buff, Attack, DamageRoll
 attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
            Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3)]
-buffs = [Buff('Favored Enemy (Human)',4,4),
-         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
-         Buff('100 to damage',dmg_mod=95)]
+#buffs = [Buff('Favored Enemy (Human)',4,4),
+#         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+#         Buff('100 to damage',dmg_mod=95)]
+
+def readOnlineBuffs():
+    r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs")
+    buffs_json = json.load(r)['buffs']
+    buffs = []
+    for b in buffs_json:
+        buffs.append(Buff.fromDict(b))
+    return buffs
+buffs = readOnlineBuffs()
+
 
 def eventloop():
     global buffs, attacks

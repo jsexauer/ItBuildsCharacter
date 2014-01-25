@@ -17,11 +17,26 @@ class Buff(Struct):
         self.name = name
         # Modifiers
         self.atk = intOrZero(atk_mod)
-        self.dmg_roll = DamageRoll(None, None, dmg_mod)
+        if type(dmg_mod) is int:
+            self.dmg_roll = DamageRoll(None, None, dmg_mod)
+        elif isinstance(dmg_mod, DamageRoll):
+            self.dmg_roll = dmg_mod
+        else:
+            raise ValueError("Unrecognized damage modifier %s" % dmg_mod)
         # UI Details
         self.id = self._last_id
         self.ui_id = ''
         Buff._last_id += 1
+
+    @classmethod
+    def fromDict(cls, d):
+        """Create a Buff from a dictionary (JSON) object"""
+        buff = Buff(d['name'], atk_mod=d['atk'],
+                    dmg_mod=DamageRoll.fromString(d['dmg_roll']))
+        assert buff.id == d['id']
+        return buff
+
+
     def makeUI(self, id):
         assert id is None or id == self.id # Old feature no longer needed
         id = "Buff" + str(id)
@@ -163,6 +178,30 @@ class DamageRoll(Struct):
         self.dice = intOrNone(dmg_dice)
         self.add = intOrZero(dmg_add)
         super(DamageRoll, self).__init__()
+    @classmethod
+    def fromString(self, s):
+        """Build a damage roll from string (like "1d4+5" or "+7")"""
+        s = s.replace(' ','').lower()
+        if s.find('+') != -1:
+            # 1d4+3 or +2
+            dice, adder = s.split('+')
+            adder = int(adder)
+        elif s.find('-') != -1:
+            # 1d4-1 or -2
+            dice, adder = s.split('-')
+            adder = -int(adder)
+        else:
+            #1d4
+            dice = s
+            adder = 0
+        if dice == '':
+            # +2 or -2
+            return DamageRoll(None, None, adder)
+        else:
+            numDice, dice = dice.split('d')
+            return DamageRoll(numDice, dice, adder)
+
+
     def roll(self):
         roll = self.add
         for n in range(self.numDice):
