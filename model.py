@@ -35,7 +35,8 @@ class Buff(Struct):
         self.ui_id = id
         return template % {'id': id, 'name': self.name}
     def makeDict(self):
-        return dict(id=self.id, name=self.name, dmg_roll=str(self.dmg_roll))
+        return dict(id=self.id, name=self.name, dmg_roll=str(self.dmg_roll),
+                atk=self.atk)
     def __str__(self):
         return self.name
     def __repr__(self):
