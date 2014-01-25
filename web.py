@@ -7,7 +7,7 @@ based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-pyth
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from model import Buff, DamageRoll
 from persistentDictionary import PersistentDict
-import shelve
+import shelve, os
 
 app = Flask(__name__, static_url_path = "")
 
@@ -50,12 +50,13 @@ def not_found(error):
 #         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
 #         Buff('100 to damage',dmg_mod=95),
 #         Buff('Online Only',1000,1000)]
-data = PersistentDict("data.dat")
+data = PersistentDict(os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat")
 try:
     buffs = data['buffs']
 except KeyError:
     data['buffs'] = []
     buffs = data['buffs']
+print os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat"
 
 @app.route('/IBC/api/v1.0/buffs', methods = ['GET'])
 @auth.login_required
@@ -114,6 +115,6 @@ def delete_buff(task_id):
     return jsonify( { 'result': True } )
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    #app.run(debug = True)
     pass
 application = app
