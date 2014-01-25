@@ -211,7 +211,10 @@ class DamageRoll(Struct):
         return roll
     def __str__(self):
         if self.numDice is None and self.dice is None:
-            return "+%d" % self.add
+            if self.add < 0:
+                return "%d" % self.add
+            else:
+                return "+%d" % self.add
         return "%dd%d+%d" % (self.numDice, self.dice, self.add)
     def __add__(self, other):
         if isinstance(other, DamageRoll):

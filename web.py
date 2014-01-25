@@ -42,10 +42,6 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
-@app.errorhandler(500)
-def not_found(error):
-    return make_response(jsonify( { 'error': 'Error 500' } ), 200)
-
 
 buffs = [Buff('Favored Enemy (Human)',4,4),
          Buff('Favored Enemy (Monstrous Humanoid)',2,2),
@@ -69,7 +65,6 @@ def get_buffs(task_id):
 @app.route('/IBC/api/v1.0/buffs', methods = ['POST'])
 @auth.login_required
 def create_buff():
-    #return jsonify({'ok':True}), 201
     if not request.json:
         abort(400)
     buff = Buff(request.json['name'],

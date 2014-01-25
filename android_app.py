@@ -97,19 +97,22 @@ def eventloop_newBuff():
     return buffs
 
 def buildPost(d):
-    """Create a JSON paylod of diction and post"""
-    url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
-    payload = json.dumps(d)
-    header = {'Content-Type': 'application/json'}
-    req = Request(url, payload, header)
-    response = urlopen(req)
-    print response.getcode()
-    print '********'
-    print response.read()
+    """Create a JSON paylod of dictionary and post"""
+    try:
+        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
+        payload = json.dumps(d)
+        header = {'Content-Type': 'application/json'}
+        req = Request(url, payload, header)
+        response = urlopen(req)
+        if response.getcode() == 201:
+            return
+    except:
+        pass
+    alert_dialog("Posting Error", "Unable to post new buff to website", "Ok")
 
-def alert_dialog(title, message, buttonText='Ok'):
+def alert_dialog(title, message, buttonText='Continue'):
   droid.dialogCreateAlert(title, message)
-  droid.dialogSetPositiveButtonText('Continue')
+  droid.dialogSetPositiveButtonText(buttonText)
   droid.dialogShow()
   response = droid.dialogGetResponse().result
   return response['which'] == 'positive'
