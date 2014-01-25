@@ -34,6 +34,8 @@ class Buff(Struct):
         """
         self.ui_id = id
         return template % {'id': id, 'name': self.name}
+    def makeDict(self):
+        return dict(id=self.id, name=self.name, dmg_roll=str(self.dmg_roll))
     def __str__(self):
         return self.name
     def __repr__(self):
@@ -166,6 +168,8 @@ class DamageRoll(Struct):
             roll += roll_d(self.dice)
         return roll
     def __str__(self):
+        if self.numDice is None and self.dice is None:
+            return "+%d" % self.add
         return "%dd%d+%d" % (self.numDice, self.dice, self.add)
     def __add__(self, other):
         if isinstance(other, DamageRoll):
@@ -184,8 +188,3 @@ def roll_d(dice):
     """Roll a dXX dice"""
     return random.randrange(1,dice+1,1)
 
-attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3)]
-buffs = [Buff('Favored Enemy (Human)',4,4),
-         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
-         Buff('100 to damage',dmg_mod=95)]

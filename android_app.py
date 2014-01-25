@@ -12,7 +12,12 @@ except:
         raise RuntimeError("Could not connect to android device")
 
 
-from model import Buff, attacks, buffs
+from model import Buff, Attack, DamageRoll
+attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
+           Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3)]
+buffs = [Buff('Favored Enemy (Human)',4,4),
+         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+         Buff('100 to damage',dmg_mod=95)]
 
 def eventloop():
     global buffs, attacks
