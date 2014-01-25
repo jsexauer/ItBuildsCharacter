@@ -50,13 +50,14 @@ def not_found(error):
 #         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
 #         Buff('100 to damage',dmg_mod=95),
 #         Buff('Online Only',1000,1000)]
-data = PersistentDict(os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat")
+per_path = os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat"
+data = PersistentDict(per_path)
 try:
     buffs = data['buffs']
 except KeyError:
     data['buffs'] = []
     buffs = data['buffs']
-print os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat"
+
 
 @app.route('/IBC/api/v1.0/buffs', methods = ['GET'])
 @auth.login_required
@@ -82,6 +83,7 @@ def create_buff():
                 dmg_mod=DamageRoll.fromString(request.json['dmg_roll']))
     assert buff.id == request.json['id'], "MyID:%d, RequestID:%d" % (buff.id, request.json['id'])
     buffs.append(buff)
+    data.sync()
     return jsonify( { 'new_buff': buff.makeDict() } ), 201
 
 @app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['PUT'])
@@ -115,6 +117,6 @@ def delete_buff(task_id):
     return jsonify( { 'result': True } )
 
 if __name__ == '__main__':
-    #app.run(debug = True)
+    app.run(debug = True)
     pass
 application = app
