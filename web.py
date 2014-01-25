@@ -45,16 +45,6 @@ def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
 
-def read_shelf():
-    """Reads in the data for the application"""
-    sh = shelve.open("data.dat")
-    try:
-        buffs = sh['buffs']
-    except KeyError:
-        sh['buffs'] = []
-        buffs = sh['buffs']
-    return buffs
-
 
 #buffs = [Buff('Favored Enemy (Human)',4,4),
 #         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
@@ -89,7 +79,7 @@ def create_buff():
     buff = Buff(request.json['name'],
                 atk_mod=request.json['atk'], 
                 dmg_mod=DamageRoll.fromString(request.json['dmg_roll']))
-    assert buff.id == request.json['id']
+    assert buff.id == request.json['id'], "MyID:%d, RequestID:%d" % (buff.id, request.json['id'])
     buffs.append(buff)
     return jsonify( { 'new_buff': buff.makeDict() } ), 201
 
