@@ -6,6 +6,7 @@ based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-pyth
 #!flask/bin/python
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from model import Buff, DamageRoll
+from persistentDictionary import PersistentDict
 import shelve
 
 app = Flask(__name__, static_url_path = "")
@@ -59,11 +60,16 @@ def read_shelf():
 #         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
 #         Buff('100 to damage',dmg_mod=95),
 #         Buff('Online Only',1000,1000)]
+data = PersistentDict("data.dat")
+try:
+    buffs = data['buffs']
+except KeyError:
+    data['buffs'] = []
+    buffs = data['buffs']
 
 @app.route('/IBC/api/v1.0/buffs', methods = ['GET'])
 @auth.login_required
 def get_all_buffs():
-    buffs = read_shelf()
     return jsonify( { 'buffs': map(lambda x: x.makeDict(), buffs) } )
 
 @app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['GET'])
@@ -78,7 +84,6 @@ def get_buffs(task_id):
 @app.route('/IBC/api/v1.0/buffs', methods = ['POST'])
 @auth.login_required
 def create_buff():
-    buffs = read_shelf()
     if not request.json:
         abort(400)
     buff = Buff(request.json['name'],
