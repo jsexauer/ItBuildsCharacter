@@ -6,6 +6,7 @@ based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-pyth
 #!flask/bin/python
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from model import Buff, DamageRoll
+import shelve
 
 app = Flask(__name__, static_url_path = "")
 
@@ -43,14 +44,26 @@ def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
 
-buffs = [Buff('Favored Enemy (Human)',4,4),
-         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
-         Buff('100 to damage',dmg_mod=95),
-         Buff('Online Only',1000,1000)]
+def read_shelf():
+    """Reads in the data for the application"""
+    sh = shelve.open("data.dat")
+    try:
+        buffs = sh['buffs']
+    except KeyError:
+        sh['buffs'] = []
+        buffs = sh['buffs']
+    return buffs
+
+
+#buffs = [Buff('Favored Enemy (Human)',4,4),
+#         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+#         Buff('100 to damage',dmg_mod=95),
+#         Buff('Online Only',1000,1000)]
 
 @app.route('/IBC/api/v1.0/buffs', methods = ['GET'])
 @auth.login_required
 def get_all_buffs():
+    buffs = read_shelf()
     return jsonify( { 'buffs': map(lambda x: x.makeDict(), buffs) } )
 
 @app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['GET'])
@@ -65,6 +78,7 @@ def get_buffs(task_id):
 @app.route('/IBC/api/v1.0/buffs', methods = ['POST'])
 @auth.login_required
 def create_buff():
+    buffs = read_shelf()
     if not request.json:
         abort(400)
     buff = Buff(request.json['name'],
