@@ -2,12 +2,163 @@
 # https://code.google.com/p/android-scripting/wiki/FullScreenUI
 import android
 try:
-    droid=android.Android(('192.168.3.10','36161'))
+    # Create droid object if we're on the phone
+    droid = android.Android()
 except:
-    raise RuntimeError("Could not connect to android device")
+    try:
+        # Create droid object if we're on computer
+        droid=android.Android(('192.168.3.10','36161'))
+    except:
+        raise RuntimeError("Could not connect to android device")
 
 import random
 random.seed()
+
+
+layout_template = """<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ff000000"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buffs:" />
+
+        %(Buffs)s
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Attacks:" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:stretchColumns="0">
+
+        %(Attacks)s
+
+    </TableLayout>
+</LinearLayout>
+"""
+
+layout2 = """<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ff000000"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Buff"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buff Name:" />
+
+            <EditText
+                android:id="@+id/buffName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10" >
+
+                <requestFocus />
+            </EditText>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buff Attack Modifier:" />
+
+            <EditText
+                android:id="@+id/buffAtk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buff Damage Modifier:" />
+
+            <EditText
+                android:id="@+id/buffDmg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number" />
+
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+"""
+
+
+intOrNone = lambda x: None if x is None or x == '' else int(x)
+intOrZero = lambda x: 0 if x is None or x == '' else int(x)
 
 class Struct(object):
     def __getitem__(self, key):
@@ -19,7 +170,7 @@ class Buff(Struct):
     def __init__(self, name, atk_mod=0, dmg_mod=0):
         self.name = name
         # Modifiers
-        self.atk = atk_mod
+        self.atk = intOrZero(atk_mod)
         self.dmg_roll = DamageRoll(None, None, dmg_mod)
         # UI Details
         self.ui_id = None
@@ -155,9 +306,9 @@ class Attack(object):
 
 class DamageRoll(Struct):
     def __init__(self, dmg_numDice, dmg_dice, dmg_add):
-        self.numDice = dmg_numDice
-        self.dice = dmg_dice
-        self.add = dmg_add
+        self.numDice = intOrNone(dmg_numDice)
+        self.dice = intOrNone(dmg_dice)
+        self.add = intOrZero(dmg_add)
         super(DamageRoll, self).__init__()
     def roll(self):
         roll = self.add
@@ -191,6 +342,7 @@ def alert_dialog(title, message, buttonText='Ok'):
   return response['which'] == 'positive'
 
 def eventloop():
+    global buffs, attacks
     while True:
         event=droid.eventWait().result
         print event
@@ -210,6 +362,11 @@ def eventloop():
                 # User asked for us to roll an attack
                 atk_id = int(id[10:])
                 attacks[atk_id].roll()
+        elif event['name']=='menu_newBuff':
+            #droid.fullDismiss()
+            print droid.fullShow(layout2)
+            buffs = eventloop_newBuff()
+            buildMainWindow(attacks, buffs)
         elif event['name']=='menu_quit':
             # Quit menu bar button
             return
@@ -217,40 +374,34 @@ def eventloop():
             if event["data"]=="destroy":
                 return
 
+def eventloop_newBuff():
+    global buffs
+    while True:
+        event=droid.eventWait().result
+        print "In newBuff:", event
+        if event["name"]=="click":
+            id=event["data"]["id"]
+            if id == "btnSave":
+                # A buff has been updated
+                name = droid.fullQueryDetail("buffName").result['text']
+                atk = droid.fullQueryDetail("buffAtk").result['text']
+                dmg = droid.fullQueryDetail("buffDmg").result['text']
+                print name, atk, dmg
+                buffs += [Buff(name, atk, dmg)]
+                break
+            elif id[:10] == "btnCancel":
+                # User cancels, return
+                break
+        elif event['name']=='menu_quit':
+            # Quit menu bar button
+            break
+        elif event["name"]=="screen":
+            if event["data"]=="destroy":
+                break
+    return buffs
+
 print "Started"
-layout = """<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/background"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ff000000"
-    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Buffs:" />
-
-        %(Buffs)s
-
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Attacks:" />
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:stretchColumns="0">
-
-        %(Attacks)s
-
-    </TableLayout>
-</LinearLayout>
-"""
 
 attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
            Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3)]
@@ -258,31 +409,25 @@ buffs = [Buff('Favored Enemy (Human)',4,4),
          Buff('Favored Enemy (Monstrous Humanoid)',2,2),
          Buff('100 to damage',dmg_mod=95)]
 
-atk_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(attacks)])
-buffs_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(buffs)])
+def buildMainWindow(attacks, buffs):
+    global layout_template
+    atk_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(attacks)])
+    buffs_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(buffs)])
 
-layout = layout % {'Buffs':buffs_xml, 'Attacks':atk_xml}
-print layout
+    layout = layout_template % {'Buffs':buffs_xml, 'Attacks':atk_xml}
+    print layout
 
-###################################################################
-# See: http://www.mithril.com.au/android/doc/UiFacade.html#addOptionsMenuItem
-# Icons: http://androiddrawableexplorer.appspot.com/
-droid.addOptionsMenuItem("Silly","silly",None,"star_on")
-droid.addOptionsMenuItem("Sensible","sensible","I bet.","star_off")
-droid.addOptionsMenuItem("Quit","menu_quit",None,"btn_close_normal")
+    ###################################################################
+    # See: http://www.mithril.com.au/android/doc/UiFacade.html#addOptionsMenuItem
+    # Icons: http://androiddrawableexplorer.appspot.com/
+    droid.clearOptionsMenu()
+    droid.addOptionsMenuItem("Silly","silly",None,"star_on")
+    droid.addOptionsMenuItem("New Buff","menu_newBuff",None,"star_off")
+    droid.addOptionsMenuItem("Quit","menu_quit",None,"btn_close_normal")
 
-##while True: # Wait for events from the menu.
-##  response=droid.eventWait(10000).result
-##  if response==None:
-##    break
-##  print response
-##  if response["name"]=="off":
-##    break
-##print "And done."
-################################################################
+    print droid.fullShow(layout)
 
-print droid.fullShow(layout)
-
+buildMainWindow(attacks, buffs)
 eventloop()
 print droid.fullQuery()
 print "Data entered =",droid.fullQueryDetail("editText1").result
