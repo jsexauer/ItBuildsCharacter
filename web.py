@@ -81,7 +81,8 @@ def create_buff():
     buff = Buff(request.json['name'],
                 atk_mod=request.json['atk'], 
                 dmg_mod=DamageRoll.fromString(request.json['dmg_roll']))
-    assert buff.id == request.json['id'], "MyID:%d, RequestID:%d" % (buff.id, request.json['id'])
+    buff.id = request.json['id']
+    Buff._last_id = max(Buff._last_id, buff.id)
     buffs.append(buff)
     data.sync()
     return jsonify( { 'new_buff': buff.makeDict() } ), 201

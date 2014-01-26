@@ -74,7 +74,7 @@ def eventloop():
                 print "deleting %d" % idx
                 buff = buffs.pop(idx)
                 buildPost(buff.makeDict(), mode='delete')
-
+                buildMainWindow(attacks, buffs)
         elif event['name']=='menu_quit':
             # Quit menu bar button
             return

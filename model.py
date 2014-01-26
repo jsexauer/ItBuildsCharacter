@@ -22,7 +22,7 @@ class Buff(Struct):
         elif isinstance(dmg_mod, DamageRoll):
             self.dmg_roll = dmg_mod
         elif isinstance(dmg_mod, basestring):
-            self.dmg_roll = DamageRoll(None, None, int(dmg_mod))
+            self.dmg_roll = DamageRoll(None, None, intOrZero(dmg_mod))
         else:
             raise ValueError("Unrecognized damage modifier %s" % dmg_mod)
         # UI Details
@@ -35,12 +35,12 @@ class Buff(Struct):
         """Create a Buff from a dictionary (JSON) object"""
         buff = Buff(d['name'], atk_mod=d['atk'],
                     dmg_mod=DamageRoll.fromString(d['dmg_roll']))
-        assert buff.id == d['id']
+        buff.id = d['id']
+        Buff._last_id = max(Buff._last_id, buff.id)
         return buff
 
 
     def makeUI(self, id):
-        assert id is None or id == self.id # Old feature no longer needed
         id = "Buff" + str(id)
         template = """
         <CheckBox
