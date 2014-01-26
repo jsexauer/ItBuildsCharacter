@@ -60,6 +60,21 @@ def eventloop():
             print droid.fullShow(layout2)
             buffs = eventloop_newBuff()
             buildMainWindow(attacks, buffs)
+        elif event['name']=='menu_delBuff':
+            # Delete a buff
+              droid.dialogCreateAlert("Delete Buff")
+              droid.dialogSetSingleChoiceItems(
+                    map(lambda x: x.name, buffs))
+              droid.dialogSetPositiveButtonText("Ok")
+              droid.dialogSetNegativeButtonText("Cancel")
+              droid.dialogShow()
+              response = droid.dialogGetResponse().result
+              if response['which'] == 'positive':
+                idx = droid.dialogGetSelectedItems().result[0]
+                print "deleting %d" % idx
+                buff = buffs.pop(idx)
+                buildPost(buff.makeDict(), mode='delete')
+
         elif event['name']=='menu_quit':
             # Quit menu bar button
             return
@@ -96,10 +111,13 @@ def eventloop_newBuff():
                 break
     return buffs
 
-def buildPost(d):
+def buildPost(d, mode='add'):
     """Create a JSON paylod of dictionary and post"""
+    url=r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
+    if mode == 'delete':
+        url += r"/del/%d" % d['id']
+
     try:
-        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
         payload = json.dumps(d)
         header = {'Content-Type': 'application/json'}
         req = Request(url, payload, header)
@@ -133,6 +151,7 @@ def buildMainWindow(attacks, buffs):
     droid.clearOptionsMenu()
     droid.addOptionsMenuItem("Silly","silly",None,"star_on")
     droid.addOptionsMenuItem("New Buff","menu_newBuff",None,"star_off")
+    droid.addOptionsMenuItem("Delete Buff","menu_delBuff",None,"ic_menu_delete")
     droid.addOptionsMenuItem("Quit","menu_quit",None,"btn_close_normal")
 
     print droid.fullShow(layout)

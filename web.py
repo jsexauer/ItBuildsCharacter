@@ -106,15 +106,15 @@ def update_buff(task_id):
     task[0]['done'] = request.json.get('done', task[0]['done'])
     return jsonify( { 'task': make_public_task(task[0]) } )
 
-@app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['DELETE'])
+@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>')
 @auth.login_required
-def delete_buff(task_id):
-    raise NotImplementedError()
-    task = filter(lambda t: t['id'] == task_id, tasks)
-    if len(task) == 0:
+def delete_buff(buff_id):
+    buff = filter(lambda t: t['id'] == buff_id, buffs)
+    if len(buff) == 0:
         abort(404)
-    tasks.remove(task[0])
-    return jsonify( { 'result': True } )
+    buffs.remove(buff[0])
+    data.sync()
+    return jsonify( { 'result': True } ), 201
 
 if __name__ == '__main__':
     app.run(debug = True)
