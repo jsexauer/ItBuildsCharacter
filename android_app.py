@@ -118,6 +118,10 @@ def eventloop_newBuff():
         elif event["name"]=="screen":
             if event["data"]=="destroy":
                 break
+        elif event['name']=='key':
+            if event['data']['key'] == '4':
+                # Back button pushed.  Do same as cancel
+                break
     return buffs
 
 def buildPost(d, mode='add'):
