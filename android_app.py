@@ -16,10 +16,10 @@ import json
 
 from model import Buff, Attack, DamageRoll
 attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3)]
-#buffs = [Buff('Favored Enemy (Human)',4,4),
-#         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
-#         Buff('100 to damage',dmg_mod=95)]
+           Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3),
+           Attack('Battleax (StdAct)',9,DamageRoll(1,8,4),[20,],3),
+           Attack('Vindictive Harpoon +1 (Ranged)',9,DamageRoll(1,8,5),[20,],3),]
+
 
 def readOnlineBuffs():
     r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs")
@@ -28,7 +28,15 @@ def readOnlineBuffs():
     for b in buffs_json:
         buffs.append(Buff.fromDict(b))
     return buffs
-buffs = readOnlineBuffs()
+try:
+    buffs = readOnlineBuffs()
+except:
+    droid.makeToast("Unable to communicate with server")
+    buffs = [Buff('Favored Enemy (Human)',4,4),
+             Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+             Buff('Bless',atk_mod=1),
+             Buff('Prayer',atk_mod=1,dmg_mod=1),
+             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
 
 
 def eventloop():
@@ -154,6 +162,8 @@ def buildMainWindow(attacks, buffs):
     droid.addOptionsMenuItem("New Buff","menu_newBuff",None,"star_off")
     droid.addOptionsMenuItem("Delete Buff","menu_delBuff",None,"ic_menu_delete")
     droid.addOptionsMenuItem("Quit","menu_quit",None,"btn_close_normal")
+
+    droid.addContextMenuItem("Test", "cm_test",None)
 
     print droid.fullShow(layout)
 
