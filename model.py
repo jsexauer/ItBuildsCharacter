@@ -135,14 +135,14 @@ class Attack(object):
                 android:id="@+id/%(id)s_Name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".2"
+                android:layout_weight="0"
                 android:text="%(name)s" />
 
             <TextView
                 android:id="@+id/%(id)s_Atk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".3"
+                android:layout_weight="0"
                 android:layout_marginRight="15dp"
                 android:text="+%(atk)s" />
 
@@ -150,7 +150,7 @@ class Attack(object):
                 android:id="@+id/%(id)s_Dmg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".3"
+                android:layout_weight="0"
                 android:layout_marginRight="15dp"
                 android:text="%(dmg)s" />
 
@@ -159,7 +159,7 @@ class Attack(object):
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight=".3"
+                android:layout_weight="0"
                 android:text="Roll" />
 
         </TableRow>

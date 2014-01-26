@@ -11,15 +11,16 @@
         android:clickable="true" >
 </LinearLayout>
 
-<LinearLayout
+<FrameLayout
         android:id="@+id/popup"
         android:orientation="vertical" android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:background="#ff0000bb"
+        android:layout_height="wrap_content" android:background="#ff000000"
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
+        android:padding="10dip"
         android:layout_gravity="center">
         %(popup)s
-</LinearLayout>
+</FrameLayout>
 
 
 </FrameLayout>
