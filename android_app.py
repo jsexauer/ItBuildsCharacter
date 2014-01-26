@@ -15,10 +15,13 @@ from urllib2 import urlopen, Request
 import json
 
 from model import Buff, Attack, DamageRoll
-attacks = [Attack('Tidewater Cutless +1 (MH)',8,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Masterwork Handaxe (OH)',8,DamageRoll(1,6,4),[20,],3),
-           Attack('Battleax (StdAct)',9,DamageRoll(1,8,4),[20,],3),
-           Attack('Vindictive Harpoon +1 (Ranged)',9,DamageRoll(1,8,5),[20,],3),]
+attacks = [Attack('Tidewater Cutless (MH_1)',9,DamageRoll(1,6,5),[18,19,20],2),
+           Attack('Tidewater Cutless (MH_2)',4,DamageRoll(1,6,5),[18,19,20],2),
+           Attack('Masterwork Handaxe (OH_1)',9,DamageRoll(1,6,4),[20,],3),
+           Attack('Masterwork Handaxe (OH_2)',4,DamageRoll(1,6,4),[20,],3),
+           Attack('Battleaxe (StdAct#1)',10,DamageRoll(1,8,4),[20,],3),
+           Attack('Battleaxe (StdAct#2)',5,DamageRoll(1,8,4),[20,],3),
+           Attack('Vindictive Harpoon +1 (Rng)',4,DamageRoll(1,8,5),[20,],3),]
 
 
 def readOnlineBuffs():

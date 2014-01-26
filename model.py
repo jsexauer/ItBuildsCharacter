@@ -143,7 +143,7 @@ class Attack(object):
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="15dp"
                 android:text="+%(atk)s" />
 
             <TextView
@@ -151,7 +151,7 @@ class Attack(object):
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="15dp"
                 android:text="%(dmg)s" />
 
             <Button
