@@ -12,7 +12,7 @@ class Struct(object):
         setattr(self, key, value)
 
 class Buff(Struct):
-    _last_id = 0
+    _last_id = -1
     def __init__(self, name, atk_mod=0, dmg_mod=0):
         self.name = name
         # Modifiers
@@ -26,9 +26,10 @@ class Buff(Struct):
         else:
             raise ValueError("Unrecognized damage modifier %s" % dmg_mod)
         # UI Details
+        Buff._last_id += 1
         self.id = self._last_id
         self.ui_id = ''
-        Buff._last_id += 1
+
 
     @classmethod
     def fromDict(cls, d):
