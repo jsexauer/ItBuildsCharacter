@@ -66,9 +66,7 @@ def eventloop():
                 alert_dialog(atk.name, atk.roll())
         elif event['name']=='menu_newBuff':
             #droid.fullDismiss()
-            with open("newBuff.xml") as f:
-                layout2 = f.read()
-            print droid.fullShow(layout2)
+            buildPopup("newBuff.xml",attacks, buffs)
             buffs = eventloop_newBuff()
             buildMainWindow(attacks, buffs)
         elif event['name']=='menu_delBuff':
@@ -147,15 +145,14 @@ def alert_dialog(title, message, buttonText='Continue'):
   response = droid.dialogGetResponse().result
   return response['which'] == 'positive'
 
-
-def buildMainWindow(attacks, buffs):
+xml_header = '<?xml version="1.0" encoding="utf-8"?>'
+def buildMainWindow(attacks, buffs, returnString=False):
     with open("main_window.xml") as f:
         layout_template = f.read()
     atk_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(attacks)])
     buffs_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(buffs)])
 
     layout = layout_template % {'Buffs':buffs_xml, 'Attacks':atk_xml}
-    print layout
 
     ###################################################################
     # See: http://www.mithril.com.au/android/doc/UiFacade.html#addOptionsMenuItem
@@ -168,7 +165,19 @@ def buildMainWindow(attacks, buffs):
 
     droid.addContextMenuItem("Test", "cm_test",None)
 
-    print droid.fullShow(layout)
+    if returnString:
+        return layout
+    else:
+        print droid.fullShow(xml_header+layout)
+
+def buildPopup(popup_xml, attacks, buffs):
+    with open("popup.xml") as f:
+        base = f.read()
+    with open(popup_xml) as f:
+        popup = f.read()
+    main_window = buildMainWindow(attacks, buffs, True)
+    base = xml_header+base
+    print droid.fullShow(base % locals())
 
 buildMainWindow(attacks, buffs)
 eventloop()
