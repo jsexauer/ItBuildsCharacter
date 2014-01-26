@@ -114,6 +114,7 @@ def eventloop_newBuff():
 def buildPost(d, mode='add'):
     """Create a JSON paylod of dictionary and post"""
     url=r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/buffs"
+    s = "Unable to post new buff to website"
     if mode == 'delete':
         url += r"/del/%d" % d['id']
 
@@ -124,9 +125,9 @@ def buildPost(d, mode='add'):
         response = urlopen(req)
         if response.getcode() == 201:
             return
-    except:
-        pass
-    alert_dialog("Posting Error", "Unable to post new buff to website", "Ok")
+    except Exception, e:
+        s += '\nERROR: ' + str(e)
+    alert_dialog("Posting Error", s, "Ok")
 
 def alert_dialog(title, message, buttonText='Continue'):
   droid.dialogCreateAlert(title, message)

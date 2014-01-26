@@ -106,7 +106,7 @@ def update_buff(task_id):
     task[0]['done'] = request.json.get('done', task[0]['done'])
     return jsonify( { 'task': make_public_task(task[0]) } )
 
-@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>')
+@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])
 @auth.login_required
 def delete_buff(buff_id):
     buff = filter(lambda t: t['id'] == buff_id, buffs)
