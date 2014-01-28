@@ -234,3 +234,60 @@ def roll_d(dice):
     """Roll a dXX dice"""
     return random.randrange(1,dice+1,1)
 
+
+def _makeMod(attr):
+    def _calcMod(self):
+        return (self[attr+'Score'] - 10) // 2
+    return _calcMod
+
+def _makeScore(attr):
+    attr = attr+'Score'
+    def _calcAttrScore(self):
+        return (self.base[attr] + self.race[attr] +
+                sum(map(lambda x: x[attr], self.buffs)) )
+    return _calcAttrScore
+
+class AttributesMeta(type):
+    def __new__(cls, name, bases, attrdict):
+        _attrs = attrdict.get('_attrs', {})
+        for k in _attrs:
+            attrdict[k] = property(_makeMod(k))
+
+        return super(AttributesMeta, cls).__new__(cls, name, bases, attrdict)
+
+class Attributes(Struct):
+    __metaclass__ = AttributesMeta
+    _attrs = ['str', 'dex', 'con', 'int', 'wis', 'cha']
+
+    def __init__(self, default_value=0):
+        for k in self._attrs:
+            self[k+'Score'] = default_value
+
+    def __add__(self, other):
+        assert isinstance(other, Attributes)
+        added = Attributes()
+        for attr in self._attrs:
+            added[attr+'Score'] = self[attr+'Score'] + other[attr+'Score']
+        return added
+
+class Race(Attributes):
+    pass
+
+
+
+class CharacterMeta(AttributesMeta):
+    def __new__(cls, name, bases, attrdict):
+        _attrs = Attributes._attrs
+        for k in _attrs:
+            attrdict[k+'Score'] = property(_makeScore(k))
+
+        return super(CharacterMeta, cls).__new__(cls, name, bases, attrdict)
+
+class Character(Attributes):
+    __metaclass__ = CharacterMeta
+    def __init__(self):
+        super(Attributes, self).__init__()
+        self.base = Attributes(10)
+        self.race = Race()
+        self.buffs = []
+
