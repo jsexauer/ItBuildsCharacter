@@ -283,7 +283,7 @@ def auditable(func):
                     formula = v[k]
                 if k[0] == '_':
                     v.pop(k)
-            return AuditResult(formula, res, v)
+            return AuditResult(formula, res, v, func.func_name)
         else:
             return func(child_self, *args, **kwargs)
     return property(auditableFuncFactory)
@@ -386,6 +386,7 @@ class Character(Attributes):
         self.buffs = []
         self.equipment = []
         self.size_mod = 0
+        self.BAB = 0
 
     @auditable
     def AC(self):
@@ -407,8 +408,7 @@ class Character(Attributes):
         deflection_bonus = self.deflection_bonus
         dodge_bonus = self.dodge_bonus
         size_mod = self.size_mod
-        return (base + _eqp + dex + natural_armor + deflection_bonus +
-                  dodge_bonus + size_mod)
+        return (base + dex + deflection_bonus + dodge_bonus + size_mod)
 
     @auditable
     def flatfooted_AC(self):
@@ -433,24 +433,60 @@ class Character(Attributes):
     @auditable
     def dodge_bonus(self):
         # Dodge bonus _does_ stack
-        buffs, _buffs = has_max(self.buffs, 'dodge_bonus')
-        equipment, _eqp = has_max(self.equipment, 'dodge_bonus')
+        buffs, _buffs = has_sum(self.buffs, 'dodge_bonus')
+        equipment, _eqp = has_sum(self.equipment, 'dodge_bonus')
         return _buffs + _eqp
 
+    @auditable
+    def natural_armor(self):
+        _formula = "max(buffs, equpment)"
+        buffs, _buffs = has_max(self.buffs, 'natural_armor')
+        equipment, _eqp = has_max(self.equipment, 'natural_armor')
+        return max(_buffs, _eqp)
+
+    @auditable
+    def melee_atk_bonus(self):
+        BAB = self.BAB
+        str = self.str
+        size = self.size_mod
+        buffs, _buffs = has_sum(self.buffs, 'atk')
+        # Figure out all the attacks
+        _a = [BAB,]
+        while _a[-1] > 0:
+            _a.append(_a[-1]-5)
+        _a = _a[:-1]
+        return [_aa+str+size+_buffs for _aa in _a]
+
+    @auditable
+    def ranged_atk_bonus(self):
+        BAB = self.BAB
+        dex = self.dex
+        size = self.size_mod
+        buffs, _buffs = has_sum(self.buffs, 'atk')
+        # Figure out all the attacks
+        _a = [BAB,]
+        while _a[-1] > 0:
+            _a.append(_a[-1]-5)
+        if len(_a) > 1:
+            _a = _a[:-1]
+        return [_aa+dex+size+_buffs for _aa in _a]
+
 class AuditResult(object):
-    _display_order = (['base', ] + Attributes._abilities
+    _display_order = (['base', 'BAB',] + Attributes._abilities
                       + [a+'_score' for a in Attributes._abilities]
                       + ['equipment','buffs']
                       + Attributes._scores)
-    def __init__(self, formula, value, variables):
+    def __init__(self, formula, value, variables, name):
         if formula is None:
             self.formula = "Sum of"
         else:
             self.formula = formula
         self.value = value
         self.variables = variables.copy()
+        self._name = name
     def show(self, fullTrace = True):
         spacer = '  '
+        not_modifiers = ('_calcAttrScore', 'AC', 'base')
         variables = self.variables.copy()
 
         def get_displayworthy(v):
@@ -462,17 +498,22 @@ class AuditResult(object):
                     return ''
                 elif isinstance(v, AuditResult) and v.value == 0:
                     return ''
-
+                elif isinstance(v, AuditResult) and v._name == '_calcMod':
+                    # No need to go down the rabbit hole on modifiers
+                    v = v.value
 
             s = spacer + k + ': '
             if isinstance(v, AuditResult):
                 indent = len(s)
-                s += '<' + str(v).replace('\n', '\n'+' '*indent)
+                s += '<' + v.show(fullTrace).replace('\n', '\n'+' '*indent)
                 s = s.rstrip() + '>'
             elif type(v) is list:
                 for i in v:
                     s += '\n' + spacer*2 + str(i).replace('\n', '\n'+spacer*2)
                 s = s.rstrip()
+            elif (type(v) is int
+                  and k not in not_modifiers):
+                s += '{:+d}'.format(v)
             else:
                 s += str(v)
             s += '\n'
@@ -489,7 +530,14 @@ class AuditResult(object):
         # Grab any remaining keys
         for k, v in variables.iteritems():
             s += get_displayworthy(v)
-        s = s.rstrip() + '\n' + '= ' + str(self.value)
+
+        # Print out result
+        s = s.rstrip() + '\n'
+        if (type(self.value) is int
+            and self._name not in not_modifiers):
+            s += '= {:+d}'.format(self.value)
+        else:
+            s += '= %s' % self.value
         return s
     def __add__(self, other):
         return other + self.value
@@ -516,10 +564,17 @@ class AuditResult(object):
 
 c = Character()
 c.audit = True
-c.base.dex_score = 13
+c.base.str_score = 19
+c.base.dex_score = 16
+c.base.con_score = 14
+c.BAB = 5
 print c.AC
 chain_shirt = Equipment('Chain Shirt')
-#chain_shirt.AC = 6
-chain_shirt.dex_score = 3
+chain_shirt.AC = 6
 c.equipment.append(chain_shirt)
+amulate = Equipment('Amulate of Natural Armor')
+amulate.natural_armor = 2
+c.equipment.append(amulate)
 print c.AC
+
+print c.ranged_atk_bonus
