@@ -44,7 +44,7 @@ def has_max(list, key):
     return ( filter(lambda x: x[key]!=0, list),
              max(map(lambda x: x[key], list) + [0,]) )
 
-def auditable(func):
+class auditable(object):
     """
     An auditable property.  You should define _formula property in your function
     if not just summing everything together.
@@ -53,7 +53,12 @@ def auditable(func):
     http://stackoverflow.com/questions/4357851/creating-or-assigning-variables-from-a-dictionary-in-python
 
     """
-    def auditableFuncFactory(child_self, *args, **kwargs):
+    def __init__(self, func):
+        self._func = func
+
+    def auditableFuncFactory(self, child_self, instance, *args, **kwargs):
+        func = self._func
+
         if not hasattr(child_self, 'audit'):
             raise ValueError("auditble wrapper must be on auditable object")
 
@@ -88,16 +93,18 @@ def auditable(func):
             return AuditResult(formula, res, v, func.func_name)
         else:
             return func(child_self, *args, **kwargs)
-    def auditableSetter(child_self, newFuncFact):
+
+    def auditableSetter(self, child_self, newFuncFact):
         print "In setter ", child_self, newFuncFact
-        assert (isinstance(newFuncFact, property),
+        assert (isinstance(newFuncFact, auditable),
                 "cannot set auditable properties")
-        assert (newFuncFact.fget.func_name == 'auditableFuncFactory',
-                "auditable properties must be replaced with another autidable function")
-        func = newFuncFact
+        self._func = newFuncFact._func
 
-    return_func = property(auditableFuncFactory, auditableSetter)
+    __get__ = auditableFuncFactory
+    __set__ = auditableSetter
 
-    return return_func
+    #return_func = property(auditableFuncFactory, auditableSetter)
+
+    #return return_func
 
 from audit import AuditResult
