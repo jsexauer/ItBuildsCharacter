@@ -34,12 +34,20 @@ print "Fort: ", c.fort
 
 haste = Buff("Haste")
 def apply_haste(character):
-    def _haste_wrapper(attack_bonuses):
-        _formula = 'Haste adds extra attack at full BAB'
-        return attack_bonuses + [attack_bonuses[0]]
-    character.melee_atk_bonus = auditable(_haste_wrapper(character.melee_atk_bonus))
-    character.ranged_atk_bonus = auditable(_haste_wrapper(character.ranged_atk_bonus))
+
+    class HasteWrap(object):
+        def __init__(self, orig_atk_bonus):
+            self.orig_atk_bonus = orig_atk_bonus
+        def __call__(self, _child_self):
+            _formula = 'Haste adds extra attack at full BAB'
+            base_attacks = self.orig_atk_bonus
+            haste_attack = base_attacks[0]
+            return base_attacks + [haste_attack]
+        func_name = "HasteWrap (class)" # Needed for auditable
+
+    character.melee_atk_bonus = auditable(HasteWrap(character.melee_atk_bonus))
+    character.ranged_atk_bonus = auditable(HasteWrap(character.ranged_atk_bonus))
 haste.on_apply = apply_haste
 
 c.buffs.append(haste)
-print "Hasted Melee Atk Bonus: ", c.melee_atk_bonus
+print "Hasted Melee Attacks: ", c.attacks

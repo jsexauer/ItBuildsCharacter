@@ -56,7 +56,7 @@ class auditable(object):
     def __init__(self, func):
         self._func = func
 
-    def auditableFuncFactory(self, child_self, instance, *args, **kwargs):
+    def auditableFuncFactory(self, child_self, cls, *args, **kwargs):
         func = self._func
 
         if not hasattr(child_self, 'audit'):
@@ -95,7 +95,6 @@ class auditable(object):
             return func(child_self, *args, **kwargs)
 
     def auditableSetter(self, child_self, newFuncFact):
-        print "In setter ", child_self, newFuncFact
         assert (isinstance(newFuncFact, auditable),
                 "cannot set auditable properties")
         self._func = newFuncFact._func
