@@ -140,7 +140,7 @@ class AttributesMeta(type):
 class Attributes(Struct):
     __metaclass__ = AttributesMeta
     _abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha']
-    _scores = ['AC', 'natural_armor', 'deflection_bonus', 'dodge_bonus',
+    _scores = ['HP', 'AC', 'natural_armor', 'deflection_bonus', 'dodge_bonus',
                'atk', 'dmg']
     _saves = {'fort': 'con',
               'ref':  'dex',
@@ -202,7 +202,8 @@ class Attack(object):
         weapon = self.base.dmg_roll
         equipment, _eqp = has_sum(self.character.equipment, 'dmg')
         buffs, _buff = has_sum(self.character.buffs, 'dmg')
-        return weapon + _eqp + _buff
+        str = self.character.str
+        return weapon + _eqp + _buff + str
 
     @property
     def crit_range(self):
@@ -354,6 +355,8 @@ class DamageRoll(Struct):
             return DamageRoll(self.numDice, self.dice, self.add+other.add)
         elif type(other) is int:
             return DamageRoll(self.numDice, self.dice, self.add+other)
+        elif isinstance(other, AuditResult):
+            return self + other.value
         else:
             raise ValueError("Cannot add %s to %s" % (other, self))
 
@@ -379,6 +382,28 @@ class Weapon(Equipment):
     def __str__(self):
         return '%s (%s)' % (self.name, self.atk)
 
+class CharacterEquipmentList(list):
+
+    @property
+    def main_hand(self):
+        return getattr(self, '_main_hand', None)
+    @main_hand.setter
+    def main_hand(self, value):
+        self._main_hand = value
+        if value not in self:
+            self.append(value)
+
+    @property
+    def off_hand(self):
+        return getattr(self, '_off_hand', None)
+    @off_hand.setter
+    def off_hand(self, value):
+        self._off_hand = value
+        if value not in self:
+            self.append(value)
+
+
+
 class CharacterMeta(AttributesMeta):
     def __new__(cls, name, bases, attrdict):
         # Ability scores are devrived instead of settable for a character
@@ -400,7 +425,7 @@ class Character(Attributes):
         self.base = Attributes(10)
         self.race = Race()
         self.buffs = []
-        self.equipment = []
+        self.equipment = CharacterEquipmentList()
         self.size_mod = 0
         self.BAB = 0
         # Alias attack as BAB
@@ -494,20 +519,47 @@ class Character(Attributes):
     @auditable
     def attacks(self):
         # Values for display
-        _formula = "Permuations of:"
+        _formula = "Permuations of"
         attacks = self.melee_atk_bonus
-        weapons = []
+
         # Now do the real calculations
         _attacks = []
-        for _wep in self.equipment:
-            if not isinstance(_wep, Weapon): continue
-            weapons.append(_wep)
+        main_hand = self.equipment.main_hand
+        assert isinstance(main_hand, Weapon)
+        if self.equipment.off_hand is not None:
+            off_hand = self.equipment.off_hand
+            assert isinstance(off_hand, Weapon)
+            # Two weapon fighting
+            # TODO: Include calcs if you don't have the feat
+            #   and/or off-hand is not light
+            _mh_debuff = Buff('TWF MH Debuff (with feat)')
+            _mh_debuff.atk = -2
+            _oh_debuff = Buff('TWF OH Debuff (with feat)')
+            _oh_debuff.atk = -2
+            self.buffs.append(_mh_debuff)
+
+        # Main Hand
+        for _iter in range(len(self.melee_atk_bonus)):
+            _atk = copy(main_hand.atk)
+            #_atk = _wep.atk
+            _atk.character = self
+            _atk.iterative = int(_iter)
+            _attacks.append(_atk)
+
+        # Off Hand
+        if self.equipment.off_hand is not None:
+            self.buffs.append(_oh_debuff)
+            attacks = self.melee_atk_bonus  # Update to show debuffs
+            self.buffs.remove(_mh_debuff)
+
             for _iter in range(len(self.melee_atk_bonus)):
-                _atk = copy(_wep.atk)
+                _atk = copy(off_hand.atk)
                 #_atk = _wep.atk
                 _atk.character = self
                 _atk.iterative = int(_iter)
                 _attacks.append(_atk)
+
+
         return _attacks
 
     @property
@@ -517,6 +569,7 @@ class Character(Attributes):
 class Buff(Attributes):
     _last_id = -1
     def __init__(self, name, atk_mod=0, dmg_mod=0):
+        Attributes.__init__(self)
         self.name = name
         # Modifiers
         self.atk = intOrZero(atk_mod)
@@ -680,6 +733,8 @@ class AuditResult(object):
         raise AttributeError("can't set an attribute (or the audit of it)")
     def __str__(self):
         return self.show(False)
+    def __repr__(self):
+        return "<Audit of %s resulting in %s>" % (self._name, self.value)
 
 
 
@@ -690,7 +745,7 @@ c.audit = True
 c.base.str_score = 19
 c.base.dex_score = 16
 c.base.con_score = 14
-c.BAB = 6
+c.BAB = 5
 print "AC no armor:", c.AC
 chain_shirt = Equipment('Chain Shirt')
 chain_shirt.AC = 6
@@ -701,7 +756,12 @@ c.equipment.append(amulate)
 print "AC with armor: ", c.AC
 print "Ranged atk bonus: ", c.ranged_atk_bonus
 tidewater_cutless = Weapon("Tidewater Cuttless +1",
-                      Attack(atk=+1, dmg_roll=DamageRoll.fromString("1d6+5"),
+                      Attack(atk=+1, dmg_roll=DamageRoll.fromString("1d6+1"),
                              crit_range=[18,19,20], crit_mult=2))
-c.equipment.append(tidewater_cutless)
-print "Attacks: ", c.attacks
+c.equipment.main_hand = tidewater_cutless
+masterwork_handaxe = Weapon("Masterwork Handaxe",
+                      Attack(atk=0, dmg_roll=DamageRoll.fromString("1d6"),
+                             crit_range=[20,], crit_mult=3))
+print "Attacks (no OH): ", c.attacks
+c.equipment.off_hand = masterwork_handaxe
+print "Attacks (with OH): ", c.attacks
