@@ -291,16 +291,14 @@ class Attack(object):
 
     def __str__(self):
         if self.audit:
-            return str(self.dmg_roll.value) + ' @ {0:+d}'.format(self.atk.value)
-        else:
-            return self.dmg_roll + ' @ {0:+d}'.format(self.atk)
-
-        #if self.audit:
         #    # We're auditing so be special
         #    return ('<<\n' + get_displayworthy('Attack', self.dmg_roll, False) +
         #            ';\n' + get_displayworthy('Damage', self.atk, False) + '>>')
-        #else:
-        #    return str(self.dmg_roll) + ' @ {0:+d}'.format(self.atk)
+            return '{0:+d} for {1} damage'.format(self.atk.value,
+                                                  self.dmg_roll.value)
+        else:
+            return '{0:+d} for {1} damage'.format(self.atk,
+                                                  self.dmg_roll)
 
 
 
@@ -474,7 +472,9 @@ class Character(Attributes):
         _a = [BAB,]
         while _a[-1] > 0:
             _a.append(_a[-1]-5)
-        _a = _a[:-1]
+        if BAB > 0:
+            # At 0 BAB, we'll remove ourselves if we're not careful
+            _a = _a[:-1]
         return [_aa+str+size+_buffs for _aa in _a]
 
     @auditable
@@ -494,6 +494,7 @@ class Character(Attributes):
     @auditable
     def attacks(self):
         # Values for display
+        _formula = "Permuations of:"
         attacks = self.melee_atk_bonus
         weapons = []
         # Now do the real calculations
@@ -502,11 +503,10 @@ class Character(Attributes):
             if not isinstance(_wep, Weapon): continue
             weapons.append(_wep)
             for _iter in range(len(self.melee_atk_bonus)):
-                #_atk = copy(_wep.atk)
-                _atk = _wep.atk
+                _atk = copy(_wep.atk)
+                #_atk = _wep.atk
                 _atk.character = self
-                _atk.iterative = _iter
-                #print _atk
+                _atk.iterative = int(_iter)
                 _attacks.append(_atk)
         return _attacks
 
