@@ -96,11 +96,18 @@ def has_max(list, key):
     return ( filter(lambda x: x[key]!=0, list),
              max(map(lambda x: x[key], list) + [0,]) )
 
-def _makeMod(_attr):
-    def _calcMod(self):
+def _makeModChar(_attr):
+    def _calcModChar(self):
         _formula = '(score-10)/2'
         score = self[_attr+'_score']
         return (score - 10) // 2
+    return _calcModChar
+
+def _makeMod(_attr):
+    def _calcMod(self):
+        _formula = '(score)/2'
+        score = self[_attr+'_score']
+        return (score) // 2
     return _calcMod
 
 def _makeScore(_attr):
@@ -114,7 +121,7 @@ def _makeScore(_attr):
     return _calcAttrScore
 
 def _makeSave(_save, _attr):
-    def _calcMod(self):
+    def _calcSave(self):
         base = self.base[_save]
         locals()[_attr] = self[_attr]   # Con/Ref/Dex modifier
         buffs, _buffs = has_sum(self.buffs, _attr)
@@ -406,14 +413,18 @@ class CharacterEquipmentList(list):
 
 class CharacterMeta(AttributesMeta):
     def __new__(cls, name, bases, attrdict):
+        # Ability Modifiers use the 10 minus formula
+        for k in Attributes._abilities:
+            attrdict[k] = auditable(_makeModChar(k))
         # Ability scores are devrived instead of settable for a character
         _abilities = Attributes._abilities
         for k in _abilities:
             attrdict[k+'_score'] = auditable(_makeScore(k))
 
         # Saress are devrived instead of settable for a character
-        _saves = attrdict.get('_saves', {})
+        _saves = Attributes._saves
         for k, v in _saves.iteritems():
+            print "Making %s save" % k
             attrdict[k] = auditable(_makeSave(k, v))
 
         return super(CharacterMeta, cls).__new__(cls, name, bases, attrdict)
@@ -627,7 +638,8 @@ def get_displayworthy(k, v, fullTrace):
             return ''
         elif isinstance(v, AuditResult) and v.value == 0:
             return ''
-        elif isinstance(v, AuditResult) and v._name == '_calcMod':
+        elif isinstance(v, AuditResult) and (
+            v._name in ('_calcModChar', '_calcMod')):
             # No need to go down the rabbit hole on modifiers
             v = v.value
 
@@ -765,3 +777,8 @@ masterwork_handaxe = Weapon("Masterwork Handaxe",
 print "Attacks (no OH): ", c.attacks
 c.equipment.off_hand = masterwork_handaxe
 print "Attacks (with OH): ", c.attacks
+
+c.base.fort = 4
+c.base.ref = 4
+c.base.will = 1
+print "Fort: ", c.fort
