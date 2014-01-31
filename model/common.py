@@ -32,6 +32,18 @@ def decomposed_max(*args):
         base.extend(decompose(x))
     return max(base)
 
+
+def has_sum(list, key):
+    """Returns objects with key and the sum of those keyed values"""
+    return ( filter(lambda x: x[key]!=0, list),
+             sum(map(lambda x: x[key], list)) )
+
+def has_max(list, key):
+    """Returns objects with key and the max of those keyed values
+       (used for buffs that do not stack"""
+    return ( filter(lambda x: x[key]!=0, list),
+             max(map(lambda x: x[key], list) + [0,]) )
+
 def auditable(func):
     """
     An auditable property.  You should define _formula property in your function
@@ -76,19 +88,16 @@ def auditable(func):
             return AuditResult(formula, res, v, func.func_name)
         else:
             return func(child_self, *args, **kwargs)
-    return property(auditableFuncFactory)
+    def auditableSetter(child_self, newFuncFact):
+        print "In setter ", child_self, newFuncFact
+        assert (isinstance(newFuncFact, property),
+                "cannot set auditable properties")
+        assert (newFuncFact.fget.func_name == 'auditableFuncFactory',
+                "auditable properties must be replaced with another autidable function")
+        func = newFuncFact
 
+    return_func = property(auditableFuncFactory, auditableSetter)
 
-def has_sum(list, key):
-    """Returns objects with key and the sum of those keyed values"""
-    return ( filter(lambda x: x[key]!=0, list),
-             sum(map(lambda x: x[key], list)) )
-
-def has_max(list, key):
-    """Returns objects with key and the max of those keyed values
-       (used for buffs that do not stack"""
-    return ( filter(lambda x: x[key]!=0, list),
-             max(map(lambda x: x[key], list) + [0,]) )
-
+    return return_func
 
 from audit import AuditResult

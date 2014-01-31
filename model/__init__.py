@@ -3,3 +3,4 @@
 
 from rpg_objects import *
 from character import Character, Race
+from common import auditable

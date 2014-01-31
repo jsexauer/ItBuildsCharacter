@@ -10,7 +10,19 @@ class Race(Attributes):
     pass
 
 
-class CharacterEquipmentList(list):
+class CharacterList(list):
+    """Base Class to create all the various lists for a character and ensure
+       on apply statements are implemented"""
+    def __init__(self, character):
+        list.__init__(self)
+        self._character = character
+
+    def append(self, other):
+        list.append(self, other)
+        if hasattr(other, 'on_apply'):
+            other.on_apply(self._character)
+
+class CharacterEquipmentList(CharacterList):
     @property
     def main_hand(self):
         return getattr(self, '_main_hand', None)
@@ -29,6 +41,11 @@ class CharacterEquipmentList(list):
         if value not in self:
             self.append(value)
 
+class CharacterFeatList(CharacterList):
+    pass
+
+class CharacterBuffList(CharacterList):
+    pass
 
 
 class CharacterMeta(AttributesMeta):
@@ -54,8 +71,9 @@ class Character(Attributes):
         self.audit = False
         self.base = Attributes(10)
         self.race = Race()
-        self.buffs = []
-        self.equipment = CharacterEquipmentList()
+        self.buffs = CharacterBuffList(self)
+        self.equipment = CharacterEquipmentList(self)
+        self.feats = CharacterFeatList(self)
         self.size_mod = 0
         self.BAB = 0
         # Alias attack as BAB

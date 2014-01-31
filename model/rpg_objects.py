@@ -1,6 +1,7 @@
 
 from common import *
 from attributes import Attributes
+from audit import AuditResult
 
 class Attack(object):
     def __init__(self, atk, dmg_roll, crit_range, crit_mult):
@@ -258,5 +259,11 @@ class Buff(Attributes):
         return self.name
     def __repr__(self):
         return "<'%s' at %s>"%(self.name, hex(id(self)))
+
+
+class Feat(Attributes):
+    pass
+
+
 
 from character import Character

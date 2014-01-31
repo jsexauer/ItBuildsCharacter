@@ -1,5 +1,5 @@
 # Test Model
-from model import Character, Equipment, Weapon, Attack, DamageRoll
+from model import Character, Equipment, Weapon, Attack, DamageRoll, Buff, auditable
 
 c = Character()
 c.audit = True
@@ -31,3 +31,15 @@ c.base.fort = 4
 c.base.ref = 4
 c.base.will = 1
 print "Fort: ", c.fort
+
+haste = Buff("Haste")
+def apply_haste(character):
+    def _haste_wrapper(attack_bonuses):
+        _formula = 'Haste adds extra attack at full BAB'
+        return attack_bonuses + [attack_bonuses[0]]
+    character.melee_atk_bonus = auditable(_haste_wrapper(character.melee_atk_bonus))
+    character.ranged_atk_bonus = auditable(_haste_wrapper(character.ranged_atk_bonus))
+haste.on_apply = apply_haste
+
+c.buffs.append(haste)
+print "Hasted Melee Atk Bonus: ", c.melee_atk_bonus
