@@ -30,7 +30,7 @@ def _makeSave(_save, _attr):
     def _calcSave(self):
         base = self.base[_save]
         locals()[_attr] = self[_attr]   # Con/Ref/Dex modifier
-        buffs, _buffs = has_sum(self.buffs, _attr)
+        buffs, _buffs = has_sum(self.buffs, _save)
         return base + locals()[_attr] + _buffs
     return _calcSave
 
