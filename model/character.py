@@ -22,6 +22,14 @@ class CharacterList(list):
         if hasattr(other, 'on_apply'):
             other.on_apply(self._character)
 
+    def remove(self, item):
+        if hasattr(item, 'on_apply'):
+            raise NotImplementedError("Unwrapping complex items not done yet")
+        list.remove(self, item)
+
+    def pop(self, item):
+        raise NotImplementedError()
+
 class CharacterEquipmentList(CharacterList):
     @property
     def main_hand(self):
@@ -136,11 +144,21 @@ class Character(Attributes):
         return max(_buffs, _eqp)
 
     @auditable
-    def melee_atk_bonus(self):
+    def mh_melee_atk_bonus(self):
         BAB = self.BAB
         str = self.str
         size = self.size_mod
         buffs, _buffs = has_sum(self.buffs, 'atk')
+
+        if self.equipment.off_hand is not None:
+            # Apply debuff that affects
+            TwoWeaponFighting = -4                         # Assume light weapon
+            _twf = -4
+            TwoWeaponFightingFeats, _twf2 = has_sum(self.feats, 'twf_mh')
+        else:
+            _twf = 0
+            _twf2 = 0
+
         # Figure out all the attacks
         _a = [BAB,]
         while _a[-1] > 0:
@@ -148,7 +166,29 @@ class Character(Attributes):
         if BAB > 0:
             # At 0 BAB, we'll remove ourselves if we're not careful
             _a = _a[:-1]
-        return [_aa+str+size+_buffs for _aa in _a]
+        return [_aa+str+size+_buffs+_twf+_twf2 for _aa in _a]
+
+    @auditable
+    def oh_melee_atk_bonus(self):
+        if self.equipment.off_hand is None:
+            return None
+        BAB = self.BAB
+        str = self.str
+        size = self.size_mod
+        buffs, _buffs = has_sum(self.buffs, 'atk')
+        # Apply debuff that affects
+        TwoWeaponFighting = -8                             # Assume light weapon
+        _twf = -8
+        TwoWeaponFightingFeats, _twf2 = has_sum(self.feats, 'twf_oh')
+
+        # Figure out all the attacks
+        _a = [BAB,]
+        while _a[-1] > 0:
+            _a.append(_a[-1]-5)
+        if BAB > 0:
+            # At 0 BAB, we'll remove ourselves if we're not careful
+            _a = _a[:-1]
+        return [_aa+str+size+_buffs+_twf+_twf2 for _aa in _a]
 
     @auditable
     def ranged_atk_bonus(self):
@@ -168,41 +208,27 @@ class Character(Attributes):
     def attacks(self):
         # Values for display
         _formula = "Permuations of"
-        attacks = self.melee_atk_bonus
+        mh_attacks = self.mh_melee_atk_bonus
 
         # Now do the real calculations
         _attacks = []
         main_hand = self.equipment.main_hand
         assert isinstance(main_hand, Weapon)
-        if self.equipment.off_hand is not None:
-            off_hand = self.equipment.off_hand
-            assert isinstance(off_hand, Weapon)
-            # Two weapon fighting
-            # TODO: Include calcs if you don't have the feat
-            #   and/or off-hand is not light
-            _mh_debuff = Buff('TWF MH Debuff (with feat)')
-            _mh_debuff.atk = -2
-            _oh_debuff = Buff('TWF OH Debuff (with feat)')
-            _oh_debuff.atk = -2
-            self.buffs.append(_mh_debuff)
 
         # Main Hand
-        for _iter in range(len(self.melee_atk_bonus)):
+        for _iter in range(len(mh_attacks)):
             _atk = copy(main_hand.atk)
-            #_atk = _wep.atk
             _atk.character = self
             _atk.iterative = int(_iter)
             _attacks.append(_atk)
 
         # Off Hand
         if self.equipment.off_hand is not None:
-            self.buffs.append(_oh_debuff)
-            attacks = self.melee_atk_bonus  # Update to show debuffs
-            self.buffs.remove(_mh_debuff)
-
-            for _iter in range(len(self.melee_atk_bonus)):
+            off_hand = self.equipment.off_hand
+            oh_attacks = self.oh_melee_atk_bonus
+            for _iter in range(len(oh_attacks)):
                 _atk = copy(off_hand.atk)
-                #_atk = _wep.atk
+                _atk.is_oh = True
                 _atk.character = self
                 _atk.iterative = int(_iter)
                 _attacks.append(_atk)

@@ -4,7 +4,7 @@ from attributes import Attributes
 from audit import AuditResult
 
 class Attack(object):
-    def __init__(self, atk, dmg_roll, crit_range, crit_mult):
+    def __init__(self, atk, dmg_roll, crit_range, crit_mult, oh=False):
         self.name = ''
         self.character = Character()
         self.iterative = 0
@@ -13,6 +13,7 @@ class Attack(object):
         self.base.dmg_roll = dmg_roll
         self.base.crit_range = crit_range
         self.base.crit_mult = crit_mult
+        self.is_oh = oh     # Off hand attack
         # UI Details
         self.id = -1
         self.ui_id = ''
@@ -21,7 +22,10 @@ class Attack(object):
     def atk(self):
         _formula = "BAB at iterative + weapon"
         iterative = self.iterative
-        BAB = self.character.melee_atk_bonus[self.iterative]
+        if self.is_oh:
+            BAB = self.character.oh_melee_atk_bonus[self.iterative]
+        else:
+            BAB = self.character.mh_melee_atk_bonus[self.iterative]
         weapon = self.base.atk
         return BAB + weapon
 
@@ -128,6 +132,15 @@ class Attack(object):
         else:
             return '{0:+d} for {1} damage'.format(self.atk,
                                                   self.dmg_roll)
+    def __eq__(self, other):
+        if not isinstance(other, Attack):
+            raise AssertionError    # We probably didn't mean to do this
+            return False
+        return (self.atk+0 == other.atk+0) and \
+                (self.dmg_roll == other.dmg_roll) and \
+                (self.crit_range == other.crit_range) and \
+                (self.crit_mult == other.crit_mult)
+
 
 
 
@@ -187,6 +200,13 @@ class DamageRoll(Struct):
             return self + other.value
         else:
             raise ValueError("Cannot add %s to %s" % (other, self))
+    def __eq__(self, other):
+        if isinstance(other, AuditResult):
+            other = other.value
+        if not isinstance(other, DamageRoll):
+            raise AssertionError    # Probably didn't mean to do this
+            return False
+        return str(self) == str(other)  # If the descripter matches, I'm happy
 
 
 class Equipment(Attributes):
@@ -262,7 +282,10 @@ class Buff(Attributes):
 
 
 class Feat(Attributes):
-    pass
+    def __init__(self, name, atk_mod=0, dmg_mod=0):
+        Attributes.__init__(self)
+        self.name = name
+
 
 
 
