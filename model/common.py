@@ -100,8 +100,7 @@ class auditable(object):
             return func(child_self, *args, **kwargs)
 
     def auditableSetter(self, child_self, newFuncFact):
-        assert (isinstance(newFuncFact, auditable),
-                "cannot set auditable properties")
+        assert isinstance(newFuncFact, auditable)
         self._func = newFuncFact._func
 
     __get__ = auditableFuncFactory

@@ -4,8 +4,9 @@ from attributes import Attributes
 from audit import AuditResult
 
 class Attack(object):
-    def __init__(self, atk, dmg_roll, crit_range, crit_mult, oh=False):
-        self.name = ''
+    def __init__(self, atk, dmg_roll, crit_range, crit_mult, oh=False,
+                  name=None, two_handed=False):
+        self.name = name
         self.character = Character()
         self.iterative = 0
         self.base = Struct()
@@ -14,6 +15,7 @@ class Attack(object):
         self.base.crit_range = crit_range
         self.base.crit_mult = crit_mult
         self.is_oh = oh     # Off hand attack
+        self.two_handed = two_handed
         # UI Details
         self.id = -1
         self.ui_id = ''
@@ -35,7 +37,12 @@ class Attack(object):
         equipment, _eqp = has_sum(self.character.equipment, 'dmg')
         buffs, _buff = has_sum(self.character.buffs, 'dmg')
         str = self.character.str
-        return weapon + _eqp + _buff + str
+        _th = 0
+        if self.two_handed:
+            two_handed_str_bonus = int(self.character.str*0.5)
+            _th = two_handed_str_bonus
+
+        return weapon + _eqp + _buff + str + _th
 
     @property
     def crit_range(self):
@@ -72,7 +79,6 @@ class Attack(object):
         return s
 
     def makeUI(self, id=None):
-        assert id is None or id == self.id # Old feature no longer needed
         id = "Atk"+str(id)
         template = """
         <TableRow

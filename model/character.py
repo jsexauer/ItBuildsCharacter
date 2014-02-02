@@ -300,12 +300,15 @@ class Character(Attributes):
         _attacks = []
         main_hand = self.equipment.main_hand
         assert isinstance(main_hand, Weapon)
+        if main_hand.atk.two_handed:
+            assert self.equipment.off_hand is None
 
         # Main Hand
         for _iter in range(len(mh_attacks)):
             _atk = copy(main_hand.atk)
             _atk.character = self
             _atk.iterative = int(_iter)
+            _atk.name = "%s #%d" % (main_hand.name, _iter)
             _attacks.append(_atk)
 
         # Off Hand
@@ -317,6 +320,7 @@ class Character(Attributes):
                 _atk.is_oh = True
                 _atk.character = self
                 _atk.iterative = int(_iter)
+                _atk.name = "%s #%d (OH)" % (main_hand.name, _iter)
                 _attacks.append(_atk)
 
 
