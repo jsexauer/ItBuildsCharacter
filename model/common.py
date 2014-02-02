@@ -44,6 +44,11 @@ def has_max(list, key):
     return ( filter(lambda x: x[key]!=0, list),
              max(map(lambda x: x[key], list) + [0,]) )
 
+def has_skill(list, key):
+    """Returns objects with key and the sum of those keyed values"""
+    return ( filter(lambda x: x.skills[key]!=0, list),
+             sum(map(lambda x: x.skills[key], list)) )
+
 class auditable(object):
     """
     An auditable property.  You should define _formula property in your function

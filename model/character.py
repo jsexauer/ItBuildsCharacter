@@ -55,6 +55,64 @@ class CharacterFeatList(CharacterList):
 class CharacterBuffList(CharacterList):
     pass
 
+class CharacterSkillList(dict):
+    def __init__(self, character):
+        dict.__init__(self)
+        #                name          atr   untrained  ACP
+        skill_info = [  ('Acrobatics','dex',  True,     True),
+                        ('Appraise','int',True,False),
+                        ('Bluff','cha',True,False),
+                        ('Climb','str',True,True),
+                        ('Craft (XXXX)','int',True,False),
+                        ('Diplomacy','cha',True,False),
+                        ('Disable Device','dex',False,True),
+                        ('Disguise','cha',True,False),
+                        ('Escape Artist','dex',True,True),
+                        ('Handle Animal','cha',False,False),
+                        ('Heal','wis',True,False),
+                        ('Intimidate','cha',True,False),
+                        ('Knowledge (arcana)','int',False,False),
+                        ('Knowledge (dungeoneering)','int',False,False),
+                        ('Knowledge (engineering)','int',False,False),
+                        ('Knowledge (geography)','int',False,False),
+                        ('Knowledge (history)','int',False,False),
+                        ('Knowledge (local)','int',False,False),
+                        ('Knowledge (nature)','int',False,False),
+                        ('Knowledge (nobility)','int',False,False),
+                        ('Knowledge (planes)','int',False,False),
+                        ('Knowledge (religion)','int',False,False),
+                        ('Linguistics','int',False,False),
+                        ('Perception','wis',True,False),
+                        ('Perform (act)','cha',True,False),
+                        ('Profession (XXXXXX)','wis',False,False),
+                        ('Ride','dex',True,True),
+                        ('Sense Motive','wis',True,False),
+                        ('Sleight of Hand','dex',False,True),
+                        ('Spellcraft','int',False,False),
+                        ('Stealth','dex',True,True),
+                        ('Survival','wis',True,False),
+                        ('Swim','str',True,True),
+                        ('Use Magic Device','cha',False,False),
+                    ]
+
+        for s in skill_info:
+            args = list(s) + [character,]
+            self[s[0]] = Skill(*args)
+        self._inDetailMode = False
+
+    def __getitem__(self, key):
+        if self._inDetailMode:
+            self._inDetailMode = False
+            return dict.__getitem__(self,key)
+        else:
+            return dict.__getitem__(self,key).value
+
+    @property
+    def detail(self):
+        # Return a version of myself where __getitem__ is just a normal return
+        self._inDetailMode = True
+        return self
+
 
 class CharacterMeta(AttributesMeta):
     def __new__(cls, name, bases, attrdict):
@@ -86,6 +144,11 @@ class Character(Attributes):
         self.BAB = 0
         # Alias attack as BAB
         self.atk = self.BAB
+        self.lvl = 1
+        self.name = "Unknown"
+        self.rpg_class = RPGClass()
+
+        self.skills = CharacterSkillList(self)
 
     @auditable
     def AC(self):
@@ -142,6 +205,11 @@ class Character(Attributes):
         buffs, _buffs = has_max(self.buffs, 'natural_armor')
         equipment, _eqp = has_max(self.equipment, 'natural_armor')
         return max(_buffs, _eqp)
+
+    @auditable
+    def ACP(self):
+        equipment, _eqp = has_sum(self.equipment, 'ACP')
+        return _eqp
 
     @auditable
     def mh_melee_atk_bonus(self):
@@ -240,4 +308,4 @@ class Character(Attributes):
     def dmg(self):
         raise AttributeError("Characters do not have dmg. Use attacks instead.")
 
-from rpg_objects import Weapon, Buff
+from rpg_objects import Weapon, Buff, RPGClass, Skill

@@ -208,6 +208,42 @@ class DamageRoll(Struct):
             return False
         return str(self) == str(other)  # If the descripter matches, I'm happy
 
+class Skill(object):
+    def __init__(self, name, attr, useUntrained, useACP, character):
+        self.name = name
+        self.attr = attr
+        self.useUntrained = useUntrained
+        self.useACP = useACP
+        self.character = character
+        self.ranks = 0
+        self.isClassSkill = False
+
+    @auditable
+    def value(self):
+        if not self.useUntrained and self.ranks == 0:
+            raise RuntimeWarning('Tried to %s untrained' % self.name)
+            return -999
+        locals()[self.attr] = self.character[self.attr]  # dex/str/int/etc...
+        ranks = self.ranks
+        buffs, _buffs = has_skill(self.character.buffs, self.name)
+        equipment, eqp = has_skill(self.character.equipment, self.name)
+        _cs = 0
+        if self.ranks > 0:
+            class_skill = self.character.rpg_class.skills[self.name]
+            _cs = class_skill
+        _acp = 0
+        if self.useACP:
+            ACP = self.character.ACP
+            _acp = ACP
+
+        return locals()[self.attr] + ranks + _buffs + eqp + _cs + _acp
+
+    @property
+    def audit(self):
+        return self.character.audit
+
+
+
 
 class Equipment(Attributes):
     def __init__(self, name):
@@ -286,7 +322,8 @@ class Feat(Attributes):
         Attributes.__init__(self)
         self.name = name
 
-
+class RPGClass(Attributes):
+    pass
 
 
 from character import Character

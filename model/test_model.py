@@ -1,9 +1,13 @@
 # Test Model
+
+
 from model import (Character, Equipment, Weapon, Attack, DamageRoll,
-                    Buff, Feat, auditable)
+                    Buff, Feat, auditable, AuditResult)
 
 def assert_audit(audit_obj, true_value, msg=''):
     """Helper function to help asserting when value object abound"""
+    if not isinstance(audit_obj, AuditResult):
+        raise TypeError("First argument must be an AuditResult")
     if msg == '':
         msg = "Calculated value of %s <> %s" % (audit_obj.value, true_value)
     assert audit_obj.value == true_value, msg
@@ -97,3 +101,20 @@ assert_audit(c.attacks, [Attack(atk=9, dmg_roll=DamageRoll.fromString("1d6+5"),
                          #    crit_range=[18,19,20], crit_mult=2), # Hasted MH
                          Attack(atk=9, dmg_roll=DamageRoll.fromString("1d6+4"),
                              crit_range=[20,], crit_mult=3), ]) # OH should not be hasted
+
+print "Climb skill: ", c.skills['Climb']
+assert_audit(c.skills['Climb'], 4)
+
+c.skills.detail['Climb'].ranks = 1
+print "Climb skill with rank: ", c.skills['Climb']
+assert_audit(c.skills['Climb'], 5)
+
+
+c.rpg_class.skills['Climb'] = 3     # Make a class skill
+print "Climb skill with class skill: ", c.skills['Climb']
+assert_audit(c.skills['Climb'], 8)
+
+chain_shirt.ACP = -2    # for testing only
+print "Acrobatics (check ACP): ", c.skills['Acrobatics']
+assert_audit(c.skills['Acrobatics'], 1)
+chain_shirt.ACP = 0

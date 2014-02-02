@@ -54,7 +54,7 @@ class Attributes(Struct):
     __metaclass__ = AttributesMeta
     _abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha']
     _scores = ['HP', 'AC', 'natural_armor', 'deflection_bonus', 'dodge_bonus',
-               'atk', 'dmg']
+               'atk', 'dmg', 'ACP']
     _saves = {'fort': 'con',
               'ref':  'dex',
               'will': 'wis'
@@ -63,6 +63,21 @@ class Attributes(Struct):
     def __init__(self, default_value=0):
         for k in self._abilities:
             self[k+'_score'] = default_value
+        skills = ['Acrobatics','Appraise','Bluff','Climb','Craft (XXXX)',
+                'Diplomacy','Disable Device','Disguise','Escape Artist',
+                'Handle Animal','Heal','Intimidate','Knowledge (arcana)',
+                'Knowledge (dungeoneering)','Knowledge (engineering)',
+                'Knowledge (geography)','Knowledge (history)',
+                'Knowledge (local)','Knowledge (nature)','Knowledge (nobility)',
+                'Knowledge (planes)','Knowledge (religion)','Linguistics',
+                'Perception','Perform (act)','Profession (XXXX)',
+                'Ride','Sense Motive','Sleight of Hand','Spellcraft',
+                'Stealth','Survival','Swim','Use Magic Device',
+                ]
+        self.skills = {}
+        for s in skills:
+            self.skills[s] = 0
+
         self.audit = False
 
     def __add__(self, other):
