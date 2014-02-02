@@ -92,9 +92,10 @@ class Attributes(Struct):
         s = []
         displayable = (self._abilities + self._scores +
                         [a+'_score' for a in self._abilities])
-        for k, v in self.__dict__.iteritems():
+        for k in dir(self):
             if k not in displayable:
                 continue
+            v = getattr(self, k)
             if v != 0:
                 s.append("{0:s}: {1:+d}".format(k,v))
         return '(%s)' % ', '.join(s)

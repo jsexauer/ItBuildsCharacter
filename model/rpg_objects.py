@@ -321,8 +321,15 @@ class Feat(Attributes):
     def __init__(self, name, atk_mod=0, dmg_mod=0):
         Attributes.__init__(self)
         self.name = name
+    def __str__(self):
+        return self.name + ' ' + Attributes.__str__(self)
+    def __repr__(self):
+        return "<'%s' at %s>"%(self.name, hex(id(self)))
 
 class RPGClass(Attributes):
+    def __init__(self):
+        Attributes.__init__(self)
+        self.hit_die = 0
     pass
 
 

@@ -118,3 +118,22 @@ chain_shirt.ACP = -2    # for testing only
 print "Acrobatics (check ACP): ", c.skills['Acrobatics']
 assert_audit(c.skills['Acrobatics'], 1)
 chain_shirt.ACP = 0
+
+c.rpg_class.hit_die = 10
+c.lvl = 5
+print "Hit Points: ", c.HP
+assert_audit(c.HP, 49)
+
+class Toughness(Feat):
+    def on_apply(self, character):
+        self.character = character
+    @auditable
+    def HP(self):
+        _formula = "3 + max(lvl-3, 0)"
+        lvl = self.character.lvl
+        return 3 + max(lvl-3,0)
+toughness = Toughness("Toughness")
+c.feats.append(toughness)
+
+print "Hit Points (with toughness): ", c.HP
+assert_audit(c.HP, 49+5)

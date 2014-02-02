@@ -212,6 +212,24 @@ class Character(Attributes):
         return _eqp
 
     @auditable
+    def HP(self):
+        # Assume we're taking the PFS hp values and always favored class
+        _pfs_hp_map = {6: 4, 8:5, 10:6, 12:7}
+        _formula = ("hit_die + (level-1)*hp_per_level + con*level + "
+                    "favored_class + feats")
+        hit_die = self.rpg_class.hit_die
+        hp_per_level = _pfs_hp_map[self.rpg_class.hit_die]
+        level = self.lvl
+        feats, _feats = has_sum(self.feats, 'HP')
+        favored_class = self.lvl
+        con = self.con
+        return (hit_die + (level-1)*hp_per_level + _feats +
+                con*level + favored_class)
+
+
+
+
+    @auditable
     def mh_melee_atk_bonus(self):
         BAB = self.BAB
         str = self.str
