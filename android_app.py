@@ -15,13 +15,9 @@ from urllib2 import urlopen, Request
 import json
 
 from model import Buff, Attack, DamageRoll
-attacks = [Attack('Tidewater Cutless (MH_1)',9,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Tidewater Cutless (MH_2)',4,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Masterwork Handaxe (OH_1)',9,DamageRoll(1,6,4),[20,],3),
-           Attack('Masterwork Handaxe (OH_2)',4,DamageRoll(1,6,4),[20,],3),
-           Attack('Battleaxe (StdAct#1)',10,DamageRoll(1,8,4),[20,],3),
-           Attack('Battleaxe (StdAct#2)',5,DamageRoll(1,8,4),[20,],3),
-           Attack('Vindictive Harpoon +1 (Rng)',4,DamageRoll(1,8,5),[20,],3),]
+attacks = [Attack('Greatsword',8,DamageRoll(2,6,6),[19,20],2),
+           Attack('Short Sword',8,DamageRoll(1,6,4),[19,20],2),
+           Attack('Cmpst Lng Bow +2',8,DamageRoll(1,8,2),[20,],3),]
 
 
 def readOnlineBuffs():
@@ -35,8 +31,9 @@ try:
     buffs = readOnlineBuffs()
 except:
     droid.makeToast("Unable to communicate with server")
-    buffs = [Buff('Favored Enemy (Human)',4,4),
-             Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+    buffs = [Buff('Power Attack (2hand)',-2,6),
+             Buff('Challenge',0,5),
+             Buff("Cavalier's Chrge",4,0),
              Buff('Bless',atk_mod=1),
              Buff('Prayer',atk_mod=1,dmg_mod=1),
              Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
