@@ -14,14 +14,32 @@ except:
 from urllib2 import urlopen, Request
 import json
 
-from model import Buff, Attack, DamageRoll
-attacks = [Attack('Tidewater Cutless (MH_1)',9,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Tidewater Cutless (MH_2)',4,DamageRoll(1,6,5),[18,19,20],2),
-           Attack('Masterwork Handaxe (OH_1)',9,DamageRoll(1,6,4),[20,],3),
-           Attack('Masterwork Handaxe (OH_2)',4,DamageRoll(1,6,4),[20,],3),
-           Attack('Battleaxe (StdAct#1)',10,DamageRoll(1,8,4),[20,],3),
-           Attack('Battleaxe (StdAct#2)',5,DamageRoll(1,8,4),[20,],3),
-           Attack('Vindictive Harpoon +1 (Rng)',4,DamageRoll(1,8,5),[20,],3),]
+from model import Buff, Attack, DamageRoll, Character, Weapon
+########
+# BUILD HENRI
+#######
+c = Character()
+c.base.str_score = 19
+c.base.dex_score = 12
+c.base.con_score = 13
+c.base.cha_score = 14
+
+c.BAB = 5
+
+greatsword = Weapon("Greatsword",
+                      Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
+                             crit_range=[19,20], crit_mult=2, two_handed=True))
+c.equipment.main_hand = greatsword
+attacks = c.attacks
+
+
+#attacks = [Attack(9,DamageRoll(1,6,5),[18,19,20],2,name='Tidewater Cutless (MH_1)'),
+#           Attack(4,DamageRoll(1,6,5),[18,19,20],2,name='Tidewater Cutless (MH_2)'),
+#           Attack(9,DamageRoll(1,6,4),[20,],3,name='Masterwork Handaxe (OH_1)'),
+#           Attack(4,DamageRoll(1,6,4),[20,],3,name='Masterwork Handaxe (OH_2)'),
+#           Attack(10,DamageRoll(1,8,4),[20,],3,name='Battleaxe (StdAct#1)'),
+#           Attack(5,DamageRoll(1,8,4),[20,],3,name='Battleaxe (StdAct#2)'),
+#           Attack(4,DamageRoll(1,8,5),[20,],3,name='Vindictive Harpoon +1 (Rng)'),]
 
 
 def readOnlineBuffs():
@@ -51,14 +69,14 @@ def eventloop():
             id=event["data"]["id"]
             if id[:4] == "Buff":
                 # A buff has been updated
-                active_buffs = []
+                c.buffs = []        # TODO: Make character buff list instead
                 for n, b in enumerate(buffs):
                     info = get_info = droid.fullQueryDetail("Buff%d"%n).result
                     if info['checked']=='true':
-                        active_buffs.append(b)
-                print "Active Buffs:", active_buffs
+                        c.buffs.append(b)
+                print "Active Buffs:", c.buffs
                 for a in attacks:
-                    a.updateUI(active_buffs, droid)
+                    a.updateUI(c.buffs, droid)
             elif id[:10] == "RollBtnAtk":
                 # User asked for us to roll an attack
                 atk_id = int(id[10:])

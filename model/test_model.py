@@ -137,3 +137,27 @@ c.feats.append(toughness)
 
 print "Hit Points (with toughness): ", c.HP
 assert_audit(c.HP, 49+5)
+
+
+
+
+
+
+
+########
+# BUILD HENRI
+#######
+c = Character()
+c.audit = True
+c.base.str_score = 19
+c.base.dex_score = 12
+c.base.con_score = 13
+c.base.cha_score = 14
+
+c.BAB = 5
+
+greatsword = Weapon("Greatsword",
+                      Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
+                             crit_range=[19,20], crit_mult=2, two_handed=True))
+c.equipment.main_hand = greatsword
+attacks = c.attacks
