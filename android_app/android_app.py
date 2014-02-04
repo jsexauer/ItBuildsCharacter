@@ -169,7 +169,7 @@ def alert_dialog(title, message, buttonText='Continue'):
 
 xml_header = '<?xml version="1.0" encoding="utf-8"?>'
 def buildMainWindow(attacks, buffs, returnString=False):
-    with open("main_window.xml") as f:
+    with open("layouts\main_window.xml") as f:
         layout_template = f.read()
     atk_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(attacks)])
     buffs_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(buffs)])
@@ -193,9 +193,9 @@ def buildMainWindow(attacks, buffs, returnString=False):
         print droid.fullShow(xml_header+layout)
 
 def buildPopup(popup_xml, attacks, buffs):
-    with open("popup.xml") as f:
+    with open("layouts\popup.xml") as f:
         base = f.read()
-    with open(popup_xml) as f:
+    with open("layouts\\"+popup_xml) as f:
         popup = f.read()
     main_window = buildMainWindow(attacks, buffs, True)
     base = xml_header+base
