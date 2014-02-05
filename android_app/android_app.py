@@ -22,6 +22,7 @@ class ItBuildsCharacterApp(AndroidApp):
                  Buff('Prayer',atk_mod=1,dmg_mod=1),
                  Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
 
+        self._views = []
         self.build_main_window()
 
 
@@ -63,6 +64,7 @@ class ItBuildsCharacterApp(AndroidApp):
         self.bind(lambda id: id.startswith('RollBtnAtk'), self.onRollAtk)
 
         # Create menu
+        self.clear_menu()
         self.add_menu_item("New Buff", lambda x: None,"star_on")      # TODO
         self.add_menu_item("Delete Buff", lambda x: None,"ic_menu_delete")  # TODO
         self.add_menu_item("Quit", self.quit, "btn_close_normal")
