@@ -48,13 +48,14 @@ class AttributesMeta(type):
         _saves = attrdict.get('_saves', {})
         for k, v in _saves.iteritems():
             attrdict[k] = 0
+
         return super(AttributesMeta, cls).__new__(cls, name, bases, attrdict)
 
 class Attributes(Struct):
     __metaclass__ = AttributesMeta
     _abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha']
     _scores = ['HP', 'AC', 'natural_armor', 'deflection_bonus', 'dodge_bonus',
-               'atk', 'dmg', 'ACP']
+               'atk', 'dmg_roll', 'ACP']
     _saves = {'fort': 'con',
               'ref':  'dex',
               'will': 'wis'

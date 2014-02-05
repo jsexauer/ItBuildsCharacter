@@ -308,7 +308,7 @@ class Character(Attributes):
             _atk = copy(main_hand.atk)
             _atk.character = self
             _atk.iterative = int(_iter)
-            _atk.name = "%s #%d" % (main_hand.name, _iter)
+            _atk.name = "%s #%d" % (main_hand.name, _iter+1)
             _attacks.append(_atk)
 
         # Off Hand
@@ -320,7 +320,7 @@ class Character(Attributes):
                 _atk.is_oh = True
                 _atk.character = self
                 _atk.iterative = int(_iter)
-                _atk.name = "%s #%d (OH)" % (main_hand.name, _iter)
+                _atk.name = "%s #%d (OH)" % (main_hand.name, _iter+1)
                 _attacks.append(_atk)
 
 

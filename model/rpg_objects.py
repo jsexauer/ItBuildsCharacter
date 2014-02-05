@@ -16,9 +16,6 @@ class Attack(object):
         self.base.crit_mult = crit_mult
         self.is_oh = oh     # Off hand attack
         self.two_handed = two_handed
-        # UI Details
-        self.id = -1
-        self.ui_id = ''
 
     @auditable
     def atk(self):
@@ -34,8 +31,8 @@ class Attack(object):
     @auditable
     def dmg_roll(self):
         weapon = self.base.dmg_roll
-        equipment, _eqp = has_sum(self.character.equipment, 'dmg')
-        buffs, _buff = has_sum(self.character.buffs, 'dmg')
+        equipment, _eqp = has_sum(self.character.equipment, 'dmg_roll')
+        buffs, _buff = has_sum(self.character.buffs, 'dmg_roll')
         str = self.character.str
         _th = 0
         if self.two_handed:
@@ -123,13 +120,12 @@ class Attack(object):
 
         </TableRow>
         """
-        self.ui_id = id
         return template % {'id': id, 'name': self.name,
                             'atk':self.atk, 'dmg':self.dmg_roll}
-    def updateUI(self, buffs, droid):
-        self.buffs = buffs
-        droid.fullSetProperty(self.ui_id+'_Atk',"text","+"+str(self.atk))
-        droid.fullSetProperty(self.ui_id+'_Dmg',"text",str(self.dmg_roll))
+    def updateUI(self, id, droid):
+        ui_id = "Atk"+str(id)
+        droid.fullSetProperty(ui_id+'_Atk',"text","+"+str(self.atk))
+        droid.fullSetProperty(ui_id+'_Dmg',"text",str(self.dmg_roll))
 
     def __str__(self):
         if self.audit:
@@ -209,6 +205,9 @@ class DamageRoll(Struct):
             return self + other.value
         else:
             raise ValueError("Cannot add %s to %s" % (other, self))
+    def __radd__(self, other):
+        return self + other
+
     def __eq__(self, other):
         if isinstance(other, AuditResult):
             other = other.value
