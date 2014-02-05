@@ -1,38 +1,123 @@
 # From:
 # https://code.google.com/p/android-scripting/wiki/FullScreenUI
-import android
-try:
-    # Create droid object if we're on the phone
-    droid = android.Android()
-except:
-    try:
-        # Create droid object if we're on computer
-        droid=android.Android(('192.168.3.10','36161'))
-    except:
-        raise RuntimeError("Could not connect to android device")
 
 from urllib2 import urlopen, Request
 import json
 
+from lib import AndroidApp
 from model import Buff, Attack, DamageRoll, Character, Weapon
-########
-# BUILD HENRI
-#######
-c = Character()
-c.base.str_score = 19
-c.base.dex_score = 12
-c.base.con_score = 13
-c.base.cha_score = 14
 
-c.BAB = 5
 
-greatsword = Weapon("Greatsword",
+class ItBuildsCharacterApp(AndroidApp):
+    def __init__(self, addr_port):
+        AndroidApp.__init__(self, addr_port)
+
+        self.c = Character()
+        self.build_character()
+
+        self.possible_buffs_list = \
+                [Buff('Favored Enemy (Human)',4,4),
+                 Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+                 Buff('Bless',atk_mod=1),
+                 Buff('Prayer',atk_mod=1,dmg_mod=1),
+                 Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
+
+        self.build_main_window()
+
+
+    def build_character(self):
+        """Construct a character to play with"""
+        ########
+        # BUILD HENRI
+        #######
+        c = Character()
+        c.base.str_score = 19
+        c.base.dex_score = 12
+        c.base.con_score = 13
+        c.base.cha_score = 14
+
+        c.BAB = 5
+
+        greatsword = Weapon("Greatsword",
                       Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
                              crit_range=[19,20], crit_mult=2, two_handed=True))
-c.equipment.main_hand = greatsword
-attacks = c.attacks
+        c.equipment.main_hand = greatsword
+        attacks = c.attacks
+
+        self.c = c
+
+    def build_main_window(self, returnString=False):
+        attacks = self.c.attacks
+        buffs = self.possible_buffs_list
+        # TODO: Clear character buffs or have buff list apply check for those
+        #       already on character
+        # Bring in XML layout
+        with open("layouts\main_window.xml") as f:
+            layout_template = f.read()
+        atk_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(attacks)])
+        buffs_xml = '\n\n'.join([x.makeUI(n) for n,x in enumerate(buffs)])
+        layout = layout_template % {'Buffs':buffs_xml, 'Attacks':atk_xml}
+
+        # Add widget handlers
+        self.bind(lambda id: id.startswith('Buff'), self.onBuff)
+        self.bind(lambda id: id.startswith('RollBtnAtk'), self.onRollAtk)
+
+        # Create menu
+        self.add_menu_item("New Buff", lambda x: None,"star_on")      # TODO
+        self.add_menu_item("Delete Buff", lambda x: None,"ic_menu_delete")  # TODO
+        self.add_menu_item("Quit", self.quit, "btn_close_normal")
+
+        xml_header = '<?xml version="1.0" encoding="utf-8"?>'
+
+        if returnString:
+            return layout
+        else:
+            print xml_header+layout
+            print self.droid.fullShow(xml_header+layout)
 
 
+############################# WIDGET HANDLERS ##################################
+
+    def onBuff(self, event):
+        # Clear buffs currently on character
+        self.c.buffs = []       # TODO: Make character buff list
+        for n, b in enumerate(self.possible_buffs_list):
+            info = self.droid.fullQueryDetail("Buff%d"%n).result
+            if info['checked'] == 'true':
+                self.c.buffs.append(b)
+        if self.debug:
+            print "Active Buffs:", self.c.buffs
+        for n, a in enumerate(self.c.attacks):
+            a.updateUI(n, self.droid)
+
+    def onRollAtk(self, event):
+        # User asked for us to roll an attack
+        atk_id = int(event['data']['id'][10:])
+        atk = self.c.attacks[atk_id]
+        self.alert_dialog(atk.name, atk.roll())
+
+
+
+
+if __name__ == '__main__':
+    app = ItBuildsCharacterApp(('192.168.3.10', '36161'))
+    app.start()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 #attacks = [Attack(9,DamageRoll(1,6,5),[18,19,20],2,name='Tidewater Cutless (MH_1)'),
 #           Attack(4,DamageRoll(1,6,5),[18,19,20],2,name='Tidewater Cutless (MH_2)'),
 #           Attack(9,DamageRoll(1,6,4),[20,],3,name='Masterwork Handaxe (OH_1)'),
@@ -60,54 +145,7 @@ except:
              Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
 
 
-def eventloop():
-    global buffs, attacks
-    while True:
-        event=droid.eventWait().result
-        print event
-        if event["name"]=="click":
-            id=event["data"]["id"]
-            if id[:4] == "Buff":
-                # A buff has been updated
-                c.buffs = []        # TODO: Make character buff list instead
-                for n, b in enumerate(buffs):
-                    info = get_info = droid.fullQueryDetail("Buff%d"%n).result
-                    if info['checked']=='true':
-                        c.buffs.append(b)
-                print "Active Buffs:", c.buffs
-                for a in attacks:
-                    a.updateUI(c.buffs, droid)
-            elif id[:10] == "RollBtnAtk":
-                # User asked for us to roll an attack
-                atk_id = int(id[10:])
-                atk = attacks[atk_id]
-                alert_dialog(atk.name, atk.roll())
-        elif event['name']=='menu_newBuff':
-            #droid.fullDismiss()
-            buildPopup("newBuff.xml",attacks, buffs)
-            buffs = eventloop_newBuff()
-            buildMainWindow(attacks, buffs)
-        elif event['name']=='menu_delBuff':
-            # Delete a buff
-              droid.dialogCreateAlert("Delete Buff")
-              droid.dialogSetSingleChoiceItems(
-                    map(lambda x: x.name, buffs))
-              droid.dialogSetPositiveButtonText("Ok")
-              droid.dialogSetNegativeButtonText("Cancel")
-              droid.dialogShow()
-              response = droid.dialogGetResponse().result
-              if response['which'] == 'positive':
-                idx = droid.dialogGetSelectedItems().result[0]
-                print "deleting %d" % idx
-                buff = buffs.pop(idx)
-                buildPost(buff.makeDict(), mode='delete')
-                buildMainWindow(attacks, buffs)
-        elif event['name']=='menu_quit':
-            # Quit menu bar button
-            return
-        elif event["name"]=="screen":
-            if event["data"]=="destroy":
-                return
+
 
 def eventloop_newBuff():
     global buffs
@@ -160,13 +198,6 @@ def buildPost(d, mode='add'):
         s += '\nERROR: ' + str(e)
     alert_dialog("Posting Error", s, "Ok")
 
-def alert_dialog(title, message, buttonText='Continue'):
-  droid.dialogCreateAlert(title, message)
-  droid.dialogSetPositiveButtonText(buttonText)
-  droid.dialogShow()
-  response = droid.dialogGetResponse().result
-  return response['which'] == 'positive'
-
 xml_header = '<?xml version="1.0" encoding="utf-8"?>'
 def buildMainWindow(attacks, buffs, returnString=False):
     with open("layouts\main_window.xml") as f:
@@ -206,3 +237,4 @@ eventloop()
 print droid.fullQuery()
 print "Data entered =",droid.fullQueryDetail("editText1").result
 droid.fullDismiss()
+'''
