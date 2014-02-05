@@ -73,12 +73,15 @@ class Attack(object):
                                   for n in range(self.crit_mult-1)])
             s += "If a %d confirms, %d damage." % (conf_roll, crit_dmg)
             s += "            Else: %d damage" % dmg
+        elif atk_roll == 1:
+            # Critical Failure
+            s += "Rolled a <%d>.\nCritical Failure."
         else:
             s += "Rolled a <%d>.\n%d to hit for %d damage.\n" % \
                   (atk_roll, atk_roll+self.atk, dmg)
         return s
 
-    def makeUI(self, id=None):
+    def makeUI(self, id):
         id = "Atk"+str(id)
         template = """
         <TableRow
