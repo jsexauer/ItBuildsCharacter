@@ -23,6 +23,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
+from kivy.properties import ObjectProperty,StringProperty
 
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -32,6 +33,8 @@ Builder.load_file(this_dir + 'tabs.kv')
 
 
 class StatsTab(TabbedPanelItem):
+    c = ObjectProperty(Character())
+    str_test = StringProperty('99')
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
         self.c = c      # Character object
@@ -43,9 +46,10 @@ class StatsTab(TabbedPanelItem):
         self.refresh_gui()
 
     def refresh_gui(self):
-        for attr in ['str','int','dex','wis','con','cha']:
-            lbl = self.ids[attr]
-            lbl.text = attr.capitalize() + ' ' + str(self.c[attr])
+        pass
+        #for attr in ['str','int','dex','wis','con','cha']:
+        #    lbl = self.ids[attr]
+        #    lbl.text = attr.capitalize() + ' ' + str(self.c[attr])
 
 
 
@@ -69,7 +73,6 @@ class AttacksTab(TabbedPanelItem):
         self.refresh_gui()
 
     def refresh_gui(self):
-
         # Buffs
         buffs = self.ids['buffs']
         buffs.clear_widgets()
@@ -78,7 +81,7 @@ class AttacksTab(TabbedPanelItem):
             l = BoxLayout(orientation='horizontal', padding=5,
                             size_hint=(1, None), height=30, width=320)
 
-            cb = CheckBox(size_hint=(None, 1), width=30)
+            cb = CheckBox(size_hint=(None, None), size=(50,50))
             cb._buff = b
             cb.bind(active = self.update_buffs)
             l.add_widget(cb)
