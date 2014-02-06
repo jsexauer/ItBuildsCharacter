@@ -71,29 +71,30 @@ class AttacksTab(TabbedPanelItem):
     def refresh_gui(self):
 
         # Buffs
-##        self.ids['buffs'].clear_widgets()
-##        for b in self.buffs:
-##            l = BoxLayout()
-##            l.orientation = 'horizontal'
-##            l.padding = 20
-##
-##            cb = CheckBox()
-##            l.add_widget(cb)
-##
-##            name = Label()
-##            name.text = b.name
-##            l.add_widget(name)
-##
-##            self.ids['buffs'].add_widget(l)
+        buffs = self.ids['buffs']
+        buffs.clear_widgets()
+        print id(buffs)
+        for b in self.buffs:
+            l = BoxLayout(orientation='horizontal', padding=5,
+                            size_hint=(1, None), height=30)
+
+            cb = CheckBox(size_hint=(None, 1), width=30)
+            l.add_widget(cb)
+
+            name = Label(halign='left', size_hint=(None,1), valign='middle')
+            name.bind(texture_size=name.setter('size'))
+            name.text = b.name
+            l.add_widget(name)
+
+            buffs.add_widget(l)
 
         # Attacks
         attacks = self.ids['attacks']
         attacks.clear_widgets()
 
         for a in self.c.attacks:
-            l = BoxLayout()
-            l.orientation = 'horizontal'
-            l.padding = 20
+            l = BoxLayout(orientation='horizontal', padding=5,
+                            size_hint=(1, None), height=50)
 
             name = Label()
             name.text = a.name
@@ -114,7 +115,6 @@ class AttacksTab(TabbedPanelItem):
             l.add_widget(roll)
 
             attacks.add_widget(l)
-            print attacks.children
 
 
 
@@ -175,7 +175,7 @@ class IBC_tabs(TabbedPanel):
              Buff('Favored Enemy (Monstrous Humanoid)',2,2),
              Buff('Bless',atk_mod=1),
              Buff('Prayer',atk_mod=1,dmg_mod=1),
-             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
+             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]*10
 
 
 class IBC_App(App):

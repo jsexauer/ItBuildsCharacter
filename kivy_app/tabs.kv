@@ -38,11 +38,15 @@
 <AttacksTab>:
     text:   "Attacks/Buffs"
     BoxLayout:
-        #size_hint: 1, None
         orientation: 'vertical'
-        id: buffs
-
-    BoxLayout:
-        #size_hint: 1, None
-        orientation: 'vertical'
-        id: attacks
+        ScrollView:
+            BoxLayout:
+                #size_hint: 1, None
+                orientation: 'vertical'
+                id: buffs
+                Label:
+                    text: "Buffs"
+        BoxLayout:
+            #size_hint: 1, None
+            orientation: 'vertical'
+            id: attacks
