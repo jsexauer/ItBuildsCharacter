@@ -1,0 +1,5 @@
+title=ItBuildsCharacter
+
+author=Jason Sexauer
+orientation=portrait
+fullscreen=1

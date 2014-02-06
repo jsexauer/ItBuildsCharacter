@@ -1,0 +1,48 @@
+<StatsTab>:
+    text:   "Statistics"
+    GridLayout:
+        cols: 2
+        row_default_height: 30
+        row_force_default: True
+        padding: 25
+        Label:
+            id: str
+            font_size: "20sp"
+            text: "Str "
+            size_hint_x: None
+        Label:
+            id: int
+            text: "Int "
+            size_hint_x: None
+        Label:
+            id: dex
+            text: "Dex"
+            size_hint_x: None
+        Label:
+            id: wis
+            text: "Wis"
+            size_hint_x: None
+        Label:
+            id: con
+            text: "Con"
+            size_hint_x: None
+        Label:
+            id: cha
+            text: "Cha"
+            size_hint_x: None
+        Button:
+            text: 'Str Boost'
+            on_press: root.test_button_press()
+
+
+<AttacksTab>:
+    text:   "Attacks/Buffs"
+    BoxLayout:
+        #size_hint: 1, None
+        orientation: 'vertical'
+        id: buffs
+
+    BoxLayout:
+        #size_hint: 1, None
+        orientation: 'vertical'
+        id: attacks
