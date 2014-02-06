@@ -74,13 +74,13 @@ class AttacksTab(TabbedPanelItem):
         buffs = self.ids['buffs']
         buffs.clear_widgets()
         buffs.bind(minimum_height=buffs.setter('height'))
-        print id(buffs)
         for b in self.buffs:
             l = BoxLayout(orientation='horizontal', padding=5,
-                            size_hint=(None, None), height=30, width=320)
+                            size_hint=(1, None), height=30, width=320)
 
             cb = CheckBox(size_hint=(None, 1), width=30)
             cb._buff = b
+            cb.bind(active = self.update_buffs)
             l.add_widget(cb)
 
             name = Label(halign='left', size_hint=(None,1), valign='middle')
@@ -90,34 +90,50 @@ class AttacksTab(TabbedPanelItem):
 
             buffs.add_widget(l)
 
+        self.refresh_attacks()
+
+    def refresh_attacks(self):
         # Attacks
         attacks = self.ids['attacks']
         attacks.clear_widgets()
-
+        attacks.bind(minimum_height=attacks.setter('height'))
         for a in self.c.attacks:
             l = BoxLayout(orientation='horizontal', padding=5,
                             size_hint=(1, None), height=50)
 
             name = Label()
             name.text = a.name
+            name.size_hint = (.5, 1)
+            name.halign = 'left'
             l.add_widget(name)
 
             atk = Label()
             atk.text = '+' + str(a.atk)
+            atk.size_hint = (.1, 1)
             l.add_widget(atk)
 
             dmg = Label()
             dmg.text = str(a.dmg_roll)
+            dmg.size_hint = (.2, 1)
             l.add_widget(dmg)
 
             roll = Button()
             roll.text = "Roll"
             roll._attack = a
             roll.bind(on_press=self.show_roll)
+            roll.size_hint = (.2, 1)
             l.add_widget(roll)
 
             attacks.add_widget(l)
 
+    def update_buffs(self, checkbox, value):
+        if value:
+            # Add buff to character buff list
+            self.c.buffs.append(checkbox._buff)
+        else:
+            # Remove buff from character buff list
+            self.c.buffs.remove(checkbox._buff)
+        self.refresh_attacks()
 
 
 
@@ -161,13 +177,23 @@ class IBC_tabs(TabbedPanel):
         c.base.con_score = 13
         c.base.cha_score = 14
 
-        c.BAB = 11
+        c.BAB = 16
 
         greatsword = Weapon("Greatsword",
                       Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
                              crit_range=[19,20], crit_mult=2, two_handed=True))
-        c.equipment.main_hand = greatsword
-        attacks = c.attacks
+        #c.equipment.main_hand = greatsword
+
+        # Add in dual-wield for testing
+        tidewater_cutless = Weapon("Tidewater Cuttless +1",
+                      Attack(atk=+1, dmg_roll=DamageRoll.fromString("1d6+1"),
+                             crit_range=[18,19,20], crit_mult=2))
+        c.equipment.main_hand = tidewater_cutless
+        masterwork_handaxe = Weapon("Masterwork Handaxe",
+                              Attack(atk=1, dmg_roll=DamageRoll.fromString("1d6"),
+                                     crit_range=[20,], crit_mult=3))
+
+        c.equipment.off_hand = masterwork_handaxe
 
         self.c = c
 
