@@ -40,9 +40,15 @@
     BoxLayout:
         orientation: 'vertical'
         ScrollView:
+            size_hint: None, None
+            size: 500, 320
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            do_scroll_x: False
             BoxLayout:
-                #size_hint: 1, None
                 orientation: 'vertical'
+                size_hint: None, None
+                width: 500
+                minimum_height: self.height
                 id: buffs
                 Label:
                     text: "Buffs"
@@ -50,3 +56,5 @@
             #size_hint: 1, None
             orientation: 'vertical'
             id: attacks
+
+
