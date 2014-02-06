@@ -73,12 +73,14 @@ class AttacksTab(TabbedPanelItem):
         # Buffs
         buffs = self.ids['buffs']
         buffs.clear_widgets()
+        buffs.bind(minimum_height=buffs.setter('height'))
         print id(buffs)
         for b in self.buffs:
             l = BoxLayout(orientation='horizontal', padding=5,
                             size_hint=(None, None), height=30, width=320)
 
             cb = CheckBox(size_hint=(None, 1), width=30)
+            cb._buff = b
             l.add_widget(cb)
 
             name = Label(halign='left', size_hint=(None,1), valign='middle')
