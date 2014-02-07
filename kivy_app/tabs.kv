@@ -9,7 +9,7 @@
         Label:
             id: str
             font_size: "20sp"
-            text: root.c.name
+            text: root.uic.str
             size_hint_x: None
         Label:
             id: int
@@ -40,6 +40,7 @@
     text:   "Attacks/Buffs"
     BoxLayout:
         orientation: 'vertical'
+        spacing: 15
         ScrollView:
             size_hint: 1, .66
             #size: 500, 1320
@@ -47,10 +48,9 @@
             do_scroll_x: False
             GridLayout:
                 cols: 1
-                size_hint: None, None
-                width: 500
-                #minimum_height: self.height
+                size_hint: 1, None
                 spacing: 10
+                padding: 10
                 id: buffs
                 Label:
                     text: "Buffs"

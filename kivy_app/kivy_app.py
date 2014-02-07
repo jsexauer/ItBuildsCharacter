@@ -19,6 +19,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
@@ -29,15 +30,29 @@ from kivy.properties import ObjectProperty,StringProperty
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 Builder.load_file(this_dir + 'tabs.kv')
 
+class StringObjectProxy(object):
+    def __init__(self, parent=Character()):
+        self.__parent = parent
+    def __getattr__(self, key):
+        print "Getting %s" % key
+        if key == '__parent':
+            return self.__parent
+        else:
+            val = str(getattr(self.__parent, key))
+            print "   returning %s (type: %s)" % (val, type(val))
+            return val
+    def __getitem__(self, key):
+        return str(elf.__parent[key])
 
 
 
 class StatsTab(TabbedPanelItem):
-    c = ObjectProperty(Character())
-    str_test = StringProperty('99')
+    uic = ObjectProperty(StringObjectProxy())
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
-        self.c = c      # Character object
+        self.c = c                              # Character object
+        self.uic = StringObjectProxy(self.c)    # Character object used for
+                                                # ui display
 
         # Build GUI
         self.refresh_gui()
@@ -78,18 +93,21 @@ class AttacksTab(TabbedPanelItem):
         buffs.clear_widgets()
         buffs.bind(minimum_height=buffs.setter('height'))
         for b in self.buffs:
-            l = BoxLayout(orientation='horizontal', padding=5,
-                            size_hint=(1, None), height=30, width=320)
-
-            cb = CheckBox(size_hint=(None, None), size=(50,50))
-            cb._buff = b
-            cb.bind(active = self.update_buffs)
-            l.add_widget(cb)
-
-            name = Label(halign='left', size_hint=(None,1), valign='middle')
-            name.bind(texture_size=name.setter('size'))
-            name.text = b.name
-            l.add_widget(name)
+##            l = BoxLayout(orientation='horizontal', padding=5,
+##                            size_hint=(1, None), height=30, width=320)
+##
+##            cb = CheckBox(size_hint=(None, None), size=(50,50))
+##            cb._buff = b
+##            cb.bind(active = self.update_buffs)
+##            l.add_widget(cb)
+##
+##            name = Label(halign='left', size_hint=(None,1), valign='middle')
+##            name.bind(texture_size=name.setter('size'))
+##            name.text = b.name
+##            l.add_widget(name)
+            l = ToggleButton(text=b.name, size_hint=(1, None), height=50)
+            l._buff = b
+            l.bind(on_press = self.update_buffs)
 
             buffs.add_widget(l)
 
@@ -129,13 +147,13 @@ class AttacksTab(TabbedPanelItem):
 
             attacks.add_widget(l)
 
-    def update_buffs(self, checkbox, value):
-        if value:
+    def update_buffs(self, button):
+        if button.state == 'down':
             # Add buff to character buff list
-            self.c.buffs.append(checkbox._buff)
+            self.c.buffs.append(button._buff)
         else:
             # Remove buff from character buff list
-            self.c.buffs.remove(checkbox._buff)
+            self.c.buffs.remove(button._buff)
         self.refresh_attacks()
 
 
