@@ -25,6 +25,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty
+from kivy.event import EventDispatcher
 
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -46,13 +47,49 @@ class StringObjectProxy(object):
 
 
 
+global_c = Character()
+
+class UIC_BuilderMeta(type):
+    def __new__(meta, name, bases, dct):
+        c = Character()     # To find all the attributes
+        for attr in dir(c):
+            if not attr.startswith('_'):
+                print "Making attribute %s" % attr
+                dct[attr] = StringProperty('INIT')
+        return super(UIC_BuilderMeta, meta).__new__(meta, name, bases, dct)
+
+class UIC_Builder(EventDispatcher):
+    __metaclass__ = UIC_BuilderMeta
+    def __init__(self):
+        #self.__c = Character()
+        pass
+    def __getattribute__(self, key):
+        print ">> Trying to get %s" % key
+        if key in dir(EventDispatcher):
+            print "    Pushing up to base class"
+            return EventDispatcher.__getattribute__(self, key)
+        #elif key in ('__c', '_UIC_Builder__c'):
+        #    return object.__getattribute__(self, key)
+        else:
+            print "    INTERCEPTED!"
+            val = str(getattr(global_c, key))
+            print "  val is %s" % val
+            setattr(self, key, val)
+            return EventDispatcher.__getattribute__(self, key)
+
+
+
+example = UIC_Builder()
+print "Hmmm"
+
+
 class StatsTab(TabbedPanelItem):
-    uic = ObjectProperty(StringObjectProxy())
+    uic = ObjectProperty(UIC_Builder())
+    str_test = StringProperty()
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
-        self.c = c                              # Character object
-        self.uic = StringObjectProxy(self.c)    # Character object used for
-                                                # ui display
+        self.c = global_c                             # Character object
+        #self.uic.__c = self.c                   # Bind it all together!
 
         # Build GUI
         self.refresh_gui()
@@ -69,8 +106,13 @@ class StatsTab(TabbedPanelItem):
 
 
     def test_button_press(self):
+        print '='*30
+        print "UIC.str was: %s" % self.uic.str
         self.c.base.str_score = 25
-        print "c id is %s" % id(self.c)
+        print "Str is now: %d" % self.c.str
+        print "UIC.str is now: %s" % self.uic.str
+        #print "ID of uic.__c is %s" % id(self.uic.__c)
+        #print "Type of c is %s" % id(self.c)
         self.refresh_gui()
 
 
@@ -156,10 +198,6 @@ class AttacksTab(TabbedPanelItem):
             self.c.buffs.remove(button._buff)
         self.refresh_attacks()
 
-
-
-
-
     def show_roll(self, button):
         attack = button._attack
         text = attack.roll()
@@ -174,6 +212,19 @@ class AttacksTab(TabbedPanelItem):
         print text
 
 
+class CountersTab(TabbedPanelItem):
+    pass
+
+class SkillsTab(TabbedPanelItem):
+    pass
+
+class FeatsTab(TabbedPanelItem):
+    pass
+
+class SpellsTab(TabbedPanelItem):
+    pass
+
+
 
 class IBC_tabs(TabbedPanel):
     def __init__(self, **kwargs):
@@ -186,6 +237,10 @@ class IBC_tabs(TabbedPanel):
         self.add_widget(tab1)
         tab2 = AttacksTab(self.c, self.possible_buffs_list)
         self.add_widget(tab2)
+        self.add_widget(CountersTab())
+        self.add_widget(SkillsTab())
+        self.add_widget(FeatsTab())
+        self.add_widget(SpellsTab())
 
     def build_character(self):
         """Construct a character to play with"""
