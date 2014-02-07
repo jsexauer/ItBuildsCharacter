@@ -51,8 +51,7 @@ global_c = Character()
 
 class UIC_BuilderMeta(type):
     def __new__(meta, name, bases, dct):
-        c = Character()     # To find all the attributes
-        for attr in dir(c):
+        for attr in dir(global_c):
             if not attr.startswith('_'):
                 print "Making attribute %s" % attr
                 dct[attr] = StringProperty('INIT')
@@ -68,13 +67,11 @@ class UIC_Builder(EventDispatcher):
         if key in dir(EventDispatcher):
             print "    Pushing up to base class"
             return EventDispatcher.__getattribute__(self, key)
-        #elif key in ('__c', '_UIC_Builder__c'):
-        #    return object.__getattribute__(self, key)
         else:
             print "    INTERCEPTED!"
             val = str(getattr(global_c, key))
             print "  val is %s" % val
-            setattr(self, key, val)
+            setattr(self, key, val)     # Will invoke kivy's StringProperty setter
             return EventDispatcher.__getattribute__(self, key)
 
 
@@ -88,21 +85,8 @@ class StatsTab(TabbedPanelItem):
     str_test = StringProperty()
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
-        self.c = global_c                             # Character object
+        self.c = c                             # Character object
         #self.uic.__c = self.c                   # Bind it all together!
-
-        # Build GUI
-        self.refresh_gui()
-
-    def on_press(self):
-        self.refresh_gui()
-
-    def refresh_gui(self):
-        pass
-        #for attr in ['str','int','dex','wis','con','cha']:
-        #    lbl = self.ids[attr]
-        #    lbl.text = attr.capitalize() + ' ' + str(self.c[attr])
-
 
 
     def test_button_press(self):
@@ -111,9 +95,6 @@ class StatsTab(TabbedPanelItem):
         self.c.base.str_score = 25
         print "Str is now: %d" % self.c.str
         print "UIC.str is now: %s" % self.uic.str
-        #print "ID of uic.__c is %s" % id(self.uic.__c)
-        #print "Type of c is %s" % id(self.c)
-        self.refresh_gui()
 
 
 
@@ -244,10 +225,11 @@ class IBC_tabs(TabbedPanel):
 
     def build_character(self):
         """Construct a character to play with"""
+        global global_c
         ########
         # BUILD HENRI
         #######
-        c = Character()
+        c = global_c
         c.base.str_score = 19
         c.base.dex_score = 12
         c.base.con_score = 13
