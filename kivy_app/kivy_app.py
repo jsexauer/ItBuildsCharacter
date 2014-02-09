@@ -10,8 +10,8 @@ import kivy
 kivy.require('1.7.0')
 
 from kivy.config import Config
-Config.set('graphics', 'width', '540')
-Config.set('graphics', 'height', '960')
+Config.set('graphics', 'width', '360')
+Config.set('graphics', 'height', '640')
 
 from kivy.app import App
 from kivy.uix.tabbedpanel import TabbedPanel
