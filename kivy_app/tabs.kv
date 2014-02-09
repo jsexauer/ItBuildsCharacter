@@ -77,6 +77,26 @@
                 Label:
                     text: "Attacks"
 
+<AttackRow>:
+    orientation: 'horizontal'
+    padding: 5
+    size_hint: 1, None
+    height: 50
+    Label:
+        id: name
+        size_hint: .5, 1
+        halign: 'left'
+    Label:
+        id: atk
+        size_hint: .1, 1
+    Label:
+        id: dmg
+        size_hint: .2, 1
+    Button:
+        text: "Roll"
+        size_hint: .2, 1
+        on_press: root.show_roll
+
 
 <CountersTab>:
     text: "Counters"

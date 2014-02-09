@@ -139,7 +139,7 @@ class Attack(object):
                                                   self.dmg_roll)
     def __eq__(self, other):
         if not isinstance(other, Attack):
-            raise AssertionError    # We probably didn't mean to do this
+            #raise AssertionError    # We probably didn't mean to do this
             return False
         return (self.atk+0 == other.atk+0) and \
                 (self.dmg_roll == other.dmg_roll) and \
@@ -212,7 +212,7 @@ class DamageRoll(Struct):
         if isinstance(other, AuditResult):
             other = other.value
         if not isinstance(other, DamageRoll):
-            raise AssertionError    # Probably didn't mean to do this
+            #raise AssertionError    # Probably didn't mean to do this
             return False
         return str(self) == str(other)  # If the descripter matches, I'm happy
 

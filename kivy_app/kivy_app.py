@@ -24,13 +24,15 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty,StringProperty
+from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.event import EventDispatcher
 
 from data_model_wrapper import UI_DataModel
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 Builder.load_file(this_dir + 'tabs.kv')
+
+
 
 class CharacterUIWrapper(UI_DataModel):
     _model_class = Character
@@ -62,12 +64,11 @@ class AttacksTab(TabbedPanelItem):
         self.buffs = buffs
 
         # Build GUI
-        self.refresh_gui()
+        self.build_buffs()
+        self.build_attacks()
 
-    def on_press(self):
-        self.refresh_gui()
 
-    def refresh_gui(self):
+    def build_buffs(self):
         # Buffs
         buffs = self.ids['buffs']
         buffs.clear_widgets()
@@ -91,42 +92,19 @@ class AttacksTab(TabbedPanelItem):
 
             buffs.add_widget(l)
 
-        self.refresh_attacks()
 
-    def refresh_attacks(self):
+    def build_attacks(self):
         # Attacks
         attacks = self.ids['attacks']
         attacks.clear_widgets()
         attacks.bind(minimum_height=attacks.setter('height'))
-        for a in self.c.attacks:
-            l = BoxLayout(orientation='horizontal', padding=5,
-                            size_hint=(1, None), height=50)
+        self.attack_labels = []
 
-            name = Label()
-            name.text = a.name
-            name.size_hint = (.5, 1)
-            name.halign = 'left'
-            l.add_widget(name)
+        for n, a in enumerate(self.c.attacks):
+            attacks.add_widget(AttackRow(n, self.c, self.uic))
 
-            atk = Label()
-            atk.text = '+' + str(a.atk)
-            atk.size_hint = (.1, 1)
-            l.add_widget(atk)
 
-            dmg = Label()
-            dmg.text = str(a.dmg_roll)
-            dmg.size_hint = (.2, 1)
-            l.add_widget(dmg)
-
-            roll = Button()
-            roll.text = "Roll"
-            roll._attack = a
-            roll.bind(on_press=self.show_roll)
-            roll.size_hint = (.2, 1)
-            l.add_widget(roll)
-
-            attacks.add_widget(l)
-
+    @uic.update
     def update_buffs(self, button):
         if button.state == 'down':
             # Add buff to character buff list
@@ -134,10 +112,29 @@ class AttacksTab(TabbedPanelItem):
         else:
             # Remove buff from character buff list
             self.c.buffs.remove(button._buff)
-        self.refresh_attacks()
+
+class AttackRow(BoxLayout):
+    def __init__(self, atkNum, character, parent_uic):
+        super(AttackRow, self).__init__()
+        self.c = character
+        self.atkNum = atkNum
+
+        # Bind ourselves to when the attacks update in the uic of the parent
+        parent_uic.bind(attacks=self.onAttacksUpdated)
+
+        # Do inital population
+        self.onAttacksUpdated()
+
+    def onAttacksUpdated(self, *args):
+        # Update atk and dmg values
+        #print "Updating an attack row: %s" % str(args)
+        attack = self.c.attacks[self.atkNum]
+        self.ids['name'].text = attack.name
+        self.ids['atk'].text = '+' + str(attack.atk)
+        self.ids['dmg'].text = str(attack.dmg_roll)
 
     def show_roll(self, button):
-        attack = button._attack
+        attack = self.c.attacks[self.atkNum]
         text = attack.roll()
         btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
         content = BoxLayout(orientation='vertical')
@@ -148,7 +145,6 @@ class AttacksTab(TabbedPanelItem):
         btnclose.bind(on_release=p.dismiss)
         p.open()
         print text
-
 
 class CountersTab(TabbedPanelItem):
     pass
