@@ -91,6 +91,8 @@ class UI_DataModel(EventDispatcher):
         if not isinstance(new_parent, self._model_class):
             raise TypeError("Passed data model must be of same type as _model")
         self.__parent = new_parent
+        # Update outselves
+        self.update(lambda: None)()
 
     def update(self, func):
         """Decorator to put around any UI function that update the common
