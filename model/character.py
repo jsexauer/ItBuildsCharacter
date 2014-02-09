@@ -181,7 +181,7 @@ class Character(Attributes):
         deflection_bonus = self.deflection_bonus
         dodge_bonus = self.dodge_bonus
         size_mod = self.size_mod
-        return (base + _eqp + dex + natural_armor + deflection_bonus +
+        return (base + _eqp + natural_armor + deflection_bonus +
                   dodge_bonus + size_mod)
 
     @auditable
@@ -214,7 +214,7 @@ class Character(Attributes):
     @auditable
     def HP(self):
         # Assume we're taking the PFS hp values and always favored class
-        _pfs_hp_map = {6: 4, 8:5, 10:6, 12:7}
+        _pfs_hp_map = {6: 4, 8:5, 10:6, 12:7, 0:-99999}
         _formula = ("hit_die + (level-1)*hp_per_level + con*level + "
                     "favored_class + feats")
         hit_die = self.rpg_class.hit_die
@@ -326,8 +326,8 @@ class Character(Attributes):
 
         return _attacks
 
-    @property
-    def dmg(self):
-        raise AttributeError("Characters do not have dmg. Use attacks instead.")
+    #@property
+    #def dmg(self):
+    #    raise AttributeError("Characters do not have dmg. Use attacks instead.")
 
 from rpg_objects import Weapon, Buff, RPGClass, Skill
