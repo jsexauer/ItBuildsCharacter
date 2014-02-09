@@ -27,81 +27,38 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty
 from kivy.event import EventDispatcher
 
+from data_model_wrapper import UI_DataModel
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 Builder.load_file(this_dir + 'tabs.kv')
 
-class StringObjectProxy(object):
-    def __init__(self, parent=Character()):
-        self.__parent = parent
-    def __getattr__(self, key):
-        print "Getting %s" % key
-        if key == '__parent':
-            return self.__parent
-        else:
-            val = str(getattr(self.__parent, key))
-            print "   returning %s (type: %s)" % (val, type(val))
-            return val
-    def __getitem__(self, key):
-        return str(elf.__parent[key])
-
-
-
-global_c = Character()
-
-class UIC_BuilderMeta(type):
-    def __new__(meta, name, bases, dct):
-        for attr in dir(global_c):
-            if not attr.startswith('_'):
-                print "Making attribute %s" % attr
-                dct[attr] = StringProperty('INIT')
-        return super(UIC_BuilderMeta, meta).__new__(meta, name, bases, dct)
-
-class UIC_Builder(EventDispatcher):
-    __metaclass__ = UIC_BuilderMeta
-    def __init__(self):
-        #self.__c = Character()
-        pass
-    def __getattribute__(self, key):
-        print ">> Trying to get %s" % key
-        if key in dir(EventDispatcher):
-            print "    Pushing up to base class"
-            return EventDispatcher.__getattribute__(self, key)
-        else:
-            print "    INTERCEPTED!"
-            val = str(getattr(global_c, key))
-            print "  val is %s" % val
-            setattr(self, key, val)     # Will invoke kivy's StringProperty setter
-            return EventDispatcher.__getattribute__(self, key)
-
-
-
-example = UIC_Builder()
-print "Hmmm"
+class CharacterUIWrapper(UI_DataModel):
+    _model_class = Character
 
 
 class StatsTab(TabbedPanelItem):
-    uic = ObjectProperty(UIC_Builder())
-    str_test = StringProperty()
+    uic = CharacterUIWrapper()
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
         self.c = c                             # Character object
-        #self.uic.__c = self.c                   # Bind it all together!
+        self.uic._model = self.c               # Bind it all together!
 
-
+    @uic.update
     def test_button_press(self):
-        print '='*30
-        print "UIC.str was: %s" % self.uic.str
+        #print '='*30
+        #print "UIC.str was: %s" % self.uic.str
         self.c.base.str_score = 25
-        print "Str is now: %d" % self.c.str
-        print "UIC.str is now: %s" % self.uic.str
+        #print "Str is now: %d" % self.c.str
+        #print "UIC.str is now: %s" % self.uic.str
 
 
 
 class AttacksTab(TabbedPanelItem):
+    uic = CharacterUIWrapper()
     def __init__(self, c, buffs, **kwargs):
         super(AttacksTab, self).__init__(**kwargs)
         self.c = c      # Character object
+        self.uic._model = self.c               # Bind it all together!
         self.buffs = buffs
 
         # Build GUI
@@ -225,11 +182,10 @@ class IBC_tabs(TabbedPanel):
 
     def build_character(self):
         """Construct a character to play with"""
-        global global_c
         ########
         # BUILD HENRI
         #######
-        c = global_c
+        c = Character()
         c.base.str_score = 19
         c.base.dex_score = 12
         c.base.con_score = 13
