@@ -1,5 +1,5 @@
 # IBC import
-from ItBuildsCharacter.model import Character, Weapon, Attack, DamageRoll, Buff
+from model import Character, Weapon, Attack, DamageRoll, Buff
 
 import os
 from copy import copy
@@ -27,7 +27,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.event import EventDispatcher
 
-from ItBuildsCharacter.kivy_app.data_model_wrapper import UI_DataModel
+from kivy_app.data_model_wrapper import UI_DataModel
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 Builder.load_file(this_dir + 'tabs.kv')
