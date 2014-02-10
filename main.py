@@ -1,7 +1,7 @@
 
 
-from kivy_app.app_main import *
+from kivy_app import app_main
 
 if __name__ == '__main__':
-    app = IBC_App()
+    app = app_main.IBC_App()
     app.run()
