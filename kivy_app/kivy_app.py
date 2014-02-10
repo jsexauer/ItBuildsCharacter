@@ -82,7 +82,11 @@ class CDM(object):
              Buff('Favored Enemy (Monstrous Humanoid)',2,2),
              Buff('Bless',atk_mod=1),
              Buff('Prayer',atk_mod=1,dmg_mod=1),
-             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]*10
+             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]
+
+        bulls_strength = Buff("Bull's Strength")
+        bulls_strength.str_score = 4
+        cls.possible_buffs_list.append(bulls_strength)
 
         # Update UIC Model
         cls.uic._model = cls.c
@@ -182,7 +186,7 @@ class AttackRow(BoxLayout):
         self.ids['atk'].text = '+' + str(attack.atk)
         self.ids['dmg'].text = str(attack.dmg_roll)
 
-    def show_roll(self, button):
+    def show_roll(self):
         attack = self.c.attacks[self.atkNum]
         text = attack.roll()
         btnclose = Button(text='Continue', size_hint_y=None, height='50sp')

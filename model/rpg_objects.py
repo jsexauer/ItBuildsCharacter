@@ -54,7 +54,7 @@ class Attack(object):
         return self.character.audit
 
     def roll(self):
-        s = ''
+        s = str(self) + '\n\n'
         atk_roll = roll_d(20)
         dmg = self.dmg_roll.roll()
         if atk_roll in self.crit_range:
