@@ -37,11 +37,12 @@ Builder.load_file(this_dir + 'tabs.kv')
 class CharacterUIWrapper(UI_DataModel):
     _model_class = Character
 
-uic = CharacterUIWrapper()
 
-class CharacterDataMixin(object):
+class CDM(object):
+    """Character Data Mixin Object (to share character data across all classes
+    and tabs that make up the application)"""
     c = Character()
-    uic = uic
+    uic = CharacterUIWrapper()
 
     @classmethod
     def build_character(cls):
@@ -88,13 +89,13 @@ class CharacterDataMixin(object):
 
 
 
-class StatsTab(CharacterDataMixin, TabbedPanelItem):
+class StatsTab(TabbedPanelItem,CDM):
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
         self.c = c                             # Character object
         self.uic._model = self.c               # Bind it all together!
 
-    @uic.update
+    @CDM.uic.update
     def test_button_press(self):
         #print '='*30
         #print "UIC.str was: %s" % self.uic.str
@@ -104,7 +105,7 @@ class StatsTab(CharacterDataMixin, TabbedPanelItem):
 
 
 
-class AttacksTab(CharacterDataMixin, TabbedPanelItem):
+class AttacksTab(TabbedPanelItem,CDM):
     def __init__(self, c, buffs, **kwargs):
         super(AttacksTab, self).__init__(**kwargs)
         self.c = c      # Character object
@@ -152,7 +153,7 @@ class AttacksTab(CharacterDataMixin, TabbedPanelItem):
             attacks.add_widget(AttackRow(n, self.c, self.uic))
 
 
-    @uic.update
+    @CDM.uic.update
     def update_buffs(self, button):
         if button.state == 'down':
             # Add buff to character buff list
@@ -208,7 +209,7 @@ class SpellsTab(TabbedPanelItem):
 
 
 
-class IBC_tabs(TabbedPanel, CharacterDataMixin):
+class IBC_tabs(TabbedPanel, CDM):
     def __init__(self, **kwargs):
         super(IBC_tabs, self).__init__(**kwargs)
 
