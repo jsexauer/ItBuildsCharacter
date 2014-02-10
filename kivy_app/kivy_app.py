@@ -37,9 +37,58 @@ Builder.load_file(this_dir + 'tabs.kv')
 class CharacterUIWrapper(UI_DataModel):
     _model_class = Character
 
+uic = CharacterUIWrapper()
 
-class StatsTab(TabbedPanelItem):
-    uic = CharacterUIWrapper()
+class CharacterDataMixin(object):
+    c = Character()
+    uic = uic
+
+    @classmethod
+    def build_character(cls):
+        """Construct a character to play with"""
+        ########
+        # BUILD HENRI
+        #######
+        c = Character()
+        c.base.str_score = 19
+        c.base.dex_score = 12
+        c.base.con_score = 13
+        c.base.cha_score = 14
+
+        c.BAB = 16
+
+        greatsword = Weapon("Greatsword",
+                      Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
+                             crit_range=[19,20], crit_mult=2, two_handed=True))
+        #c.equipment.main_hand = greatsword
+
+        # Add in dual-wield for testing
+        tidewater_cutless = Weapon("Tidewater Cuttless +1",
+                      Attack(atk=+1, dmg_roll=DamageRoll.fromString("1d6+1"),
+                             crit_range=[18,19,20], crit_mult=2))
+        c.equipment.main_hand = tidewater_cutless
+        masterwork_handaxe = Weapon("Masterwork Handaxe",
+                              Attack(atk=1, dmg_roll=DamageRoll.fromString("1d6"),
+                                     crit_range=[20,], crit_mult=3))
+
+        c.equipment.off_hand = masterwork_handaxe
+
+        cls.c = c
+
+        # Buffs
+        cls.possible_buffs_list = \
+            [Buff('Favored Enemy (Human)',4,4),
+             Buff('Favored Enemy (Monstrous Humanoid)',2,2),
+             Buff('Bless',atk_mod=1),
+             Buff('Prayer',atk_mod=1,dmg_mod=1),
+             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]*10
+
+        # Update UIC Model
+        cls.uic._model = cls.c
+
+
+
+class StatsTab(CharacterDataMixin, TabbedPanelItem):
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
         self.c = c                             # Character object
@@ -55,8 +104,7 @@ class StatsTab(TabbedPanelItem):
 
 
 
-class AttacksTab(TabbedPanelItem):
-    uic = CharacterUIWrapper()
+class AttacksTab(CharacterDataMixin, TabbedPanelItem):
     def __init__(self, c, buffs, **kwargs):
         super(AttacksTab, self).__init__(**kwargs)
         self.c = c      # Character object
@@ -160,7 +208,7 @@ class SpellsTab(TabbedPanelItem):
 
 
 
-class IBC_tabs(TabbedPanel):
+class IBC_tabs(TabbedPanel, CharacterDataMixin):
     def __init__(self, **kwargs):
         super(IBC_tabs, self).__init__(**kwargs)
 
@@ -175,45 +223,6 @@ class IBC_tabs(TabbedPanel):
         self.add_widget(SkillsTab())
         self.add_widget(FeatsTab())
         self.add_widget(SpellsTab())
-
-    def build_character(self):
-        """Construct a character to play with"""
-        ########
-        # BUILD HENRI
-        #######
-        c = Character()
-        c.base.str_score = 19
-        c.base.dex_score = 12
-        c.base.con_score = 13
-        c.base.cha_score = 14
-
-        c.BAB = 16
-
-        greatsword = Weapon("Greatsword",
-                      Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
-                             crit_range=[19,20], crit_mult=2, two_handed=True))
-        #c.equipment.main_hand = greatsword
-
-        # Add in dual-wield for testing
-        tidewater_cutless = Weapon("Tidewater Cuttless +1",
-                      Attack(atk=+1, dmg_roll=DamageRoll.fromString("1d6+1"),
-                             crit_range=[18,19,20], crit_mult=2))
-        c.equipment.main_hand = tidewater_cutless
-        masterwork_handaxe = Weapon("Masterwork Handaxe",
-                              Attack(atk=1, dmg_roll=DamageRoll.fromString("1d6"),
-                                     crit_range=[20,], crit_mult=3))
-
-        c.equipment.off_hand = masterwork_handaxe
-
-        self.c = c
-
-        # Buffs
-        self.possible_buffs_list = \
-            [Buff('Favored Enemy (Human)',4,4),
-             Buff('Favored Enemy (Monstrous Humanoid)',2,2),
-             Buff('Bless',atk_mod=1),
-             Buff('Prayer',atk_mod=1,dmg_mod=1),
-             Buff('Sickened',atk_mod=-2,dmg_mod=-2)]*10
 
 
 class IBC_App(App):
