@@ -1,39 +1,78 @@
+#:import random random
+
+<AbilityScoreLabel@Label>
+    source: None
+    font_size: 24
+    halign: "right"
+    text_size: self.size
+    size: self.size
+    margin: 5, 5
+    padding: -5, 0
+    #canvas:
+    #    Color:
+    #        rgba: random.random(), random.random(), 0.5, 0.5
+    #    Rectangle:
+    #        pos: self.pos
+    #        size: self.size
+<AbilityScore@AbilityScoreLabel>
+    halign: "left"
 
 <StatsTab>:
     text:   "Statistics"
     GridLayout:
-        cols: 2
-        row_default_height: 30
-        row_force_default: True
-        padding: 25
-        Label:
-            id: str
-            font_size: "20sp"
-            text: root.uic.str
-            size_hint_x: None
-        Label:
-            id: int
-            text: " Different"
-            size_hint_x: None
-        Label:
-            id: dex
-            text: "Int "
-            size_hint_x: None
-        Label:
-            id: wis
-            text: "Wis"
-            size_hint_x: None
-        Label:
-            id: con
-            text: "Con"
-            size_hint_x: None
-        Label:
-            id: cha
-            text: "Cha"
-            size_hint_x: None
-        Button:
-            text: 'Str Boost'
-            on_press: root.test_button_press()
+        cols: 1
+        padding: 5
+        size_hint: 1, 1
+        ###############
+        # Attributes
+        ###############
+        GridLayout:
+            cols: 4
+            AbilityScoreLabel:
+                text: "Str:"
+            AbilityScore:
+                text: root.uic.str_score + " (+" + root.uic.str + ")"
+            AbilityScoreLabel:
+                text: "Int:"
+            AbilityScore:
+                text: root.uic.int_score + " (+" + root.uic.int + ")"
+            AbilityScoreLabel:
+                text: "Dex:"
+            AbilityScore:
+                text: root.uic.dex_score + " (+" + root.uic.dex + ")"
+            AbilityScoreLabel:
+                text: "Wis:"
+            AbilityScore:
+                text: root.uic.wis_score + " (+" + root.uic.wis + ")"
+            AbilityScoreLabel:
+                text: "Con:"
+            AbilityScore:
+                text: root.uic.con_score + " (+" + root.uic.con + ")"
+            AbilityScoreLabel:
+                text: "Cha:"
+            AbilityScore:
+                text: root.uic.cha_score + " (+" + root.uic.cha + ")"
+        ###############
+        # Saves
+        ###############
+        GridLayout:
+            cols: 6
+            AbilityScoreLabel:
+                text: "Fort:"
+            AbilityScore:
+                text: root.uic.fort
+            AbilityScoreLabel:
+                text: "Ref:"
+            AbilityScore:
+                text: root.uic.ref
+            AbilityScoreLabel:
+                text: "Will:"
+            AbilityScore:
+                text: root.uic.will
+
+#        Button:
+#            text: 'Str Boost'
+#            on_press: root.test_button_press()
 
 
 <AttacksTab>:
