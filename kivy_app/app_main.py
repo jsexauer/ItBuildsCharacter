@@ -125,15 +125,7 @@ class StatsTab(TabbedPanelItem,CDM):
     def update_weapon(self, hand, weapon_text):
         # Find the weapon that matches the text past
         if weapon_text == 'None':
-            print "setting to none"
             wep = None
-        #elif weapon_text == 'None':
-        #    # This is the "none" that is sent by not having something in hand
-        #    if hand == 'mh':
-        #        assert self.c.equipment.main_hand is None
-        #    elif hand == 'oh':
-        #        assert self.c.equipment.off_hand is None
-        #    return
         else:
             weaps_as_text = [str(a) for a in self.c.equipment]
             idx = weaps_as_text.index(weapon_text)
@@ -144,9 +136,7 @@ class StatsTab(TabbedPanelItem,CDM):
             self.c.equipment.off_hand = wep
         else:
             raise ValueError("Unknown hand %s" % hand)
-        print "Updated weapon"
-        print "Main Hand: %s" % self.c.main_hand
-        print "Off Hand: %s" % self.c.off_hand
+
 
 
 class AttacksTab(TabbedPanelItem,CDM):
@@ -202,11 +192,12 @@ class AttacksTab(TabbedPanelItem,CDM):
 
     def onAttacksUpdated(self, *args):
         if len(self.ids['attacks'].children) != len(self.c.attacks):
-            print "Rebuilding all attacks"
+            #print "Rebuilding all attacks"
             self.build_attacks()
         else:
-            print "Same number of attacks, no need to rebuild"
-            print self.uic.attacks
+            #print "Same number of attacks, no need to rebuild"
+            #print self.uic.attacks
+            pass
 
 
     @CDM.uic.update
