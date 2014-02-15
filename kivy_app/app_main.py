@@ -8,6 +8,7 @@ from model import Character, Weapon, Attack, DamageRoll, Buff
 import os
 import imp
 import time
+import textwrap
 from copy import copy
 
 # Kivy Imports
@@ -29,6 +30,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
@@ -156,7 +158,8 @@ def PopupOk(text, title=None, btn_text='Continue'):
 def PopupAudit(text, key):
     btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
-    lbl = Label(text=text, font_size='12sp',
+    lbl = TextInput(text=text, font_size='12sp', auto_indent=True,
+            readonly=True, disabled=True,
             font_name='fonts'+os.sep+'DroidSansMono.ttf')
     content.add_widget(lbl)
     content.add_widget(btnclose)

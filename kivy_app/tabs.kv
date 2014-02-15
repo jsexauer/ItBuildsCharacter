@@ -110,15 +110,15 @@
         SubGridLayout:
             cols: 4
             AbilityScoreLabel:
+                text: "HP:"
+            AbilityScore:
+                text: root.uic.HP
+                _audit_prop: 'HP'
+            AbilityScoreLabel:
                 text: "AC:"
             AbilityScore:
                 text: root.uic.AC
                 _audit_prop: 'AC'
-            AbilityScoreLabel:
-                text: "ACP:"
-            AbilityScore:
-                text: "%+d" % int(root.uic.ACP)
-                _audit_prop: 'ACP'
             AbilityScoreLabel:
                 text: "Tch AC:"
             AbilityScore:

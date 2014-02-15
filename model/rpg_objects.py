@@ -142,14 +142,19 @@ class Attack(object):
 
     def __str__(self):
         if self.audit:
-            # We're auditing so be special
-            return ('<<\n' + get_displayworthy('Attack', self.dmg_roll, False) +
-                    ';\n' + get_displayworthy('Damage', self.atk, False) + '>>')
-        #    return '{0:+d} for {1} damage'.format(self.atk.value,
-        #                                          self.dmg_roll.value)
+            atk = self.atk.value
+            dmg = self.dmg_roll.value
         else:
-            return '{0:+d} for {1} damage'.format(self.atk,
-                                                  self.dmg_roll)
+            atk = self.atk
+            dmg = self.dmg_roll
+        s = '{0:+d} for {1} damage'.format(atk, dmg)
+        if self.audit:
+            # We're auditing so be special
+            return '<<\n' + get_displayworthy('Attack', self.dmg_roll, False) + \
+                    ';\n' + get_displayworthy('Damage', self.atk, False) + \
+                    '>>\n  = ' + s
+        else:
+            return s
     def __eq__(self, other):
         if not isinstance(other, Attack):
             #raise AssertionError    # We probably didn't mean to do this

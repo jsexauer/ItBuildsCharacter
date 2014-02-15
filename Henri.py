@@ -3,12 +3,12 @@
 # Level 5 Cavalier
 ##############################################################################
 
-from model import Character, RPGClass, Equipment, Weapon, Attack, Buff
+from model import Character, RPGClass, Equipment, Weapon, Attack, Buff, Feat, auditable
 
 class Cavalier(RPGClass):
     def __init__(self):
         super(Cavalier, self).__init__()
-        self.hit_die = 8
+        self.hit_die = 10
         self.fort = 4       # TODO: Scale will level
         self.ref = 1
         self.will = 1
@@ -50,6 +50,17 @@ cmpst_lng_bow = Weapon("+2 Cmpst Lng Bow", Attack(2, "1d8", ranged=True))
 c.equipment.append(cmpst_lng_bow)
 
 
+# Feats
+class Toughness(Feat):
+    def on_apply(self, character):
+        self.character = character
+    @auditable
+    def HP(self):
+        _formula = "3 + max(lvl-3, 0)"
+        lvl = self.character.lvl
+        return 3 + max(lvl-3,0)
+toughness = Toughness("Toughness")
+c.feats.append(toughness)
 
 
 ### Possible Buffs
