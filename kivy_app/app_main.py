@@ -53,6 +53,8 @@ class CDM(object):
     and tabs that make up the application)"""
     c = Character()
     uic = CharacterUIWrapper()
+    possible_buffs_list = []
+    IBC_def = []
 
     @classmethod
     def build_character(cls):
@@ -63,12 +65,19 @@ class CDM(object):
         c = char_def.c
         pbl = char_def.possible_buffs_list
 
+        # Put him in the code editor
+        with open(filename) as f:
+            cls.IBC_def.append(f.read())
+            print "IBC_def set"
+
         # Set Henri as the system-wide character
-        cls.c = c
+        cls.set_character(c, pbl)
+
+    @classmethod
+    def set_character(cls, character, possible_buffs_list):
+        cls.c = character
         cls.uic._model = cls.c
-        cls.possible_buffs_list = pbl
-
-
+        cls.possible_buffs_list = possible_buffs_list
 
     @classmethod
     def build_character_default(cls):
@@ -328,9 +337,44 @@ class FeatsTab(TabbedPanelItem):
 class SpellsTab(TabbedPanelItem):
     pass
 
+class CodeTab(TabbedPanelItem, CDM):
 
-class CodeTab(TabbedPanelItem):
-    pass
+    def save_and_apply(self):
+        # Set up exectuion environment
+        from model import *
+        env = locals().copy()
+        code = self.ids.code.text
+        ptitle = "Invalid Character Definition"
+        try:
+            exec(code, env)
+        except Exception, e:
+            PopupOk("Unable to run code:\n%s\nCode was not saved"%e, ptitle)
+            return
+        c = env.get('c', None)
+        pbl = env.get('possible_buffs_list', None)
+        if c is None:
+            PopupOk("Unable to find a character.  Must be saved in "
+                    "varialbe 'c'\nCode was not saved"%e, ptitle)
+            return
+        if pbl is None:
+            PopupOk("Unable to find a possible_buffs_list.  Must be saved in "
+                    "varialbe 'possible_buffs_list'\nCode was not saved"%e,
+                    ptitle)
+            return
+
+        # Update the character
+        CDM.set_character(c, pbl)
+        CDM.IBC_def.append(code)
+
+        # Save it off
+        # TODO
+        PopupOk("Character applied and saved successfully.",
+                "New Character Definiton Loaded")
+
+    def on_press(self, *args):
+        # Update the code widget
+        print "Updating test"
+        self.ids.code.text = self.IBC_def[-1]
 
 class IBC_tabs(TabbedPanel, CDM):
     def __init__(self, **kwargs):

@@ -3,7 +3,11 @@
 # Level 5 Cavalier
 ##############################################################################
 
-from model import Character, RPGClass, Equipment, Weapon, Attack, Buff, Feat, auditable
+# Detect if we're already inside IBC and thus, all of this has been
+#   provided for us
+if 'Character' not in locals().keys():
+    from model import (Character, RPGClass, Equipment, Weapon, Attack,
+                       Buff, Feat, auditable)
 
 class Cavalier(RPGClass):
     def __init__(self):

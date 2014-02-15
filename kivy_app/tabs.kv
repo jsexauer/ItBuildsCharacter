@@ -245,9 +245,15 @@
     text: "IBC Def"
     BoxLayout:
         orientation: 'vertical'
-        CodeInput:
-            #lexer: PythonLexer()
-            text: 'This is a test'
+        #CodeInput:
+        #    #lexer: PythonLexer()
+        #    text: 'This is a test'
+        TextInput:
+            id: code
+            text: ''
+            font_name: 'fonts/DroidSansMono.ttf'
+            font_size: '8sp'
         Button:
             text: 'Save and Apply'
             size_hint: 1, .1
+            on_press: root.save_and_apply()
