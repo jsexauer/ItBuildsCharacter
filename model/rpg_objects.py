@@ -4,14 +4,20 @@ from attributes import Attributes
 from audit import AuditResult
 
 class Attack(object):
-    def __init__(self, atk, dmg_roll, crit_range, crit_mult, oh=False,
+    def __init__(self, atk, dmg_roll, crit_range=[20,], crit_mult=2, oh=False,
                   name=None, two_handed=False):
         self.name = name
         self.character = Character()
         self.iterative = 0
         self.base = Struct()
         self.base.atk = atk
-        self.base.dmg_roll = dmg_roll
+        if isinstance(dmg_roll, basestring):
+            # Create a damage roll
+            self.base.dmg_roll = DamageRoll.fromString(dmg_roll)
+        elif isinstance(dmg_roll, DamageRoll):
+            self.base.dmg_roll = dmg_roll
+        else:
+            raise ValueError("Unexpected damage roll: %s" % dmg_roll)
         self.base.crit_range = crit_range
         self.base.crit_mult = crit_mult
         self.is_oh = oh     # Off hand attack
