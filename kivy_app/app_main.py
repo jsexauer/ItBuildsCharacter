@@ -91,6 +91,16 @@ class CDM(object):
         # Update UIC Model
         cls.uic._model = cls.c
 
+class SubGridLayout(GridLayout):
+    pass
+##    def __init__(self, **kwargs):
+##        if len(self.children) > 0:
+##            # Set height to be the height of all my children
+##            h = self.children[0].height*(len(self.children)/self.cols)
+##        else:
+##            h = 0
+##        kwargs['height'] = h
+##        super(SubGridLayout, self).__init__(**kwargs)
 
 
 class StatsTab(TabbedPanelItem,CDM):

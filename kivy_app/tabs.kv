@@ -3,10 +3,12 @@
 <AbilityScoreLabel@Label>
     source: None
     font_size: '24sp'
-    halign: "right"
     text_size: self.size
     size: self.size
+    height: '40sp'
     margin: 5, 5
+    size_hint: 1, None
+    halign: 'right'
     padding: -5, 0
     #canvas:
     #    Color:
@@ -14,20 +16,28 @@
     #    Rectangle:
     #        pos: self.pos
     #        size: self.size
+
 <AbilityScore@AbilityScoreLabel>
-    halign: "left"
+    halign: 'left'
+    markup: True
+    bold: True
+    padding: 0, 0
+
+<SubGridLayout>
+
 
 <StatsTab>:
     text:   "Statistics"
     GridLayout:
         cols: 1
         padding: 5
-        size_hint: 1, 1
         ###############
         # Attributes
         ###############
-        GridLayout:
+        SubGridLayout:
             cols: 4
+            size_hint: 1, None
+            height: self.children[0].height*(len(self.children)/self.cols)
             AbilityScoreLabel:
                 text: "Str:"
             AbilityScore:
@@ -55,8 +65,10 @@
         ###############
         # Saves
         ###############
-        GridLayout:
+        SubGridLayout:
             cols: 6
+            size_hint: 1, None
+            height: self.children[0].height*(len(self.children)/self.cols)
             AbilityScoreLabel:
                 text: "Fort:"
             AbilityScore:
@@ -69,6 +81,29 @@
                 text: "Will:"
             AbilityScore:
                 text: root.uic.will
+        ###############
+        # AC
+        ###############
+        SubGridLayout:
+            cols: 4
+            size_hint: 1, None
+            height: self.children[0].height*(len(self.children)/self.cols)
+            AbilityScoreLabel:
+                text: "Init:"
+            AbilityScore:
+                text: root.uic.AC
+            AbilityScoreLabel:
+                text: "AC:"
+            AbilityScore:
+                text: root.uic.AC
+            AbilityScoreLabel:
+                text: "Tch AC:"
+            AbilityScore:
+                text: root.uic.touch_AC
+            AbilityScoreLabel:
+                text: "Flat AC:"
+            AbilityScore:
+                text: root.uic.flatfooted_AC
 
 #        Button:
 #            text: 'Str Boost'
