@@ -329,6 +329,8 @@ class SpellsTab(TabbedPanelItem):
     pass
 
 
+class CodeTab(TabbedPanelItem):
+    pass
 
 class IBC_tabs(TabbedPanel, CDM):
     def __init__(self, **kwargs):
@@ -345,6 +347,7 @@ class IBC_tabs(TabbedPanel, CDM):
         self.add_widget(SkillsTab())
         self.add_widget(FeatsTab())
         self.add_widget(SpellsTab())
+        self.add_widget(CodeTab())
 
 
 class IBC_App(App):

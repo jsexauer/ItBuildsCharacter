@@ -1,5 +1,6 @@
 #:import random random
 #:import Clock kivy.clock.Clock
+#:import PythonLexer pygments.lexers.PythonLexer
 
 <AbilityScoreLabel>
     source: None
@@ -239,3 +240,13 @@
     text: "Spells"
     Label:
         text: "Spells will be displayed here"
+
+<CodeTab>:
+    text: "IBC Def"
+    BoxLayout:
+        orientation: 'vertical'
+        CodeInput:
+            lexer: PythonLexer()
+        Button:
+            text: 'Save and Apply'
+            size_hint: 1, .1
