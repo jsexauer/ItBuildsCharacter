@@ -294,8 +294,6 @@ class Character(Attributes):
     def attacks(self):
         # Values for display
         _formula = "Permuations of"
-        mh_attacks = self.mh_melee_atk_bonus
-
 
         _attacks = []
         main_hand = self.equipment.main_hand
@@ -304,6 +302,12 @@ class Character(Attributes):
             # We have no attacks, so create an "unarmed" attack
             main_hand = Weapon("Unarmed Strike",Attack(0,"1d3"))
             return _attacks
+
+        if main_hand.atk.ranged:
+            assert self.equipment.off_hand is None
+            mh_attacks = self.ranged_atk_bonus
+        else:
+            mh_attacks = self.mh_melee_atk_bonus
 
         # Now do the real calculations
         assert isinstance(main_hand, Weapon)
@@ -350,6 +354,11 @@ class Character(Attributes):
         warn("The perfered method of setting a weapon is using "
                 "character.equipment.off_hand")
         self.equipment.off_hand = new
+
+    @property
+    def weapons(self):
+        ans = filter(lambda x: isinstance(x, Weapon), self.equipment)
+        return ans
     #@property
     #def dmg(self):
     #    raise AttributeError("Characters do not have dmg. Use attacks instead.")

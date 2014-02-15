@@ -5,7 +5,7 @@ from audit import AuditResult
 
 class Attack(object):
     def __init__(self, atk, dmg_roll, crit_range=[20,], crit_mult=2, oh=False,
-                  name=None, two_handed=False):
+                  name=None, two_handed=False, ranged=False):
         self.name = name
         self.character = Character()
         self.iterative = 0
@@ -22,6 +22,7 @@ class Attack(object):
         self.base.crit_mult = crit_mult
         self.is_oh = oh     # Off hand attack
         self.two_handed = two_handed
+        self.ranged = ranged
 
     @auditable
     def atk(self):
