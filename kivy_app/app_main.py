@@ -29,8 +29,6 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
-from kivy.uix.rst import RstDocument
-from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
