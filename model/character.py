@@ -257,7 +257,7 @@ class Character(Attributes):
     @auditable
     def oh_melee_atk_bonus(self):
         if self.equipment.off_hand is None:
-            return None
+            return []
         BAB = self.BAB
         str = self.str
         size = self.size_mod
@@ -296,9 +296,16 @@ class Character(Attributes):
         _formula = "Permuations of"
         mh_attacks = self.mh_melee_atk_bonus
 
-        # Now do the real calculations
+
         _attacks = []
         main_hand = self.equipment.main_hand
+        if main_hand is None:
+            assert self.equipment.off_hand is None
+            # We have no attacks, so create an "unarmed" attack
+            main_hand = Weapon("Unarmed Strike",Attack(0,"1d3"))
+            return _attacks
+
+        # Now do the real calculations
         assert isinstance(main_hand, Weapon)
         if main_hand.atk.two_handed:
             assert self.equipment.off_hand is None
@@ -330,4 +337,4 @@ class Character(Attributes):
     #def dmg(self):
     #    raise AttributeError("Characters do not have dmg. Use attacks instead.")
 
-from rpg_objects import Weapon, Buff, RPGClass, Skill
+from rpg_objects import Weapon, Buff, RPGClass, Skill, Attack

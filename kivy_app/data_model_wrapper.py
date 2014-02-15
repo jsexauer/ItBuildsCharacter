@@ -9,7 +9,7 @@ kivy.require('1.7.0')
 
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from kivy.event import EventDispatcher
 from kivy.lang import Builder
 
@@ -27,9 +27,9 @@ class DataModel(object):
     def c(self):
         return self.a + '\nand\n' + self.b
 
-# Create an instance of the data model that will be used in both the
-#   data processing and UI display sides of things
-common_data_model = DataModel()
+    @property
+    def list_d(self):
+        return [self.a, self.b]
 
 ##################
 # BRIDGE
@@ -47,7 +47,11 @@ class UI_DataModelMeta(type):
             if not attr.startswith('_'):
                 ##print "Making attribute %s" % attr
                 assert attr not in dir(EventDispatcher())
-                dct[attr] = StringProperty('INIT')
+                if isinstance(getattr(example_model, attr), list):
+                    print ">> MAKING LIST FOR %s" % attr
+                    dct[attr] = ListProperty(['INIT',])
+                else:
+                    dct[attr] = StringProperty('INIT')
                 added_attributes.append(attr)
         # Let the UI_DataModel know what attributes are from the common model
         dct['_model_attr'] = added_attributes
@@ -72,10 +76,22 @@ class UI_DataModel(EventDispatcher):
         elif key in self._model_attr:
 #            print "    INTERCEPTED!"
             # Get the value of this key from the common data model
-            val = str(getattr(self.__parent, key))
+            val = getattr(self.__parent, key)
 #            print "  val or %s is %s" % (key, val)
-            # Invoke kivy's StringProperty setter by setting our attribute
-            setattr(self, key, val)
+            # Typecase as needed
+            if isinstance(val, list):
+                # Construct a list of property objects
+                val2 = []
+                for a in val:
+                    # We have to create a whole new UI model for these...
+                    #class SubModel(UI_DataModel):
+                    #    _model_class = type(a)
+                    #val2.append(SubModel(a))
+                    val2.append(str(a))
+            else:
+                val2 = str(val)
+            # Invoke kivy's Property setter by setting our attribute
+            setattr(self, key, val2)
             # Proceed as normal
             return EventDispatcher.__getattribute__(self, key)
         else:
@@ -126,6 +142,10 @@ Builder.load_string("""
         text: "Attribute c:"
     Label:
         text: root.ui_data_model.c
+    Label:
+        text: "Attribute list d[0]:"
+    Label:
+        text: root.ui_data_model.list_d[0]
     Button:
         text: "Make data_model.a longer"
         on_press: root.button_press()

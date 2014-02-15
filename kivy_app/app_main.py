@@ -1,3 +1,7 @@
+############################################################################
+# NOTE: DO NOT RUN THIS FILE DIRECTLY
+#   Run main.py in the IBC base directory
+############################################################################
 # IBC import
 from model import Character, Weapon, Attack, DamageRoll, Buff
 
