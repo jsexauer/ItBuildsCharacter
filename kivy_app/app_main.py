@@ -371,6 +371,9 @@ class CodeTab(TabbedPanelItem, CDM):
         PopupOk("Character applied and saved successfully.",
                 "New Character Definiton Loaded")
 
+    def scroll(self, value):
+        self.ids.code.scroll_x -= value
+
     def on_press(self, *args):
         # Update the code widget
         print "Updating test"

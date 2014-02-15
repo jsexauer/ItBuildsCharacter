@@ -245,15 +245,19 @@
     text: "IBC Def"
     BoxLayout:
         orientation: 'vertical'
-        CodeInput:
-            id: code
-            #lexer: PythonLexer()
-            text: 'This is a test'
-        #TextInput:
+        #CodeInput:
         #    id: code
-        #    text: ''
-        #    font_name: 'fonts/DroidSansMono.ttf'
-        #    font_size: '8sp'
+        #    #lexer: PythonLexer()
+        #    text: 'This is a test'
+        ScrollView:
+            id: scrlv
+            TextInput:
+                id: code
+                text: ''
+                size_hint: 1, None
+                height: max( (len(self._lines)+1) * self.line_height, scrlv.height)
+                font_name: 'fonts/DroidSansMono.ttf'
+                font_size: '8sp'
         Button:
             text: 'Save and Apply'
             size_hint: 1, .1
