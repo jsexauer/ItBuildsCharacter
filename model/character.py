@@ -155,13 +155,14 @@ class Character(Attributes):
         """Armor Class"""
         base = 10
         equipment, _eqp = has_sum(self.equipment, 'AC')
+        buffs, _buffs = has_sum(self.buffs, 'AC')
         dex = self.dex
         natural_armor = self.natural_armor
         deflection_bonus = self.deflection_bonus
         dodge_bonus = self.dodge_bonus
         size_mod = self.size_mod
         return (base + _eqp + dex + natural_armor + deflection_bonus +
-                  dodge_bonus + size_mod)
+                  dodge_bonus + size_mod + _buffs)
 
     @auditable
     def touch_AC(self):

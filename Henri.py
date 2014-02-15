@@ -40,7 +40,7 @@ c.equipment.main_hand = feybane_greatsword
 greatsword = Weapon("Greatsword", Attack(0, "2d6", [19,20], two_handed=True))
 c.equipment.append(greatsword)
 
-cmpst_lng_bow = Weapon("Cmpst Lng Bow +2", Attack(2, "1d8", ranged=True))
+cmpst_lng_bow = Weapon("+2 Cmpst Lng Bow", Attack(2, "1d8", ranged=True))
 c.equipment.append(cmpst_lng_bow)
 
 
