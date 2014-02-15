@@ -60,7 +60,7 @@ class CDM(object):
         c.base.con_score = 13
         c.base.cha_score = 14
 
-        c.BAB = 16
+        c.BAB = 5
 
         greatsword = Weapon("Greatsword",
                       Attack(atk=+0, dmg_roll=DamageRoll.fromString("2d6"),
@@ -124,9 +124,20 @@ class StatsTab(TabbedPanelItem,CDM):
     @CDM.uic.update
     def update_weapon(self, hand, weapon_text):
         # Find the weapon that matches the text past
-        weaps_as_text = [str(a) for a in self.c.equipment]
-        idx = weaps_as_text.index(weapon_text)
-        wep = self.c.equipment[idx]
+        if weapon_text == 'None':
+            print "setting to none"
+            wep = None
+        #elif weapon_text == 'None':
+        #    # This is the "none" that is sent by not having something in hand
+        #    if hand == 'mh':
+        #        assert self.c.equipment.main_hand is None
+        #    elif hand == 'oh':
+        #        assert self.c.equipment.off_hand is None
+        #    return
+        else:
+            weaps_as_text = [str(a) for a in self.c.equipment]
+            idx = weaps_as_text.index(weapon_text)
+            wep = self.c.equipment[idx]
         if hand == 'mh':
             self.c.equipment.main_hand = wep
         elif hand == 'oh':
@@ -145,12 +156,13 @@ class AttacksTab(TabbedPanelItem,CDM):
         self.uic._model = self.c               # Bind it all together!
         self.buffs = buffs
 
+        # Bind ourselves to when the attacks update in the uic of the parent
+        self.uic.bind(attacks=self.onAttacksUpdated)
+
         # Build GUI
         self.build_buffs()
         self.build_attacks()
 
-        # Bind ourselves to when the attacks update in the uic of the parent
-        self.uic.bind(attacks=self.onAttacksUpdated)
 
 
     def build_buffs(self):
@@ -211,6 +223,7 @@ class AttackRow(BoxLayout):
         super(AttackRow, self).__init__()
         self.c = character
         self.atkNum = atkNum
+        self.parent_uic = parent_uic
 
         # Bind ourselves to when the attacks update in the uic of the parent
         parent_uic.bind(attacks=self.onAttacksUpdated)
@@ -221,8 +234,14 @@ class AttackRow(BoxLayout):
     def onAttacksUpdated(self, *args):
         # Update atk and dmg values
         #print "Updating an attack row: %s" % str(args)
-        print "Updating attack row %s" % self.atkNum
-        attack = self.c.attacks[self.atkNum]
+        try:
+            attack = self.c.attacks[self.atkNum]
+        except IndexError:
+            # We must be a left over row.  Unbind us
+            print "Cleaning up a binding"
+            self.parent_uic.unbind(attacks=self.onAttacksUpdated)
+            return
+
         self.ids['name'].text = attack.name
         self.ids['atk'].text = '+' + str(attack.atk)
         self.ids['dmg'].text = str(attack.dmg_roll)

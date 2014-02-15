@@ -37,7 +37,7 @@ class CharacterEquipmentList(CharacterList):
     @main_hand.setter
     def main_hand(self, value):
         self._main_hand = value
-        if value not in self:
+        if value not in self and value is not None:
             self.append(value)
 
     @property
@@ -46,7 +46,7 @@ class CharacterEquipmentList(CharacterList):
     @off_hand.setter
     def off_hand(self, value):
         self._off_hand = value
-        if value not in self:
+        if value not in self and value is not None:
             self.append(value)
 
 class CharacterFeatList(CharacterList):
