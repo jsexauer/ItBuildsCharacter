@@ -121,6 +121,21 @@ class StatsTab(TabbedPanelItem,CDM):
         #print "Str is now: %d" % self.c.str
         #print "UIC.str is now: %s" % self.uic.str
 
+    @CDM.uic.update
+    def update_weapon(self, hand, weapon_text):
+        # Find the weapon that matches the text past
+        weaps_as_text = [str(a) for a in self.c.equipment]
+        idx = weaps_as_text.index(weapon_text)
+        wep = self.c.equipment[idx]
+        if hand == 'mh':
+            self.c.equipment.main_hand = wep
+        elif hand == 'oh':
+            self.c.equipment.off_hand = wep
+        else:
+            raise ValueError("Unknown hand %s" % hand)
+        print "Updated weapon"
+        print "Main Hand: %s" % self.c.main_hand
+        print "Off Hand: %s" % self.c.off_hand
 
 
 class AttacksTab(TabbedPanelItem,CDM):
@@ -133,6 +148,9 @@ class AttacksTab(TabbedPanelItem,CDM):
         # Build GUI
         self.build_buffs()
         self.build_attacks()
+
+        # Bind ourselves to when the attacks update in the uic of the parent
+        self.uic.bind(attacks=self.onAttacksUpdated)
 
 
     def build_buffs(self):
@@ -170,6 +188,14 @@ class AttacksTab(TabbedPanelItem,CDM):
         for n, a in enumerate(self.c.attacks):
             attacks.add_widget(AttackRow(n, self.c, self.uic))
 
+    def onAttacksUpdated(self, *args):
+        if len(self.ids['attacks'].children) != len(self.c.attacks):
+            print "Rebuilding all attacks"
+            self.build_attacks()
+        else:
+            print "Same number of attacks, no need to rebuild"
+            print self.uic.attacks
+
 
     @CDM.uic.update
     def update_buffs(self, button):
@@ -195,6 +221,7 @@ class AttackRow(BoxLayout):
     def onAttacksUpdated(self, *args):
         # Update atk and dmg values
         #print "Updating an attack row: %s" % str(args)
+        print "Updating attack row %s" % self.atkNum
         attack = self.c.attacks[self.atkNum]
         self.ids['name'].text = attack.name
         self.ids['atk'].text = '+' + str(attack.atk)

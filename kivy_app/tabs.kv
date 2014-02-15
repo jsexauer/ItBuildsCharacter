@@ -117,11 +117,21 @@
         ###############
         SubGridLayout:
             cols: 1
+            spacing: [0,0]
             AbilityScoreLabel:
                 text: "Main Hand"
                 halign: 'center'
             Spinner:
                 values: root.uic.equipment
+                text: root.uic.main_hand
+                on_text: root.update_weapon('mh', self.text)
+            AbilityScoreLabel:
+                text: "Off Hand"
+                halign: 'center'
+            Spinner:
+                values: root.uic.equipment
+                text: root.uic.off_hand
+                on_text: root.update_weapon('oh', self.text)
 
         Button:
             text: 'Str Boost'

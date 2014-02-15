@@ -48,7 +48,6 @@ class UI_DataModelMeta(type):
                 ##print "Making attribute %s" % attr
                 assert attr not in dir(EventDispatcher())
                 if isinstance(getattr(example_model, attr), list):
-                    print ">> MAKING LIST FOR %s" % attr
                     dct[attr] = ListProperty(['INIT',])
                 else:
                     dct[attr] = StringProperty('INIT')

@@ -4,7 +4,7 @@ from common import *
 from attributes import (Attributes, AttributesMeta, _makeMod, _makeModChar,
                         _makeScore, _makeSave)
 
-
+from warnings import warn
 
 class Race(Attributes):
     pass
@@ -327,12 +327,29 @@ class Character(Attributes):
                 _atk.is_oh = True
                 _atk.character = self
                 _atk.iterative = int(_iter)
-                _atk.name = "%s #%d (OH)" % (main_hand.name, _iter+1)
+                _atk.name = "%s #%d (OH)" % (off_hand.name, _iter+1)
                 _attacks.append(_atk)
 
 
         return _attacks
 
+    @property
+    def main_hand(self):
+        return self.equipment.main_hand
+    @main_hand.setter
+    def main_hand(self, new):
+        warn("The perfered method of setting a weapon is using "
+                "character.equipment.main_hand")
+        self.equipment.main_hand = new
+
+    @property
+    def off_hand(self):
+        return self.equipment.off_hand
+    @off_hand.setter
+    def off_hand(self, new):
+        warn("The perfered method of setting a weapon is using "
+                "character.equipment.off_hand")
+        self.equipment.off_hand = new
     #@property
     #def dmg(self):
     #    raise AttributeError("Characters do not have dmg. Use attacks instead.")
