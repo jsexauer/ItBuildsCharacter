@@ -9,21 +9,31 @@
     margin: 5, 5
     size_hint: 1, None
     halign: 'right'
+    valign: 'middle'
     padding: -5, 0
-    #canvas:
-    #    Color:
-    #        rgba: random.random(), random.random(), 0.5, 0.5
-    #    Rectangle:
-    #        pos: self.pos
-    #        size: self.size
+
 
 <AbilityScore@AbilityScoreLabel>
-    halign: 'left'
+    halign: 'center'
     markup: True
     bold: True
     padding: 0, 0
+    canvas.before:
+        Color:
+            rgba: .1, .1, .1, 0.7
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
-<SubGridLayout>
+
+<SubGridLayout>:
+    size_hint: 1, None
+    cols: 1
+    spacing: [0,5]
+    ch_calc: self.children[-1].height if len(self.children) > 0 else 0
+    h_calc: (self.ch_calc+self.spacing[1])
+    row_calc: (len(self.children)/self.cols) if len(self.children) > 0 else 0
+    height: self.h_calc*self.row_calc
 
 
 <StatsTab>:
@@ -31,71 +41,69 @@
     GridLayout:
         cols: 1
         padding: 5
+        spacing: 10
+        AbilityScore:
+            text: root.uic.name
+            halign: 'center'
         ###############
         # Attributes
         ###############
         SubGridLayout:
             cols: 4
-            size_hint: 1, None
-            height: self.children[0].height*(len(self.children)/self.cols)
             AbilityScoreLabel:
                 text: "Str:"
             AbilityScore:
-                text: root.uic.str_score + " (+" + root.uic.str + ")"
+                text: "%s (%+d)" % (root.uic.str_score, int(root.uic.str))
             AbilityScoreLabel:
                 text: "Int:"
             AbilityScore:
-                text: root.uic.int_score + " (+" + root.uic.int + ")"
+                text: "%s (%+d)" % (root.uic.int_score, int(root.uic.int))
             AbilityScoreLabel:
                 text: "Dex:"
             AbilityScore:
-                text: root.uic.dex_score + " (+" + root.uic.dex + ")"
+                text: "%s (%+d)" % (root.uic.dex_score, int(root.uic.dex))
             AbilityScoreLabel:
                 text: "Wis:"
             AbilityScore:
-                text: root.uic.wis_score + " (+" + root.uic.wis + ")"
+                text: "%s (%+d)" % (root.uic.wis_score, int(root.uic.wis))
             AbilityScoreLabel:
                 text: "Con:"
             AbilityScore:
-                text: root.uic.con_score + " (+" + root.uic.con + ")"
+                text: "%s (%+d)" % (root.uic.con_score, int(root.uic.con))
             AbilityScoreLabel:
                 text: "Cha:"
             AbilityScore:
-                text: root.uic.cha_score + " (+" + root.uic.cha + ")"
+                text: "%s (%+d)" % (root.uic.cha_score, int(root.uic.cha))
         ###############
         # Saves
         ###############
         SubGridLayout:
             cols: 6
-            size_hint: 1, None
-            height: self.children[0].height*(len(self.children)/self.cols)
             AbilityScoreLabel:
                 text: "Fort:"
             AbilityScore:
-                text: root.uic.fort
+                text: "%+d" % int(root.uic.fort)
             AbilityScoreLabel:
                 text: "Ref:"
             AbilityScore:
-                text: root.uic.ref
+                text: "%+d" % int(root.uic.ref)
             AbilityScoreLabel:
                 text: "Will:"
             AbilityScore:
-                text: root.uic.will
+                text: "%+d" % int(root.uic.will)
         ###############
         # AC
         ###############
         SubGridLayout:
             cols: 4
-            size_hint: 1, None
-            height: self.children[0].height*(len(self.children)/self.cols)
-            AbilityScoreLabel:
-                text: "Init:"
-            AbilityScore:
-                text: root.uic.AC
             AbilityScoreLabel:
                 text: "AC:"
             AbilityScore:
                 text: root.uic.AC
+            AbilityScoreLabel:
+                text: "ACP:"
+            AbilityScore:
+                text: "%+d" % int(root.uic.ACP)
             AbilityScoreLabel:
                 text: "Tch AC:"
             AbilityScore:
