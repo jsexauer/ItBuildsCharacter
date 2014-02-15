@@ -122,20 +122,20 @@
                 text: "Main Hand"
                 halign: 'center'
             Spinner:
-                values: root.uic.equipment + ['None']
+                values: root.uic.weapons + ['None']
                 text: root.uic.main_hand
                 on_text: root.update_weapon('mh', self.text)
             AbilityScoreLabel:
                 text: "Off Hand"
                 halign: 'center'
             Spinner:
-                values: root.uic.equipment + ['None']
+                values: root.uic.weapons + ['None']
                 text: root.uic.off_hand
                 on_text: root.update_weapon('oh', self.text)
 
-        Button:
-            text: 'Str Boost'
-            on_press: root.test_button_press()
+        #Button:
+        #    text: 'Str Boost'
+        #    on_press: root.test_button_press()
 
 
 <AttacksTab>:

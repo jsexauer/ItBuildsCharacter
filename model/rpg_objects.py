@@ -31,7 +31,10 @@ class Attack(object):
         if self.is_oh:
             BAB = self.character.oh_melee_atk_bonus[self.iterative]
         else:
-            BAB = self.character.mh_melee_atk_bonus[self.iterative]
+            if self.ranged:
+                BAB = self.character.ranged_atk_bonus[self.iterative]
+            else:
+                BAB = self.character.mh_melee_atk_bonus[self.iterative]
         weapon = self.base.atk
         return BAB + weapon
 

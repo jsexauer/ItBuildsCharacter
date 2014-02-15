@@ -6,6 +6,7 @@
 from model import Character, Weapon, Attack, DamageRoll, Buff
 
 import os
+import imp
 from copy import copy
 
 # Kivy Imports
@@ -50,9 +51,25 @@ class CDM(object):
 
     @classmethod
     def build_character(cls):
+        """Read in a character from a .py file"""
+        # Read in Henri
+        filename = this_dir + '..' + os.sep + 'Henri.py'
+        char_def = imp.load_source('char_def', filename)
+        c = char_def.c
+        pbl = char_def.possible_buffs_list
+
+        # Set Henri as the system-wide character
+        cls.c = c
+        cls.uic._model = cls.c
+        cls.possible_buffs_list = pbl
+
+
+
+    @classmethod
+    def build_character_default(cls):
         """Construct a character to play with"""
         ########
-        # BUILD HENRI
+        # BUILD HENRI (sort of)
         #######
         c = Character()
         c.base.str_score = 19
@@ -160,6 +177,7 @@ class AttacksTab(TabbedPanelItem,CDM):
         buffs = self.ids['buffs']
         buffs.clear_widgets()
         buffs.bind(minimum_height=buffs.setter('height'))
+        pbl = sorted(self.buffs, key=lambda x: x.name)
         for b in self.buffs:
 ##            l = BoxLayout(orientation='horizontal', padding=5,
 ##                            size_hint=(1, None), height=30, width=320)
