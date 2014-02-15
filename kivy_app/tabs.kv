@@ -112,6 +112,16 @@
                 text: "Flat AC:"
             AbilityScore:
                 text: root.uic.flatfooted_AC
+        ###############
+        # Weapons
+        ###############
+        SubGridLayout:
+            cols: 1
+            AbilityScoreLabel:
+                text: "Main Hand"
+                halign: 'center'
+            Spinner:
+                values: root.uic.equipment
 
 #        Button:
 #            text: 'Str Boost'
@@ -163,7 +173,7 @@
     orientation: 'horizontal'
     padding: 5
     size_hint: 1, None
-    height: 50
+    height: '50sp'
     Label:
         id: name
         size_hint: .5, 1

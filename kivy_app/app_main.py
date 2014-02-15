@@ -149,7 +149,7 @@ class AttacksTab(TabbedPanelItem,CDM):
 ##            name.bind(texture_size=name.setter('size'))
 ##            name.text = b.name
 ##            l.add_widget(name)
-            l = ToggleButton(text=b.name, size_hint=(1, None), height=50)
+            l = ToggleButton(text=b.name, size_hint=(1, None), height='50sp')
             l._buff = b
             l.bind(on_press = self.update_buffs)
 
