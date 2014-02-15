@@ -360,6 +360,18 @@ class Character(Attributes):
     def weapons(self):
         ans = filter(lambda x: isinstance(x, Weapon), self.equipment)
         return ans
+
+
+
+    @property
+    def audit_context(self):
+        """Create an auditable context"""
+        class AuditContext(object):
+            def __enter__(s):
+                self.audit = True
+            def __exit__(s, type, value, traceback):
+                self.audit = False
+        return AuditContext()
     #@property
     #def dmg(self):
     #    raise AttributeError("Characters do not have dmg. Use attacks instead.")

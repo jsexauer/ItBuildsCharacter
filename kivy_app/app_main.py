@@ -7,6 +7,7 @@ from model import Character, Weapon, Attack, DamageRoll, Buff
 
 import os
 import imp
+import time
 from copy import copy
 
 # Kivy Imports
@@ -28,9 +29,13 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
+from kivy.uix.rst import RstDocument
+from kivy.uix.scrollview import ScrollView
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.event import EventDispatcher
+
 
 from data_model_wrapper import UI_DataModel
 
@@ -122,6 +127,47 @@ class SubGridLayout(GridLayout):
 ##            h = 0
 ##        kwargs['height'] = h
 ##        super(SubGridLayout, self).__init__(**kwargs)
+
+class AbilityScoreLabel(Label):
+    pass
+
+
+class AbilityScore(AbilityScoreLabel, Button):
+    def on_long_press(self, *args, **kwargs):
+        # Find the character object
+        c = self.get_root_window().children[0].c
+        with c.audit_context:
+            key = getattr(self, '_audit_prop', None)
+            if key is None:
+                msg = "Unable to audit.  No Audit property found."
+            else:
+                msg = str(c[key])
+        PopupAudit(msg, key)
+
+
+def PopupOk(text, title=None, btn_text='Continue'):
+    btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
+    content = BoxLayout(orientation='vertical')
+    content.add_widget(Label(text=text))
+    content.add_widget(btnclose)
+    p = Popup(title=title, content=content, size=('300dp', '300dp'),
+                size_hint=(None, None))
+    btnclose.bind(on_release=p.dismiss)
+    p.open()
+
+def PopupAudit(text, key):
+    btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
+    content = BoxLayout(orientation='vertical')
+    lbl = Label(text=text, font_size='12sp',
+            font_name='fonts'+os.sep+'DroidSansMono.ttf')
+    content.add_widget(lbl)
+    content.add_widget(btnclose)
+    p = Popup(title='Audit of "%s"' % key, content=content,
+                #size=('300dp', '300dp'),
+                size_hint=(.95, .75))
+    btnclose.bind(on_release=p.dismiss)
+    p.open()
+    #PopupOk(text, "Audit of %s" % key)
 
 
 class StatsTab(TabbedPanelItem,CDM):
@@ -258,15 +304,16 @@ class AttackRow(BoxLayout):
     def show_roll(self):
         attack = self.c.attacks[self.atkNum]
         text = attack.roll()
-        btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
-        content = BoxLayout(orientation='vertical')
-        content.add_widget(Label(text=text))
-        content.add_widget(btnclose)
-        p = Popup(title=attack.name, content=content, size=('300dp', '300dp'),
-                    size_hint=(None, None))
-        btnclose.bind(on_release=p.dismiss)
-        p.open()
+        PopupOk(text, attack.name)
         print text
+
+    def on_long_press(self, *args):
+        attack = self.c.attacks[self.atkNum]
+        with self.c.audit_context:
+            assert self.c.audit
+            msg = str(self.c.attacks[self.atkNum])
+        PopupAudit(msg, attack.name)
+        print "Trying to audit an attack"
 
 class CountersTab(TabbedPanelItem):
     pass

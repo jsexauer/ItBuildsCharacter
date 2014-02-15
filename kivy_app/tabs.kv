@@ -1,6 +1,7 @@
 #:import random random
+#:import Clock kivy.clock.Clock
 
-<AbilityScoreLabel@Label>
+<AbilityScoreLabel>
     source: None
     font_size: '24sp'
     text_size: self.size
@@ -13,11 +14,14 @@
     padding: -5, 0
 
 
-<AbilityScore@AbilityScoreLabel>
+<AbilityScore>
     halign: 'center'
     markup: True
     bold: True
     padding: 0, 0
+    background_color: .1, .1, .1, 0
+    on_press: Clock.schedule_once(self.on_long_press, 2)
+    on_release: Clock.unschedule(self.on_long_press)
     canvas.before:
         Color:
             rgba: .1, .1, .1, 0.7
@@ -54,26 +58,32 @@
                 text: "Str:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.str_score, int(root.uic.str))
+                _audit_prop: 'str_score'
             AbilityScoreLabel:
                 text: "Int:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.int_score, int(root.uic.int))
+                _audit_prop: 'int_score'
             AbilityScoreLabel:
                 text: "Dex:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.dex_score, int(root.uic.dex))
+                _audit_prop: 'dex_score'
             AbilityScoreLabel:
                 text: "Wis:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.wis_score, int(root.uic.wis))
+                _audit_prop: 'wis_score'
             AbilityScoreLabel:
                 text: "Con:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.con_score, int(root.uic.con))
+                _audit_prop: 'con_score'
             AbilityScoreLabel:
                 text: "Cha:"
             AbilityScore:
                 text: "%s (%+d)" % (root.uic.cha_score, int(root.uic.cha))
+                _audit_prop: 'cha_score'
         ###############
         # Saves
         ###############
@@ -83,14 +93,17 @@
                 text: "Fort:"
             AbilityScore:
                 text: "%+d" % int(root.uic.fort)
+                _audit_prop: 'fort'
             AbilityScoreLabel:
                 text: "Ref:"
             AbilityScore:
                 text: "%+d" % int(root.uic.ref)
+                _audit_prop: 'ref'
             AbilityScoreLabel:
                 text: "Will:"
             AbilityScore:
                 text: "%+d" % int(root.uic.will)
+                _audit_prop: 'will'
         ###############
         # AC
         ###############
@@ -100,18 +113,22 @@
                 text: "AC:"
             AbilityScore:
                 text: root.uic.AC
+                _audit_prop: 'AC'
             AbilityScoreLabel:
                 text: "ACP:"
             AbilityScore:
                 text: "%+d" % int(root.uic.ACP)
+                _audit_prop: 'ACP'
             AbilityScoreLabel:
                 text: "Tch AC:"
             AbilityScore:
                 text: root.uic.touch_AC
+                _audit_prop: 'touch_AC'
             AbilityScoreLabel:
                 text: "Flat AC:"
             AbilityScore:
                 text: root.uic.flatfooted_AC
+                _audit_prop: 'flatfooted_AC'
         ###############
         # Weapons
         ###############
@@ -184,8 +201,11 @@
     padding: 5
     size_hint: 1, None
     height: '50sp'
-    Label:
+    Button:
         id: name
+        background_color: .1, .1, .1, 0
+        on_press: Clock.schedule_once(root.on_long_press, 2)
+        on_release: Clock.unschedule(root.on_long_press)
         size_hint: .5, 1
         halign: 'left'
     Label:

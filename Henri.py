@@ -32,6 +32,12 @@ breastplate.AC = 8
 breastplate.ACP = -3
 c.equipment.append(breastplate)
 
+cr = Equipment("Cloak of Resistance +1")
+cr.fort = 1
+cr.ref = 1
+cr.will = 1
+c.equipment.append(cr)
+
 # Weapons
 feybane_greatsword = Weapon("+2 Feybane Greatsword",
                         Attack(2, "2d6+2", [19,20], two_handed=True))

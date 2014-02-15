@@ -43,13 +43,16 @@ class Attack(object):
         weapon = self.base.dmg_roll
         equipment, _eqp = has_sum(self.character.equipment, 'dmg_roll')
         buffs, _buff = has_sum(self.character.buffs, 'dmg_roll')
-        str = self.character.str
+        _str = 0
+        if not self.ranged:
+            str = self.character.str
+            _str = str
         _th = 0
         if self.two_handed:
             two_handed_str_bonus = int(self.character.str*0.5)
             _th = two_handed_str_bonus
 
-        return weapon + _eqp + _buff + str + _th
+        return weapon + _eqp + _buff + _str + _th
 
     @property
     def crit_range(self):
@@ -139,11 +142,11 @@ class Attack(object):
 
     def __str__(self):
         if self.audit:
-        #    # We're auditing so be special
-        #    return ('<<\n' + get_displayworthy('Attack', self.dmg_roll, False) +
-        #            ';\n' + get_displayworthy('Damage', self.atk, False) + '>>')
-            return '{0:+d} for {1} damage'.format(self.atk.value,
-                                                  self.dmg_roll.value)
+            # We're auditing so be special
+            return ('<<\n' + get_displayworthy('Attack', self.dmg_roll, False) +
+                    ';\n' + get_displayworthy('Damage', self.atk, False) + '>>')
+        #    return '{0:+d} for {1} damage'.format(self.atk.value,
+        #                                          self.dmg_roll.value)
         else:
             return '{0:+d} for {1} damage'.format(self.atk,
                                                   self.dmg_roll)
@@ -352,3 +355,4 @@ class RPGClass(Attributes):
 
 
 from character import Character
+from audit import get_displayworthy
