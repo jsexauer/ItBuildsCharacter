@@ -57,7 +57,7 @@ class CDM(object):
     uic = CharacterUIWrapper()
     possible_buffs_list = []
     IBC_def = []
-    IBC_id = -1
+    IBC_id = []
 
     @classmethod
     def build_character_from_file(cls):
@@ -77,7 +77,7 @@ class CDM(object):
     @classmethod
     def build_character(cls, IBC_id=0):
         # Read Henri from website
-        r = urlopen(r"http://localhost:5000/IBC/api/v1.0/characters/0")
+        r = urlopen(r"http://localhost:5000/IBC/api/v1.0/characters/%s"%IBC_id)
         r = json.load(r)
         try:
             IBC_def = r['def']
@@ -85,11 +85,13 @@ class CDM(object):
         except Exception, e:
             print "UNABLE TO READ WEBSITE: REading from file"
             cls.build_character_from_file()
+            cls.IBC_id.append(-1)
         else:
             if not success:
-                print "APPLY DID NOT WORK!"
+                print ">>>>>>>APPLY DID NOT WORK!<<<<<<"
             else:
-                cls.IBC_id = r['id']
+                cls.IBC_id.append(r['id'])
+                return True
 
 
     @classmethod
@@ -428,10 +430,18 @@ class CodeTab(TabbedPanelItem, CDM):
         else:
             PopupOk("Post successful? but bad response %s" % response)
 
+    def open_IBC(self):
+        if self.build_character(self.ids.IBC_id.text):
+            self.on_press() # Update us
+            PopupOk("Loaded new character successfully")
+        else:
+            PopupOk("Unable to load character with that id")
+
     def on_press(self, *args):
         # Update the code widget
-        print "Updating test"
         self.ids.code.text = self.IBC_def[-1]
+        self.ids.IBC_id.text = str(self.IBC_id[-1])
+        assert len(self.IBC_def) == len(self.IBC_id)
 
 class IBC_tabs(TabbedPanel, CDM):
     def __init__(self, **kwargs):

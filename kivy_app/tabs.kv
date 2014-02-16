@@ -245,6 +245,19 @@
     text: "IBC Def"
     BoxLayout:
         orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, .1
+            Label:
+                size_hint: 1, .5
+                text: "Character ID"
+            TextInput:
+                id: IBC_id
+                text: '-2'
+                input_type: 'number'
+            Button:
+                text: 'Load'
+                on_press: root.open_IBC()
         #CodeInput:
         #    id: code
         #    #lexer: PythonLexer()
