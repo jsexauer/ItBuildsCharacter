@@ -9,6 +9,8 @@ import os
 import imp
 import time
 import textwrap
+import json
+from urllib2 import urlopen, Request
 from copy import copy
 
 # Kivy Imports
@@ -55,9 +57,10 @@ class CDM(object):
     uic = CharacterUIWrapper()
     possible_buffs_list = []
     IBC_def = []
+    IBC_id = -1
 
     @classmethod
-    def build_character(cls):
+    def build_character_from_file(cls):
         """Read in a character from a .py file"""
         # Read in Henri
         filename = this_dir + '..' + os.sep + 'Henri.py'
@@ -68,16 +71,78 @@ class CDM(object):
         # Put him in the code editor
         with open(filename) as f:
             cls.IBC_def.append(f.read())
-            print "IBC_def set"
 
         # Set Henri as the system-wide character
         cls.set_character(c, pbl)
+    @classmethod
+    def build_character(cls, IBC_id=0):
+        # Read Henri from website
+        r = urlopen(r"http://localhost:5000/IBC/api/v1.0/characters/0")
+        r = json.load(r)
+        try:
+            IBC_def = r['def']
+            success = cls._apply(IBC_def)
+        except Exception, e:
+            print "UNABLE TO READ WEBSITE: REading from file"
+            cls.build_character_from_file()
+        else:
+            if not success:
+                print "APPLY DID NOT WORK!"
+            else:
+                cls.IBC_id = r['id']
+
 
     @classmethod
     def set_character(cls, character, possible_buffs_list):
         cls.c = character
         cls.uic._model = cls.c
         cls.possible_buffs_list = possible_buffs_list
+
+    def _build_post(self, url, data):
+        """Create a JSON paylod of dictionary and post"""
+
+        s = "Unable to post new data to website"
+
+        try:
+            payload = json.dumps(data)
+            header = {'Content-Type': 'application/json'}
+            req = Request(url, payload, header)
+            response = urlopen(req)
+            print response
+            if response.getcode() == 201:
+                return json.loads(response.read())
+        except Exception, e:
+            s += '\nERROR: ' + str(e)
+        PopupOk(s, "Posting Error")
+
+    @classmethod
+    def _apply(cls, code):
+        # Set up exectuion environment
+        from model import *
+        env = locals().copy()
+
+        ptitle = "Invalid Character Definition"
+        try:
+            exec(code, env)
+        except Exception, e:
+            PopupOk("Unable to run code:\n%s\nCode was not saved"%e, ptitle)
+            return False
+        c = env.get('c', None)
+        pbl = env.get('possible_buffs_list', None)
+        if c is None:
+            PopupOk("Unable to find a character.  Must be saved in "
+                    "varialbe 'c'\nCode was not saved"%e, ptitle)
+            return False
+        if pbl is None:
+            PopupOk("Unable to find a possible_buffs_list.  Must be saved in "
+                    "varialbe 'possible_buffs_list'\nCode was not saved"%e,
+                    ptitle)
+            return False
+
+        # Update the character
+        cls.set_character(c, pbl)
+        cls.IBC_def.append(code)
+        return True
 
     @classmethod
     def build_character_default(cls):
@@ -154,7 +219,7 @@ class AbilityScore(AbilityScoreLabel, Button):
         PopupAudit(msg, key)
 
 
-def PopupOk(text, title=None, btn_text='Continue'):
+def PopupOk(text, title='', btn_text='Continue'):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
     content.add_widget(Label(text=text))
@@ -340,39 +405,28 @@ class SpellsTab(TabbedPanelItem):
 class CodeTab(TabbedPanelItem, CDM):
 
     def save_and_apply(self):
-        # Set up exectuion environment
-        from model import *
-        env = locals().copy()
         code = self.ids.code.text
-        ptitle = "Invalid Character Definition"
-        try:
-            exec(code, env)
-        except Exception, e:
-            PopupOk("Unable to run code:\n%s\nCode was not saved"%e, ptitle)
+        if self._apply(code) == False:
             return
-        c = env.get('c', None)
-        pbl = env.get('possible_buffs_list', None)
-        if c is None:
-            PopupOk("Unable to find a character.  Must be saved in "
-                    "varialbe 'c'\nCode was not saved"%e, ptitle)
-            return
-        if pbl is None:
-            PopupOk("Unable to find a possible_buffs_list.  Must be saved in "
-                    "varialbe 'possible_buffs_list'\nCode was not saved"%e,
-                    ptitle)
-            return
-
-        # Update the character
-        CDM.set_character(c, pbl)
-        CDM.IBC_def.append(code)
 
         # Save it off
         # TODO
         PopupOk("Character applied and saved successfully.",
                 "New Character Definiton Loaded")
 
-    def scroll(self, value):
-        self.ids.code.scroll_x -= value
+    def new_and_apply(self):
+        code = self.ids.code.text
+        if self._apply(code) == False:
+            return
+
+        url = r"http://localhost:5000/IBC/api/v1.0/characters"
+        data = {'def': code}
+        response = self._build_post(url, data)
+        new_id = response.get('new_character_id', None)
+        if new_id is not None:
+            PopupOk("Character now on website with id %s" % new_id)
+        else:
+            PopupOk("Post successful? but bad response %s" % response)
 
     def on_press(self, *args):
         # Update the code widget

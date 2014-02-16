@@ -53,59 +53,48 @@ def not_found(error):
 per_path = os.path.dirname(os.path.realpath(__file__))+os.sep+"data.dat"
 data = PersistentDict(per_path)
 try:
-    buffs = data['buffs']
+    characters = data['characters']
 except KeyError:
-    data['buffs'] = []
-    buffs = data['buffs']
+    data['characters'] = []
+    characters = data['characters']
 
 
-@app.route('/IBC/api/v1.0/buffs', methods = ['GET'])
+@app.route('/IBC/api/v1.0/characters', methods = ['GET'])
 @auth.login_required
-def get_all_buffs():
-    return jsonify( { 'buffs': map(lambda x: x.makeDict(), buffs) } )
+def get_all_characters():
+    return jsonify( { 'NotYetImplemented': True } )
 
-@app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['GET'])
+@app.route('/IBC/api/v1.0/characters/<int:id>', methods = ['GET'])
 @auth.login_required
-def get_buffs(task_id):
-    raise NotImplementedError()
-    task = filter(lambda t: t['id'] == task_id, tasks)
-    if len(task) == 0:
-        abort(404)
-    return jsonify( { 'task': make_public_task(task[0]) } )
+def get_characters(id):
+    try:
+        ch = characters[id]
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
+    #if len(ch) == 0:
+    #    abort(404)
+    return jsonify({'def': ch, 'id': id})
 
-@app.route('/IBC/api/v1.0/buffs', methods = ['POST'])
+@app.route('/IBC/api/v1.0/characters', methods = ['POST'])
 @auth.login_required
-def create_buff():
-    if not request.json:
-        abort(400)
-    buff = Buff(request.json['name'],
-                atk_mod=request.json['atk'], 
-                dmg_mod=DamageRoll.fromString(request.json['dmg_roll']))
-    buff.id = request.json['id']
-    Buff._last_id = max(Buff._last_id, buff.id)
-    buffs.append(buff)
+def create_character():
+    try:
+        characters.append(request.json['def'])
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
     data.sync()
-    return jsonify( { 'new_buff': buff.makeDict() } ), 201
+    return jsonify( { 'new_character_id': len(characters)-1} ), 201
 
-@app.route('/IBC/api/v1.0/buffs/<int:task_id>', methods = ['PUT'])
+@app.route('/IBC/api/v1.0/characters/<int:id>', methods = ['POST'])
 @auth.login_required
-def update_buff(task_id):
-    raise NotImplementedError()
-    task = filter(lambda t: t['id'] == task_id, tasks)
-    if len(task) == 0:
-        abort(404)
-    if not request.json:
-        abort(400)
-    if 'title' in request.json and type(request.json['title']) != unicode:
-        abort(400)
-    if 'description' in request.json and type(request.json['description']) is not unicode:
-        abort(400)
-    if 'done' in request.json and type(request.json['done']) is not bool:
-        abort(400)
-    task[0]['title'] = request.json.get('title', task[0]['title'])
-    task[0]['description'] = request.json.get('description', task[0]['description'])
-    task[0]['done'] = request.json.get('done', task[0]['done'])
-    return jsonify( { 'task': make_public_task(task[0]) } )
+def update_character(id):
+    success = True
+    try:
+        characters[id] = request.json['def']
+    except IndexError:
+        success = False
+    data.sync()
+    return jsonify( { 'success': success } )
 
 @app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])
 @auth.login_required

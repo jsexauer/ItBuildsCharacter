@@ -258,7 +258,12 @@
                 height: max( (len(self._lines)+1) * self.line_height, scrlv.height)
                 font_name: 'fonts/DroidSansMono.ttf'
                 font_size: '8sp'
-        Button:
-            text: 'Save and Apply'
+        BoxLayout:
+            orientation: 'horizontal'
             size_hint: 1, .1
-            on_press: root.save_and_apply()
+            Button:
+                text: 'Save and Apply'
+                on_press: root.save_and_apply()
+            Button:
+                text: 'New and Apply'
+                on_press: root.new_and_apply()

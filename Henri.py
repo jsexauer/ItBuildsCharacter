@@ -1,7 +1,7 @@
-##############################################################################
+############################################################################
 # Henri
 # Level 5 Cavalier
-##############################################################################
+############################################################################
 
 # Detect if we're already inside IBC and thus, all of this has been
 #   provided for us
@@ -69,7 +69,6 @@ c.feats.append(toughness)
 
 ### Possible Buffs
 pbl  = []
-
 
 bulls_strength = Buff("Bull's Strength")
 bulls_strength.str_score = 4
