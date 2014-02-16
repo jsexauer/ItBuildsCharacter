@@ -63,7 +63,7 @@ class CDM(object):
     def build_character_from_file(cls):
         """Read in a character from a .py file"""
         # Read in Henri
-        filename = this_dir + '..' + os.sep + 'Clement.py'
+        filename = this_dir + '..' + os.sep + 'Henri.py'
         char_def = imp.load_source('char_def', filename)
         c = char_def.c
         pbl = char_def.possible_buffs_list
