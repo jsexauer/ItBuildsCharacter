@@ -108,6 +108,9 @@ class CDM(object):
         try:
             payload = json.dumps(data)
             header = {'Content-Type': 'application/json'}
+            print url
+            print '='*20
+            print payload
             req = Request(url, payload, header)
             response = urlopen(req)
             print response
@@ -412,9 +415,18 @@ class CodeTab(TabbedPanelItem, CDM):
             return
 
         # Save it off
-        # TODO
-        PopupOk("Character applied and saved successfully.",
-                "New Character Definiton Loaded")
+        url = r"http://localhost:5000/IBC/api/v1.0/characters/%s"%self.IBC_id[-1]
+        response = self._build_post(url, {'def': code})
+        if response is not None:
+            success = response.get('success', False)
+        else:
+            success = False
+        if success:
+            PopupOk("Character applied and saved successfully.",
+                    "New Character Definiton Loaded")
+        else:
+            PopupOk("Character applied \n however did not save: \n%s." % response,
+                    "New Character Definiton Loaded")
 
     def new_and_apply(self):
         code = self.ids.code.text

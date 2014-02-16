@@ -94,7 +94,7 @@ def update_character(id):
     except IndexError:
         success = False
     data.sync()
-    return jsonify( { 'success': success } )
+    return jsonify( { 'success': success } ), 201
 
 @app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])
 @auth.login_required
