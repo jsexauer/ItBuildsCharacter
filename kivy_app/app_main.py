@@ -63,7 +63,7 @@ class CDM(object):
     def build_character_from_file(cls):
         """Read in a character from a .py file"""
         # Read in Henri
-        filename = this_dir + '..' + os.sep + 'Henri.py'
+        filename = this_dir + '..' + os.sep + 'Clement.py'
         char_def = imp.load_source('char_def', filename)
         c = char_def.c
         pbl = char_def.possible_buffs_list
@@ -78,8 +78,8 @@ class CDM(object):
     def build_character(cls, IBC_id=0):
         # Read Henri from website
         r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%IBC_id)
-        r = json.load(r)
         try:
+            r = json.load(r)
             IBC_def = r['def']
             success = cls._apply(IBC_def)
         except Exception, e:
@@ -271,7 +271,11 @@ class StatsTab(TabbedPanelItem,CDM):
             wep = None
         else:
             weaps_as_text = [str(a) for a in self.c.equipment]
-            idx = weaps_as_text.index(weapon_text)
+            try:
+                idx = weaps_as_text.index(weapon_text)
+            except ValueError, e:
+                print e
+                return
             wep = self.c.equipment[idx]
         if hand == 'mh':
             self.c.equipment.main_hand = wep
