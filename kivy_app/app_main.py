@@ -425,7 +425,8 @@ class NewBuffPopup(Popup):
     def add_row(self):
         br = NewBuffRow()
         self._make_spinner(br.ids.attr_key)
-        self.ids.content.add_widget(br, 1)
+        self.height += 50 + 5
+        self.ids.content.add_widget(br)
 
     def make_buff(self):
         print "Asked to make buff"
@@ -433,8 +434,14 @@ class NewBuffPopup(Popup):
         for child in self.ids.content.children:
             if isinstance(child, NewBuffRow):
                 key = child.ids.attr_key.text
-                value = int(child.ids.attr_value.text)
-                print "Making %s %s" % (key, value)
+                if key == '':
+                    PopupOk("Please specify an attribute")
+                    return
+                try:
+                    value = int(child.ids.attr_value.text)
+                except ValueError:
+                    PopupOk("Attribute value must be a number")
+                    return
                 setattr(new_buff, key, value)
         self._my_parent.buffs.append(new_buff)
         self._my_parent.build_buffs()
