@@ -204,22 +204,69 @@
     height: '50sp'
     Button:
         id: name
-        background_color: .1, .1, .1, 0
+        background_color: .1, .1, .1, .1
         on_press: Clock.schedule_once(root.on_long_press, 2)
         on_release: Clock.unschedule(root.on_long_press)
         size_hint: .5, 1
         halign: 'left'
     Label:
         id: atk
-        size_hint: .1, 1
+        size_hint: .07, 1
     Label:
         id: dmg
-        size_hint: .2, 1
+        size_hint: .15, 1
     Button:
         text: "Roll"
-        size_hint: .2, 1
+        size_hint: .15, 1
         on_press: root.show_roll()
 
+
+
+<NewBuffPopup>:
+    title: 'Create New Buff'
+    size_hint: (.95, .5)
+    stretch: False
+    BoxLayout:
+        id: content
+        orientation: 'vertical'
+        BoxLayout:
+            orientaiton: 'horizontal'
+			Label:
+				size_hint: 1, .3
+				text: "Name: "
+			TextInput:
+				id: buff_name
+        NewBuffRow:
+        Button:
+            text: '+'
+            size_hint: 1, None
+            height: '50sp'
+            on_release: root.add_row()
+        BoxLayout:
+            orientaiton: 'horizontal'
+            Button:
+                text: 'Ok'
+                on_release: root.make_buff()
+            Button:
+                text: 'Cancel'
+                on_release: root.dismiss()
+
+
+
+
+<NewBuffRow>:
+    orientation: 'horizontal'
+    Spinner:
+        id: attr_key
+        size_hint: .3, None
+        height: '50sp'
+    Label:
+        text: ' = '
+        size_hint: .1, None
+    TextInput:
+		id: attr_value
+        input_type: 'number'
+        size_hint: .6, None
 
 <CountersTab>:
     text: "Counters"

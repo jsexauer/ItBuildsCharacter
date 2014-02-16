@@ -323,6 +323,11 @@ class AttacksTab(TabbedPanelItem,CDM):
 
             buffs.add_widget(l)
 
+        # Management button
+        l = Button(text='Add New Buff...', size_hint=(1, None), height='50sp')
+        l.bind(on_press = self.new_buff)
+        buffs.add_widget(l)
+
 
     def build_attacks(self):
         # Attacks
@@ -352,6 +357,11 @@ class AttacksTab(TabbedPanelItem,CDM):
         else:
             # Remove buff from character buff list
             self.c.buffs.remove(button._buff)
+
+    def new_buff(self, button):
+        popup = NewBuffPopup(self)
+        popup.open()
+
 
 class AttackRow(BoxLayout):
     def __init__(self, atkNum, character, parent_uic):
@@ -394,6 +404,44 @@ class AttackRow(BoxLayout):
             msg = str(self.c.attacks[self.atkNum])
         PopupAudit(msg, attack.name)
         print "Trying to audit an attack"
+
+class NewBuffPopup(Popup):
+    def __init__(self, parent):
+        self._my_parent = parent
+        super(NewBuffPopup, self).__init__()
+        for child in self.ids.content.children:
+            if isinstance(child, NewBuffRow):
+                self._make_spinner(child.ids.attr_key)
+
+
+    def _make_spinner(self, spinner):
+        profane = ['audit', 'fromDict', 'id', 'makeDict', 'makeUI', 'name',
+                    'ui_id']
+        proto = Buff('Prototype')
+        for a in dir(proto):
+            if not a.startswith('_') and a not in profane:
+                spinner.values.append(a)
+
+    def add_row(self):
+        br = NewBuffRow()
+        self._make_spinner(br.ids.attr_key)
+        self.ids.content.add_widget(br, 1)
+
+    def make_buff(self):
+        print "Asked to make buff"
+        new_buff = Buff(self.ids.buff_name.text)
+        for child in self.ids.content.children:
+            if isinstance(child, NewBuffRow):
+                key = child.ids.attr_key.text
+                value = int(child.ids.attr_value.text)
+                print "Making %s %s" % (key, value)
+                setattr(new_buff, key, value)
+        self._my_parent.buffs.append(new_buff)
+        self._my_parent.build_buffs()
+        self.dismiss()
+
+class NewBuffRow(BoxLayout):
+    pass
 
 class CountersTab(TabbedPanelItem):
     pass
