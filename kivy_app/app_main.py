@@ -77,7 +77,7 @@ class CDM(object):
     @classmethod
     def build_character(cls, IBC_id=0):
         # Read Henri from website
-        r = urlopen(r"http://localhost:5000/IBC/api/v1.0/characters/%s"%IBC_id)
+        r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%IBC_id)
         r = json.load(r)
         try:
             IBC_def = r['def']
@@ -415,7 +415,7 @@ class CodeTab(TabbedPanelItem, CDM):
             return
 
         # Save it off
-        url = r"http://localhost:5000/IBC/api/v1.0/characters/%s"%self.IBC_id[-1]
+        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%self.IBC_id[-1]
         response = self._build_post(url, {'def': code})
         if response is not None:
             success = response.get('success', False)
@@ -433,7 +433,7 @@ class CodeTab(TabbedPanelItem, CDM):
         if self._apply(code) == False:
             return
 
-        url = r"http://localhost:5000/IBC/api/v1.0/characters"
+        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters"
         data = {'def': code}
         response = self._build_post(url, data)
         new_id = response.get('new_character_id', None)
