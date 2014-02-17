@@ -241,6 +241,16 @@ class AbilityScore(AbilityScoreLabel, Button):
                 msg = c[key]
         PopupAudit(msg, key)
 
+class ScrollableText(BoxLayout):
+    text = StringProperty('')
+    def go_up(self, *args):
+        a = self.ids.text_input.cursor
+        pos = (a[0], a[1]-3)
+        self.ids.text_input.cursor = pos
+    def go_down(self, *args):
+        a = self.ids.text_input.cursor
+        pos = (a[0], a[1]+3)
+        self.ids.text_input.cursor = pos
 
 def PopupOk(text, title='', btn_text='Continue'):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
@@ -262,9 +272,10 @@ def PopupAudit(audit_obj, key):
         text = str(audit_obj)
     btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
-    lbl = TextInput(text=text, font_size='12sp', auto_indent=True,
-            readonly=True, disabled=True,
-            font_name='fonts'+os.sep+'DroidSansMono.ttf')
+##    lbl = TextInput(text=text, font_size='12sp', auto_indent=True,
+##            readonly=True, disabled=True,
+##            font_name='fonts'+os.sep+'DroidSansMono.ttf')
+    lbl = ScrollableText(text=text)
     content.add_widget(lbl)
     content.add_widget(btnclose)
     p = Popup(title='Audit of "%s"' % key, content=content,
