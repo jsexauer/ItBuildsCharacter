@@ -420,13 +420,14 @@ class NewBuffPopup(Popup):
 
 
     def _make_spinner(self, spinner):
-##        profane = ['audit', 'fromDict', 'id', 'makeDict', 'makeUI', 'name',
-##                    'ui_id']
-##        proto = Buff('Prototype')
-##        for a in dir(proto):
-##            if not a.startswith('_') and a not in profane:
-##                spinner.values.append(a)
-        spinner.values.extend(['a','b','c'])
+        profane = ['audit', 'fromDict', 'id', 'makeDict', 'makeUI', 'name',
+                    'ui_id']
+        proto = Buff('Prototype')
+        z = []
+        for a in dir(proto):
+            if not a.startswith('_') and a not in profane:
+                z.append(a)
+        spinner.values.extend(z)
 
     def add_row(self):
         br = NewBuffRow()
