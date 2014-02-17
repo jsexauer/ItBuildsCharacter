@@ -253,8 +253,8 @@ def PopupAudit(text, key):
 class StatsTab(TabbedPanelItem,CDM):
     def __init__(self, c, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
-        self.c = c                             # Character object
-        self.uic._model = self.c               # Bind it all together!
+        #self.c = c                             # Character object
+        #self.uic._model = self.c               # Bind it all together!
 
     @CDM.uic.update
     def test_button_press(self):
@@ -275,6 +275,7 @@ class StatsTab(TabbedPanelItem,CDM):
                 idx = weaps_as_text.index(weapon_text)
             except ValueError, e:
                 print e
+                print weaps_as_text
                 return
             wep = self.c.equipment[idx]
         if hand == 'mh':
@@ -345,10 +346,10 @@ class AttacksTab(TabbedPanelItem,CDM):
 
     def onAttacksUpdated(self, *args):
         if len(self.ids['attacks'].children) != len(self.c.attacks):
-            #print "Rebuilding all attacks"
+            print "Rebuilding all attacks"
             self.build_attacks()
         else:
-            #print "Same number of attacks, no need to rebuild"
+            print "Same number of attacks, no need to rebuild"
             #print self.uic.attacks
             pass
 
@@ -535,6 +536,12 @@ class IBC_tabs(TabbedPanel, CDM):
 class IBC_App(App):
     def build(self):
         return IBC_tabs(do_default_tab = False)
+
+    def on_pause(self):
+        return True
+
+    def on_resume(self):
+        pass
 
 if __name__ == '__main__':
     IBC_App().run()
