@@ -37,6 +37,7 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.event import EventDispatcher
+from kivy.metrics import sp as kivy_sp
 
 
 from data_model_wrapper import UI_DataModel
@@ -432,7 +433,7 @@ class NewBuffPopup(Popup):
     def add_row(self):
         br = NewBuffRow()
         self._make_spinner(br.ids.attr_key)
-        self.height += 50 + 5
+        self.height = self.height + kivy_sp(50 + 5)
         self.ids.content.add_widget(br)
 
     def make_buff(self):
