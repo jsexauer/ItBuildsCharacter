@@ -268,7 +268,10 @@ def PopupOk(text, title='', btn_text='Continue'):
 
 def PopupAudit(audit_obj, key):
     def on_close(*args):
-        Window.rotation = 0
+        def _on_close(*args):
+            Window.rotation = 0
+        Clock.schedule_once(_on_close, .25)
+
     assert isinstance(audit_obj, AuditResult) or audit_obj is None
     if audit_obj is None:
         text = "No audit attribute found for %s" % key
@@ -289,7 +292,8 @@ def PopupAudit(audit_obj, key):
     p.bind(on_open=lbl.go_top)
     # See if this is a pretty long audit, so we will display long ways
     if max([len(a) for a in text.split('\n')]) > 30:
-        p.bind(on_dismiss=on_close)
+        p.bind(on_dismiss=on_close) and None
+        p.size_hint = (.95, .95)
         Window.rotation = 90
     p.open()
 
