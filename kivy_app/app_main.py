@@ -243,11 +243,15 @@ class AbilityScore(AbilityScoreLabel, Button):
 
 class ScrollableText(BoxLayout):
     text = StringProperty('')
-    def go_up(self, *args):
+    def go_top(self, *args):
+        print "IN GO TOP"
+        self.ids.text_input.cursor = (0,-5)
+    def go_up(self):
         a = self.ids.text_input.cursor
         pos = (a[0], a[1]-3)
+        print pos
         self.ids.text_input.cursor = pos
-    def go_down(self, *args):
+    def go_down(self):
         a = self.ids.text_input.cursor
         pos = (a[0], a[1]+3)
         self.ids.text_input.cursor = pos
@@ -282,6 +286,7 @@ def PopupAudit(audit_obj, key):
                 #size=('300dp', '300dp'),
                 size_hint=(.95, .75))
     btnclose.bind(on_release=p.dismiss)
+    p.bind(on_open=lbl.go_top)
     # See if this is a pretty long audit, so we will display long ways
     if max([len(a) for a in text.split('\n')]) > 30:
         p.bind(on_dismiss=on_close)
