@@ -59,10 +59,12 @@ class CDM(object):
     possible_buffs_list = []
     IBC_def = []
     IBC_id = []
+    update_hooks = []       # Functions to update when new model is loaded
 
     @classmethod
     def build_character_from_file(cls):
         """Read in a character from a .py file"""
+        assert type(cls) is type, "Must call as classmethod"
         # Read in Henri
         filename = this_dir + '..' + os.sep + 'Henri.py'
         char_def = imp.load_source('char_def', filename)
@@ -77,6 +79,7 @@ class CDM(object):
         cls.set_character(c, pbl)
     @classmethod
     def build_character(cls, IBC_id=0):
+        assert type(cls) is type, "Must call as classmethod"
         # Read Henri from website
         r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%IBC_id)
         try:
@@ -97,9 +100,16 @@ class CDM(object):
 
     @classmethod
     def set_character(cls, character, possible_buffs_list):
+        assert type(cls) is type, "Must call as classmethod"
         cls.c = character
         cls.uic._model = cls.c
         cls.possible_buffs_list = possible_buffs_list
+
+        # Call everyone we're supposed to update when we change everything
+        for func in cls.update_hooks:
+            func()
+
+        print "Master Character id is: %d" % id(cls.c)
 
     def _build_post(self, url, data):
         """Create a JSON paylod of dictionary and post"""
@@ -123,6 +133,7 @@ class CDM(object):
 
     @classmethod
     def _apply(cls, code):
+        assert type(cls) is type, "Must call as classmethod"
         # Set up exectuion environment
         from model import *
         env = locals().copy()
@@ -152,6 +163,7 @@ class CDM(object):
 
     @classmethod
     def build_character_default(cls):
+        assert type(cls) is type, "Must call as classmethod"
         """Construct a character to play with"""
         ########
         # BUILD HENRI (sort of)
@@ -252,10 +264,11 @@ def PopupAudit(text, key):
 
 
 class StatsTab(TabbedPanelItem,CDM):
-    def __init__(self, c, **kwargs):
+    def __init__(self, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
         #self.c = c                             # Character object
         #self.uic._model = self.c               # Bind it all together!
+        print "Stat Chracter id is: %d" % id(self.c)
 
     @CDM.uic.update
     def test_button_press(self):
@@ -289,18 +302,20 @@ class StatsTab(TabbedPanelItem,CDM):
 
 
 class AttacksTab(TabbedPanelItem,CDM):
-    def __init__(self, c, buffs, **kwargs):
+    def __init__(self, **kwargs):
         super(AttacksTab, self).__init__(**kwargs)
-        self.c = c      # Character object
-        self.uic._model = self.c               # Bind it all together!
-        self.buffs = buffs
 
         # Bind ourselves to when the attacks update in the uic of the parent
         self.uic.bind(attacks=self.onAttacksUpdated)
 
+        # Bind ourselves to when the model changes
+        self.update_hooks.append(self.build_buffs)
+
         # Build GUI
         self.build_buffs()
         self.build_attacks()
+
+        print "Attack Chracter id is: %d" % id(self.c)
 
 
 
@@ -309,8 +324,8 @@ class AttacksTab(TabbedPanelItem,CDM):
         buffs = self.ids['buffs']
         buffs.clear_widgets()
         buffs.bind(minimum_height=buffs.setter('height'))
-        pbl = sorted(self.buffs, key=lambda x: x.name)
-        for b in self.buffs:
+        sorted(self.possible_buffs_list, key=lambda x: x.name)
+        for b in self.possible_buffs_list:
 ##            l = BoxLayout(orientation='horizontal', padding=5,
 ##                            size_hint=(1, None), height=30, width=320)
 ##
@@ -451,7 +466,7 @@ class NewBuffPopup(Popup):
                     PopupOk("Attribute value must be a number")
                     return
                 setattr(new_buff, key, value)
-        self._my_parent.buffs.append(new_buff)
+        self._my_parent.possible_buffs_list.append(new_buff)
         self._my_parent.build_buffs()
         self.dismiss()
 
@@ -506,7 +521,7 @@ class CodeTab(TabbedPanelItem, CDM):
             PopupOk("Post successful? but bad response %s" % response)
 
     def open_IBC(self):
-        if self.build_character(self.ids.IBC_id.text):
+        if CDM.build_character(self.ids.IBC_id.text):
             self.on_press() # Update us
             PopupOk("Loaded new character successfully")
         else:
@@ -522,13 +537,13 @@ class IBC_tabs(TabbedPanel, CDM):
     def __init__(self, **kwargs):
         super(IBC_tabs, self).__init__(**kwargs)
 
-        self.build_character()
+        CDM.build_character()
 
         #self.console = ConsoleWidget(self)
-        tab1 = StatsTab(self.c)
+        tab1 = StatsTab()
         self.add_widget(tab1)
-        tab2 = AttacksTab(self.c, self.possible_buffs_list)
-        self.add_widget(tab2)
+        self.attacks_tab = AttacksTab()
+        self.add_widget(self.attacks_tab)
         self.add_widget(CountersTab())
         self.add_widget(SkillsTab())
         self.add_widget(FeatsTab())
