@@ -538,10 +538,15 @@ class IBC_App(App):
         return IBC_tabs(do_default_tab = False)
 
     def on_pause(self):
+        # TODO: Save character data off to cache
         return True
 
     def on_resume(self):
         pass
+
+    def open_settings(self):
+        PopupOk("You want a menu")
+        return True
 
 if __name__ == '__main__':
     IBC_App().run()
