@@ -93,13 +93,14 @@ class Attributes(Struct):
     def __str__(self):
         # Display only non-zero values of self
         s = []
-        displayable = (self._abilities + self._scores +
-                        [a+'_score' for a in self._abilities])
+        profanity = ()
         for k in dir(self):
-            if k not in displayable:
-                continue
+            if k in profanity: continue
             v = getattr(self, k)
-            if v != 0:
+            if type(v) is int and v != 0:
                 s.append("{0:s}: {1:+d}".format(k,v))
-        return '(%s)' % ', '.join(s)
+        if len(s) == 0:
+            return ''
+        else:
+            return '(%s)' % ', '.join(s)
 

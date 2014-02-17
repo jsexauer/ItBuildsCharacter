@@ -69,7 +69,7 @@ class CDM(object):
         """Read in a character from a .py file"""
         assert type(cls) is type, "Must call as classmethod"
         # Read in Henri
-        filename = this_dir + '..' + os.sep + 'Henri.py'
+        filename = this_dir + '..' + os.sep + 'Clement.py'
         char_def = imp.load_source('char_def', filename)
         c = char_def.c
         pbl = char_def.possible_buffs_list
@@ -91,6 +91,7 @@ class CDM(object):
             success = cls._apply(IBC_def)
         except Exception, e:
             print "UNABLE TO READ WEBSITE: REading from file"
+            print e
             cls.build_character_from_file()
             cls.IBC_id.append(-1)
         else:
@@ -522,7 +523,7 @@ class CodeTab(TabbedPanelItem, CDM):
 
     def save_and_apply(self):
         code = self.ids.code.text
-        if self._apply(code) == False:
+        if CDM._apply(code) == False:
             return
 
         # Save it off
@@ -541,7 +542,7 @@ class CodeTab(TabbedPanelItem, CDM):
 
     def new_and_apply(self):
         code = self.ids.code.text
-        if self._apply(code) == False:
+        if CDM._apply(code) == False:
             return
 
         url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters"

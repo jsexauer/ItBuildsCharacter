@@ -244,7 +244,6 @@ class Character(Attributes):
             _ans.append(self._mh_single_atk)
         self._mh_single_atk__BAB = None
         return _ans
-
     @auditable
     def _mh_single_atk(self):
         BAB = self._mh_single_atk__BAB
@@ -265,9 +264,25 @@ class Character(Attributes):
 
     @auditable
     def oh_melee_atk_bonus(self):
+        _formula = "For each attack..."
         if self.equipment.off_hand is None:
             return []
-        BAB = self.BAB
+        # Figure out all the attacks
+        _a = [self.BAB,]
+        while _a[-1] > 0:
+            _a.append(_a[-1]-5)
+        if self.BAB > 0:
+            # At 0 BAB, we'll remove ourselves if we're not careful
+            _a = _a[:-1]
+        _ans = []
+        for _aa in _a:
+            self._oh_single_atk__BAB = _aa
+            _ans.append(self._oh_single_atk)
+        self._oh_single_atk__BAB = None
+        return _ans
+    @auditable
+    def _oh_single_atk(self):
+        BAB = self._oh_single_atk__BAB
         str = self.str
         size = self.size_mod
         buffs, _buffs = has_sum(self.buffs, 'atk')
@@ -275,29 +290,32 @@ class Character(Attributes):
         TwoWeaponFighting = -8                             # Assume light weapon
         _twf = -8
         TwoWeaponFightingFeats, _twf2 = has_sum(self.feats, 'twf_oh')
+        return BAB+str+size+_buffs+_twf+_twf2
 
-        # Figure out all the attacks
-        _a = [BAB,]
-        while _a[-1] > 0:
-            _a.append(_a[-1]-5)
-        if BAB > 0:
-            # At 0 BAB, we'll remove ourselves if we're not careful
-            _a = _a[:-1]
-        return [_aa+str+size+_buffs+_twf+_twf2 for _aa in _a]
+
 
     @auditable
     def ranged_atk_bonus(self):
-        BAB = self.BAB
-        dex = self.dex
-        size = self.size_mod
-        buffs, _buffs = has_sum(self.buffs, 'atk')
+        _formula = "For each attack..."
         # Figure out all the attacks
-        _a = [BAB,]
+        _a = [self.BAB,]
         while _a[-1] > 0:
             _a.append(_a[-1]-5)
         if len(_a) > 1:
             _a = _a[:-1]
-        return [_aa+dex+size+_buffs for _aa in _a]
+        _ans = []
+        for _aa in _a:
+            self._rng_single_atk__BAB = _aa
+            _ans.append(self._rng_single_atk)
+        self._rng_single_atk__BAB = None
+        return _ans
+    @auditable
+    def _rng_single_atk(self):
+        BAB = self._rng_single_atk__BAB
+        dex = self.dex
+        size = self.size_mod
+        buffs, _buffs = has_sum(self.buffs, 'atk')
+        return BAB+dex+size+_buffs
 
     @auditable
     def attacks(self):

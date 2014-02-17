@@ -83,5 +83,5 @@ pbl += \
 
 possible_buffs_list = pbl
 
-c.audit = True
+#c.audit = True
 print c.attacks

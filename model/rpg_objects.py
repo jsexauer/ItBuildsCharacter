@@ -146,6 +146,7 @@ class Attack(object):
         _formula = "Attack of..."
         attack = self.atk
         damage = self.dmg_roll
+        return str(self)
 
     def __str__(self):
         if self.audit:
