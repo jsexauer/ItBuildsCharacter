@@ -26,17 +26,17 @@ class Attack(object):
 
     @auditable
     def atk(self):
-        _formula = "BAB at iterative + weapon"
+        _formula = "Attack Bonus at iterative + weapon"
         iterative = self.iterative
         if self.is_oh:
-            BAB = self.character.oh_melee_atk_bonus[self.iterative]
+            AB = self.character.oh_melee_atk_bonus[self.iterative]
         else:
             if self.ranged:
-                BAB = self.character.ranged_atk_bonus[self.iterative]
+                AB = self.character.ranged_atk_bonus[self.iterative]
             else:
-                BAB = self.character.mh_melee_atk_bonus[self.iterative]
+                AB = self.character.mh_melee_atk_bonus[self.iterative]
         weapon = self.base.atk
-        return BAB + weapon
+        return AB + weapon
 
     @auditable
     def dmg_roll(self):
@@ -140,6 +140,13 @@ class Attack(object):
         droid.fullSetProperty(ui_id+'_Atk',"text","+"+str(self.atk))
         droid.fullSetProperty(ui_id+'_Dmg',"text",str(self.dmg_roll))
 
+    @auditable
+    def _as_audit_object(self):
+        """Make a version of this attack which is an audit object"""
+        _formula = "Attack of..."
+        attack = self.atk
+        damage = self.dmg_roll
+
     def __str__(self):
         if self.audit:
             atk = self.atk.value
@@ -150,9 +157,10 @@ class Attack(object):
         s = '{0:+d} for {1} damage'.format(atk, dmg)
         if self.audit:
             # We're auditing so be special
-            return '<<\n' + get_displayworthy('Attack', self.dmg_roll, False) + \
-                    ';\n' + get_displayworthy('Damage', self.atk, False) + \
-                    '>>\n  = ' + s
+##            return '<<\n' + get_displayworthy('Attack', self.atk, False) + \
+##                    ';\n' + get_displayworthy('Damage', self.dmg_roll, False) + \
+##                    '>>\n  = ' + s
+            return s
         else:
             return s
     def __eq__(self, other):

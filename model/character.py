@@ -228,11 +228,26 @@ class Character(Attributes):
                 con*level + favored_class)
 
 
-
-
     @auditable
     def mh_melee_atk_bonus(self):
-        BAB = self.BAB
+        _formula = "For each attack..."
+        # Figure out all the attacks
+        _a = [self.BAB,]
+        while _a[-1] > 0:
+            _a.append(_a[-1]-5)
+        if self.BAB > 0:
+            # At 0 BAB, we'll remove ourselves if we're not careful
+            _a = _a[:-1]
+        _ans = []
+        for _aa in _a:
+            self._mh_single_atk__BAB = _aa
+            _ans.append(self._mh_single_atk)
+        self._mh_single_atk__BAB = None
+        return _ans
+
+    @auditable
+    def _mh_single_atk(self):
+        BAB = self._mh_single_atk__BAB
         str = self.str
         size = self.size_mod
         buffs, _buffs = has_sum(self.buffs, 'atk')
@@ -246,14 +261,7 @@ class Character(Attributes):
             _twf = 0
             _twf2 = 0
 
-        # Figure out all the attacks
-        _a = [BAB,]
-        while _a[-1] > 0:
-            _a.append(_a[-1]-5)
-        if BAB > 0:
-            # At 0 BAB, we'll remove ourselves if we're not careful
-            _a = _a[:-1]
-        return [_aa+str+size+_buffs+_twf+_twf2 for _aa in _a]
+        return BAB+str+size+_buffs+_twf+_twf2
 
     @auditable
     def oh_melee_atk_bonus(self):
@@ -335,6 +343,12 @@ class Character(Attributes):
                 _atk.name = "%s #%d (OH)" % (off_hand.name, _iter+1)
                 _attacks.append(_atk)
 
+        # Create audit objects if necessary
+        if self.audit:
+            _new_attacks = []
+            for _a in _attacks:
+                _new_attacks.append(_a._as_audit_object)
+            _attacks = _new_attacks
 
         return _attacks
 

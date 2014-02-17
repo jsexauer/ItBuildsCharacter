@@ -33,6 +33,8 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
@@ -41,6 +43,7 @@ from kivy.metrics import sp as kivy_sp
 
 
 from data_model_wrapper import UI_DataModel
+from model.audit import AuditResult
 
 this_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 Builder.load_file(this_dir + 'tabs.kv')
@@ -229,11 +232,13 @@ class AbilityScore(AbilityScoreLabel, Button):
         # Find the character object
         c = self.get_root_window().children[0].c
         with c.audit_context:
-            key = getattr(self, '_audit_prop', None)
-            if key is None:
-                msg = "Unable to audit.  No Audit property found."
+            try:
+                key = getattr(self, '_audit_prop')
+            except KeyError:
+                msg = None
+                key = self.text
             else:
-                msg = str(c[key])
+                msg = c[key]
         PopupAudit(msg, key)
 
 
@@ -247,7 +252,14 @@ def PopupOk(text, title='', btn_text='Continue'):
     btnclose.bind(on_release=p.dismiss)
     p.open()
 
-def PopupAudit(text, key):
+def PopupAudit(audit_obj, key):
+    def on_close(*args):
+        Window.rotation = 0
+    assert isinstance(audit_obj, AuditResult) or audit_obj is None
+    if audit_obj is None:
+        text = "No audit attribute found for %s" % key
+    else:
+        text = str(audit_obj)
     btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
     lbl = TextInput(text=text, font_size='12sp', auto_indent=True,
@@ -259,8 +271,11 @@ def PopupAudit(text, key):
                 #size=('300dp', '300dp'),
                 size_hint=(.95, .75))
     btnclose.bind(on_release=p.dismiss)
+    # See if this is a pretty long audit, so we will display long ways
+    if max([len(a) for a in text.split('\n')]) > 30:
+        p.bind(on_dismiss=on_close)
+        Window.rotation = 90
     p.open()
-    #PopupOk(text, "Audit of %s" % key)
 
 
 class StatsTab(TabbedPanelItem,CDM):
@@ -416,15 +431,13 @@ class AttackRow(BoxLayout):
         attack = self.c.attacks[self.atkNum]
         text = attack.roll()
         PopupOk(text, attack.name)
-        print text
 
     def on_long_press(self, *args):
         attack = self.c.attacks[self.atkNum]
         with self.c.audit_context:
             assert self.c.audit
-            msg = str(self.c.attacks[self.atkNum])
-        PopupAudit(msg, attack.name)
-        print "Trying to audit an attack"
+            msg = self.c.attacks[self.atkNum]
+            PopupAudit(msg, attack.name)
 
 class NewBuffPopup(Popup):
     def __init__(self, parent):

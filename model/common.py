@@ -105,6 +105,7 @@ class auditable(object):
 
     __get__ = auditableFuncFactory
     __set__ = auditableSetter
+    __call__ = auditableFuncFactory
 
     #return_func = property(auditableFuncFactory, auditableSetter)
 

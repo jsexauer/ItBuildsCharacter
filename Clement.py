@@ -82,3 +82,6 @@ pbl += \
      Buff('Flanking',atk_mod=2)]
 
 possible_buffs_list = pbl
+
+c.audit = True
+print c.attacks
