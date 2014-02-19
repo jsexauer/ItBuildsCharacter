@@ -277,11 +277,12 @@ def PopupOk(text, title='', btn_text='Continue', input=None):
     btnclose.bind(on_release=p.dismiss)
     p.open()
     if input is not None:
-        def check_closed(*args):
-            if  p.is_visable:
-
-            EventLoop.idle()
-        return ti.text
+        def wait():
+            if p.is_visable:
+                return ti.text
+            else:
+                return wait()
+        return wait()
 
 def PopupAudit(audit_obj, key):
     def on_close(*args):
@@ -539,7 +540,7 @@ class CounterRow(BoxLayout):
         mv = int(self.max_value)
         if value is None:
             add_n = PopupOk("How much would you like to add?",
-                            self.counter_name, inputer='number')
+                            self.counter_name, input='number')
         else:
             add_n = value
         self.current_value = "%d" % min(cv+add_n, mv)
