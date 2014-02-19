@@ -40,6 +40,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.event import EventDispatcher
 from kivy.metrics import sp as kivy_sp
+from kivy.base import EventLoop
 
 
 from data_model_wrapper import UI_DataModel
@@ -257,15 +258,30 @@ class ScrollableText(BoxLayout):
         pos = (a[0], a[1]+3)
         self.ids.text_input.cursor = pos
 
-def PopupOk(text, title='', btn_text='Continue'):
+def PopupOk(text, title='', btn_text='Continue', input=None):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
-    content.add_widget(Label(text=text))
-    content.add_widget(btnclose)
     p = Popup(title=title, content=content, size=('300dp', '300dp'),
                 size_hint=(None, None))
+    content.add_widget(Label(text=text))
+    if input is not None:
+        ti = TextInput(height='50sp', font_size='50sp', input_type=input)
+        content.add_widget(ti)
+        def _on_d(*args):
+            p.is_visable = False
+        p.bind(on_dismiss=_on_d)
+        p.is_visable = True
+
+    content.add_widget(btnclose)
+
     btnclose.bind(on_release=p.dismiss)
     p.open()
+    if input is not None:
+        def check_closed(*args):
+            if  p.is_visable:
+
+            EventLoop.idle()
+        return ti.text
 
 def PopupAudit(audit_obj, key):
     def on_close(*args):
@@ -506,6 +522,29 @@ class NewBuffPopup(Popup):
 
 class NewBuffRow(BoxLayout):
     pass
+
+class CounterRow(BoxLayout):
+    current_value = StringProperty('0')
+    max_value = StringProperty('100')
+    counter_name = StringProperty('Counter')
+
+    def go_rename(self, *args):
+        new_name = PopupOk("What would you like to name this counter?",
+                            "Counter Name", input='text')
+        print "Back from function"
+        self.counter_name = new_name
+
+    def go_add_n(self, value=None):
+        cv = int(self.current_value)
+        mv = int(self.max_value)
+        if value is None:
+            add_n = PopupOk("How much would you like to add?",
+                            self.counter_name, inputer='number')
+        else:
+            add_n = value
+        self.current_value = "%d" % min(cv+add_n, mv)
+
+
 
 class CountersTab(TabbedPanelItem):
     pass

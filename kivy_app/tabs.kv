@@ -312,10 +312,60 @@
         height: '50sp'
         font_size: '24sp'
 
+<CounterRow>:
+    orientation: 'vertical'
+    size_hint: 1, None
+    height: '75sp'
+    BoxLayout:
+        orientation: 'horizontal'
+        Button:
+            id: name
+            background_color: .1, .1, .1, .3
+            on_press: Clock.schedule_once(root.go_rename, 2)
+            on_release: Clock.unschedule(root.go_rename)
+            text: root.counter_name
+            font_size: '24sp'
+        Button:
+            text: '+'
+            size_hint_x: None
+            width: '50sp'
+            on_release: root.go_add_n(value=1)
+        Button:
+            text: '+[i]n[/i]'
+            markup: True
+            size_hint_x: None
+            width: '50sp'
+            on_release: root.go_add_n()
+    BoxLayout:
+        orientation: 'horizontal'
+        Label:
+            text: root.current_value
+        Label:
+            text: '/'
+        Label:
+            text: root.max_value
+        Button:
+            text: '-'
+            size_hint_x: None
+            width: '50sp'
+            on_release: root.go_add_n(value=-1)
+        Button:
+            text: 'max'
+            size_hint_x: None
+            width: '50sp'
+
 <CountersTab>:
     text: "Counters"
-    Label:
-        text: "Counters will be displayed here"
+    StackLayout:
+        orientation: 'tb-lr'
+        spacing: '10sp'
+        padding: [5, 5]
+        CounterRow:
+            id: a
+        CounterRow:
+            id: b
+        CounterRow:
+            id: c
 
 <SkillsTab>:
     text: "Skills"
