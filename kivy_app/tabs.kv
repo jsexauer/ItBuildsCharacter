@@ -340,32 +340,46 @@
         orientation: 'horizontal'
         Label:
             text: root.current_value
+            font_size: '24sp'
         Label:
             text: '/'
-        Label:
+            font_size: '24sp'
+        Button:
+            id: max_val_lbl
+            background_color: .1, .1, .1, .3
+            on_press: Clock.schedule_once(root.go_max_value, 2)
+            on_release: Clock.unschedule(root.go_max_value)
             text: root.max_value
+            font_size: '24sp'
         Button:
             text: '-'
             size_hint_x: None
             width: '50sp'
             on_release: root.go_add_n(value=-1)
         Button:
-            text: 'max'
+            text: '[i]n[/i]'
             size_hint_x: None
+            markup: True
+            on_release: root.go_to_n()
             width: '50sp'
 
 <CountersTab>:
     text: "Counters"
-    StackLayout:
-        orientation: 'tb-lr'
-        spacing: '10sp'
-        padding: [5, 5]
-        CounterRow:
-            id: a
-        CounterRow:
-            id: b
-        CounterRow:
-            id: c
+    ScrollView:
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        do_scroll_x: False
+        GridLayout:
+            cols: 1
+            spacing: '10sp'
+            padding: [5, 5]
+            size_hint: 1, None
+            id: content
+            Button:
+                text: '+'
+                font_size: '24sp'
+                size_hint: 1, None
+                height: '50sp'
+                on_release: root.add_row()
 
 <SkillsTab>:
     text: "Skills"

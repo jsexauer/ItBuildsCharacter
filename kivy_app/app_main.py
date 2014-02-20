@@ -11,6 +11,7 @@ import time
 import textwrap
 import json
 from urllib2 import urlopen, Request
+from functools import partial
 from copy import copy
 
 # Kivy Imports
@@ -258,18 +259,23 @@ class ScrollableText(BoxLayout):
         pos = (a[0], a[1]+3)
         self.ids.text_input.cursor = pos
 
-def PopupOk(text, title='', btn_text='Continue', input=None):
+def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
     p = Popup(title=title, content=content, size=('300dp', '300dp'),
                 size_hint=(None, None))
     content.add_widget(Label(text=text))
     if input is not None:
-        ti = TextInput(height='50sp', font_size='50sp', input_type=input)
+        assert callback is not None
+        ti = TextInput(height='50sp', font_size='50sp', input_type=input,
+                        multiline=False)
         content.add_widget(ti)
-        def _on_d(*args):
-            p.is_visable = False
-        p.bind(on_dismiss=_on_d)
+        def _callback(*args):
+            if ti.text == '':
+                callback(None)
+            else:
+                callback(ti.text)
+        p.bind(on_dismiss=_callback)
         p.is_visable = True
 
     content.add_widget(btnclose)
@@ -277,12 +283,9 @@ def PopupOk(text, title='', btn_text='Continue', input=None):
     btnclose.bind(on_release=p.dismiss)
     p.open()
     if input is not None:
-        def wait():
-            if p.is_visable:
-                return ti.text
-            else:
-                return wait()
-        return wait()
+        while not p.is_visable:
+            EventLoop.idle()
+        return ti.text
 
 def PopupAudit(audit_obj, key):
     def on_close(*args):
@@ -529,26 +532,70 @@ class CounterRow(BoxLayout):
     max_value = StringProperty('100')
     counter_name = StringProperty('Counter')
 
+    def __init__(self, name='New Counter', max_value='100', **kwargs):
+        super(CounterRow, self).__init__(**kwargs)
+        self.max_value = max_value
+        self.current_value = max_value
+        self.counter_name = name
+
+
     def go_rename(self, *args):
-        new_name = PopupOk("What would you like to name this counter?",
-                            "Counter Name", input='text')
-        print "Back from function"
+        PopupOk("What would you like to name \nthis counter?",
+                            "Counter Name", input='text',
+                            callback=self.go_rename_callback)
+    def go_rename_callback(self, new_name, *args):
+        if new_name is None: return
         self.counter_name = new_name
 
+    def go_max_value(self, *args):
+        PopupOk("What would you like the max \nvalue of this counter to be?",
+                            "Counter Name", input='number',
+                            callback=self.go_max_value_callback)
+    def go_max_value_callback(self, new_val, *args):
+        if new_val is None: return
+        self.max_value = new_val
+        # Update just in case
+        self.go_add_n(0)
+
     def go_add_n(self, value=None):
-        cv = int(self.current_value)
-        mv = int(self.max_value)
         if value is None:
-            add_n = PopupOk("How much would you like to add?",
-                            self.counter_name, input='number')
+            PopupOk("How much would you like to add?",
+                    self.counter_name, input='number',
+                    callback=self.go_add_n_callback)
         else:
             add_n = value
+            self.go_add_n_callback(add_n)
+    def go_add_n_callback(self, add_n):
+        if add_n is None: return
+        add_n = int(add_n)
+        cv = int(self.current_value)
+        mv = int(self.max_value)
         self.current_value = "%d" % min(cv+add_n, mv)
 
+    def go_to_n(self):
+        PopupOk("What would you like to set \nthe counter value to?",
+                self.counter_name, input='number',
+                callback=self.go_to_n_callback)
+    def go_to_n_callback(self, new_n):
+        if new_n is None: return
+        # Implement using add to n, so we only change the property in one place
+        delta = int(new_n) - int(self.current_value)
+        self.go_add_n(delta)
 
 
-class CountersTab(TabbedPanelItem):
-    pass
+class CountersTab(TabbedPanelItem, CDM):
+    def __init__(self, **kwargs):
+        super(CountersTab, self).__init__(**kwargs)
+        self.ids.content.bind(minimum_height=self.ids.content.setter('height'))
+
+        # Add HP counter
+        self.add_row('Hit Points', self.uic.HP)
+
+    def add_row(self, name=None, max_value=None):
+        if name is None or max_value is None:
+            self.ids.content.add_widget(CounterRow(),1)
+        else:
+            self.ids.content.add_widget(CounterRow(name, max_value),1)
 
 class SkillsTab(TabbedPanelItem):
     pass
