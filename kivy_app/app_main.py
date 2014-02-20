@@ -267,8 +267,8 @@ def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
     content.add_widget(Label(text=text))
     if input is not None:
         assert callback is not None
-        ti = TextInput(height='50sp', font_size='50sp', input_type=input,
-                        multiline=False)
+        ti = TextInput(height='50sp', font_size='30sp', input_type=input,
+                        multiline=False, size_hint_y = None)
         content.add_widget(ti)
         def _callback(*args):
             if ti.text == '':
