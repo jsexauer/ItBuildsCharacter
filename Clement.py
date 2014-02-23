@@ -44,7 +44,7 @@ wep1 = Weapon("+1 Tidewater Cutless",
                         Attack(1, "1d6+1", [18,19,20]))
 c.equipment.main_hand = wep1
 
-wep2 = Weapon("Masterwork Handaxe", Attack(1, "1d6", [20], 3))
+wep2 = Weapon("+1 Keen Mwk Handaxe", Attack(1, "1d6+1", [19,20], 3))
 c.equipment.off_hand = wep2
 
 wep3 = Weapon("+1 Vindictive Harpoon", Attack(1, "1d8+1", ranged=True))
@@ -58,6 +58,12 @@ twf = Feat("Two Weapon Fighting")
 twf.twf_mh = +2
 twf.twf_oh = +6
 c.feats.append(twf)
+
+resilient = Feat("Resilient")
+resilient.fort = 1
+resilient.twf_mh = 0
+resilient.twf_oh = 0
+c.feats.append(resilient)
 
 ### Possible Buffs
 pbl  =  [Buff('Favored Enemy (Human)',4,4),
