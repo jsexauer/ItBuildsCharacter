@@ -30,6 +30,10 @@ class CharacterList(list):
     def pop(self, item):
         raise NotImplementedError()
 
+    def clear(self):
+        for i in self:
+            self.remove(i)
+
 class CharacterEquipmentList(CharacterList):
     @property
     def main_hand(self):

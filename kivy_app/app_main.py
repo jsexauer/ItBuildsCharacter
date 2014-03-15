@@ -374,7 +374,7 @@ class AttacksTab(TabbedPanelItem,CDM):
         print "Attack Chracter id is: %d" % id(self.c)
 
 
-
+    @CDM.uic.update
     def build_buffs(self):
         # Buffs
         buffs = self.ids['buffs']
@@ -404,6 +404,9 @@ class AttacksTab(TabbedPanelItem,CDM):
         l = Button(text='Add New Buff...', size_hint=(1, None), height='50sp')
         l.bind(on_press = self.new_buff)
         buffs.add_widget(l)
+
+        # Make sure underling character also has no buffs applied
+        self.c.buffs.clear()
 
 
     def build_attacks(self):
