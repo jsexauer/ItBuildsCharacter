@@ -41,7 +41,14 @@ try:
 except KeyError:
     data['characters'] = []
     characters = data['characters']
-
+try:
+    char_counters = data['char_counters']
+except KeyError:
+    data['char_counters'] = []
+    char_counters = data['char_counters']
+    # Add a blank set of counters for all existing characters
+    for c in characters:
+        char_counters.append([])
 
 ##################
 # Webpages
@@ -50,11 +57,15 @@ except KeyError:
 def show_characters(char_id):
     code = characters[char_id]
     flash_messages = get_flashed_messages()
+    counters = char_counters[char_id]
     html = """
     <html>
     <body>
     <h1>Character #%(char_id)d</h1>
     %(flash_messages)s
+    <h3>Counters</h3>
+    %(counters)s
+    <h3>Character Definition (ie, Code)</h3>
     <form method='POST'>
     <textarea rows=50 cols=80 name="code">%(code)s</textarea>
     <br />
@@ -67,12 +78,17 @@ def show_characters(char_id):
 @app.route('/IBC/characters/<int:char_id>', methods = ['POST'])
 def edit_characters(char_id):
     characters[char_id] = request.form['code']
+    data.sync()
     flash("Character code updated successfully")
     return show_characters(char_id)
 
 ##################
 # API
 ##################
+
+####
+# CHARACTERS
+####
 @app.route('/IBC/api/v1.0/characters', methods = ['GET'])
 @auth.login_required
 def get_all_characters():
@@ -110,15 +126,72 @@ def update_character(id):
     data.sync()
     return jsonify( { 'success': success } ), 201
 
-@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])
+####
+# COUNTERS
+####
+@app.route('/IBC/api/v1.0/characters/<int:char_id>/counters', methods = ['GET'])
 @auth.login_required
-def delete_buff(buff_id):
-    buff = filter(lambda t: t['id'] == buff_id, buffs)
-    if len(buff) == 0:
-        abort(404)
-    buffs.remove(buff[0])
+def get_all_counters(char_id):
+    try:
+        counters = char_counters[char_id]
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
+    #if len(ch) == 0:
+    #    abort(404)
+    return jsonify({n:c for n,c in enumerate(counters)})
+
+@app.route('/IBC/api/v1.0/characters/<int:char_id>/counters', methods = ['POST'])
+@auth.login_required
+def create_counter(char_id):
+    try:
+        expected = ['name', 'max_value']
+        for k in expected:
+            assert k in request.json.keys()
+        assert len(expected) == len(request.json)
+        char_counters[char_id].append(request.json)
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
     data.sync()
-    return jsonify( { 'result': True } ), 201
+    return jsonify( { 'new_counter_id': len(char_counters[char_id])-1} ), 201
+
+@app.route('/IBC/api/v1.0/characters/<int:char_id>/counters/<int:count_id>', methods = ['PUT'])
+@auth.login_required
+def edit_counter(char_id, count_id):
+    try:
+        char_counters[char_id][count_id].update(request.json)
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
+    data.sync()
+    return jsonify( char_counters[char_id][count_id] )
+@app.route('/IBC/api/v1.0/characters/<int:char_id>/counters/<int:count_id>', methods = ['GET'])
+@auth.login_required
+def get_counter(char_id, count_id):
+    try:
+        counter = char_counters[char_id][count_id]
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
+    data.sync()
+    return jsonify( counter )
+@app.route('/IBC/api/v1.0/characters/<int:char_id>/counters/<int:count_id>', methods = ['DELETE'])
+@auth.login_required
+def get_counter(char_id, count_id):
+    try:
+        counter = char_counters[char_id].pop(count_id)
+    except Exception, e:
+        return jsonify( {'error': str(e)} )
+    data.sync()
+    return jsonify( counter )
+
+
+##@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])
+##@auth.login_required
+##def delete_buff(buff_id):
+##    buff = filter(lambda t: t['id'] == buff_id, buffs)
+##    if len(buff) == 0:
+##        abort(404)
+##    buffs.remove(buff[0])
+##    data.sync()
+##    return jsonify( { 'result': True } ), 201
 
 ##################
 # Authentication and Error Handelers
