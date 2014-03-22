@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{14ea1204-5b75-4edb-bdad-e28a85fde5cf}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <InterpreterId>{10514304-0f01-4b95-8a1e-3502d5f09765}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="android.txt" />
+    <Compile Include="Clement.py" />
+    <Compile Include="Henri.py" />
+    <Compile Include="ItBuildsCharacter_POC.py" />
+    <Compile Include="main.py" />
+    <Compile Include="persistentDictionary.py" />
+    <Compile Include="web.py" />
+    <Compile Include="__init__.py" />
+    <Compile Include="android_app\android_app.py" />
+    <Compile Include="android_app\lib.py" />
+    <Compile Include="android_app\__init__.py" />
+    <Compile Include="kivy_app\app_main.py" />
+    <Compile Include="kivy_app\data_model_wrapper.py" />
+    <Compile Include="kivy_app\__init__.py" />
+    <Compile Include="model\attributes.py" />
+    <Compile Include="model\audit.py" />
+    <Compile Include="model\character.py" />
+    <Compile Include="model\common.py" />
+    <Compile Include="model\rpg_objects.py" />
+    <Compile Include="model\test_model.py" />
+    <Compile Include="model\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="android_app" />
+    <Folder Include="kivy_app" />
+    <Folder Include="model" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{10514304-0f01-4b95-8a1e-3502d5f09765}\2.7" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

@@ -3,7 +3,10 @@
 #   Run main.py in the IBC base directory
 ############################################################################
 # IBC import
+
 from model import Character, Weapon, Attack, DamageRoll, Buff
+from kivy_app.web_interface import WebAPIMixin
+from popups import PopupOk, PopupAudit
 
 import os
 import imp
@@ -56,7 +59,7 @@ class CharacterUIWrapper(UI_DataModel):
     _model_class = Character
 
 
-class CDM(object):
+class CDM(WebAPIMixin):
     """Character Data Mixin Object (to share character data across all classes
     and tabs that make up the application)"""
     c = Character()
@@ -116,26 +119,6 @@ class CDM(object):
             func()
 
         print "Master Character id is: %d" % id(cls.c)
-
-    def _build_post(self, url, data):
-        """Create a JSON paylod of dictionary and post"""
-
-        s = "Unable to post new data to website"
-
-        try:
-            payload = json.dumps(data)
-            header = {'Content-Type': 'application/json'}
-            print url
-            print '='*20
-            print payload
-            req = Request(url, payload, header)
-            response = urlopen(req)
-            print response
-            if response.getcode() == 201:
-                return json.loads(response.read())
-        except Exception, e:
-            s += '\nERROR: ' + str(e)
-        PopupOk(s, "Posting Error")
 
     @classmethod
     def _apply(cls, code):
@@ -259,64 +242,6 @@ class ScrollableText(BoxLayout):
         pos = (a[0], a[1]+3)
         self.ids.text_input.cursor = pos
 
-def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
-    btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
-    content = BoxLayout(orientation='vertical')
-    p = Popup(title=title, content=content, size=('300dp', '300dp'),
-                size_hint=(None, None))
-    content.add_widget(Label(text=text))
-    if input is not None:
-        assert callback is not None
-        ti = TextInput(height='50sp', font_size='30sp', input_type=input,
-                        multiline=False, size_hint_y = None)
-        content.add_widget(ti)
-        def _callback(*args):
-            if ti.text == '':
-                callback(None)
-            else:
-                callback(ti.text)
-        p.bind(on_dismiss=_callback)
-        p.is_visable = True
-
-    content.add_widget(btnclose)
-
-    btnclose.bind(on_release=p.dismiss)
-    p.open()
-    if input is not None:
-        while not p.is_visable:
-            EventLoop.idle()
-        return ti.text
-
-def PopupAudit(audit_obj, key):
-    def on_close(*args):
-        def _on_close(*args):
-            Window.rotation = 0
-        Clock.schedule_once(_on_close, .25)
-
-    assert isinstance(audit_obj, AuditResult) or audit_obj is None
-    if audit_obj is None:
-        text = "No audit attribute found for %s" % key
-    else:
-        text = str(audit_obj)
-    btnclose = Button(text='Continue', size_hint_y=None, height='50sp')
-    content = BoxLayout(orientation='vertical')
-##    lbl = TextInput(text=text, font_size='12sp', auto_indent=True,
-##            readonly=True, disabled=True,
-##            font_name='fonts'+os.sep+'DroidSansMono.ttf')
-    lbl = ScrollableText(text=text)
-    content.add_widget(lbl)
-    content.add_widget(btnclose)
-    p = Popup(title='Audit of "%s"' % key, content=content,
-                #size=('300dp', '300dp'),
-                size_hint=(.95, .75))
-    btnclose.bind(on_release=p.dismiss)
-    p.bind(on_open=lbl.go_top)
-    # See if this is a pretty long audit, so we will display long ways
-    if max([len(a) for a in text.split('\n')]) > 30:
-        p.bind(on_dismiss=on_close) and None
-        p.size_hint = (.95, .95)
-        Window.rotation = 90
-    p.open()
 
 
 class StatsTab(TabbedPanelItem,CDM):
@@ -617,32 +542,15 @@ class CodeTab(TabbedPanelItem, CDM):
             return
 
         # Save it off
-        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%self.IBC_id[-1]
-        response = self._build_post(url, {'def': code})
-        if response is not None:
-            success = response.get('success', False)
-        else:
-            success = False
-        if success:
-            PopupOk("Character applied and saved successfully.",
-                    "New Character Definiton Loaded")
-        else:
-            PopupOk("Character applied \n however did not save: \n%s." % response,
-                    "New Character Definiton Loaded")
+        self.web_save_character(code, id=self.IBC_id[-1])
 
     def new_and_apply(self):
         code = self.ids.code.text
         if CDM._apply(code) == False:
             return
 
-        url = r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters"
-        data = {'def': code}
-        response = self._build_post(url, data)
-        new_id = response.get('new_character_id', None)
-        if new_id is not None:
-            PopupOk("Character now on website with id %s" % new_id)
-        else:
-            PopupOk("Post successful? but bad response %s" % response)
+        # Save out to website
+        self.web_new_character(code)
 
     def open_IBC(self):
         if CDM.build_character(self.ids.IBC_id.text):
