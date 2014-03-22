@@ -4,7 +4,8 @@ Web server half hosted using Flask
 based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
 """
 #!flask/bin/python
-from flask import Flask, jsonify, abort, request, make_response, url_for
+from flask import (Flask, jsonify, abort, request, make_response, url_for,
+                    flash, get_flashed_messages)
 from model import Buff, DamageRoll
 from persistentDictionary import PersistentDict
 import shelve, os
@@ -25,26 +26,9 @@ auth.get_password = nullWrap
 auth.error_handler = nullWrap
 ##############################################################################
 
-@auth.get_password
-def get_password(username):
-    if username == 'miguel':
-        return 'python'
-    return None
-
-@auth.error_handler
-def unauthorized():
-    return make_response(jsonify( { 'error': 'Unauthorized access' } ), 403)
-    # return 403 instead of 401 to prevent browsers from displaying the default auth dialog
-
-@app.errorhandler(400)
-def not_found(error):
-    return make_response(jsonify( { 'error': 'Bad request' } ), 400)
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify( { 'error': 'Not found' } ), 404)
-
-
+##################
+# Data Loading
+##################
 
 #buffs = [Buff('Favored Enemy (Human)',4,4),
 #         Buff('Favored Enemy (Monstrous Humanoid)',2,2),
@@ -59,6 +43,36 @@ except KeyError:
     characters = data['characters']
 
 
+##################
+# Webpages
+##################
+@app.route('/IBC/characters/<int:char_id>', methods = ['GET'])
+def show_characters(char_id):
+    code = characters[char_id]
+    flash_messages = get_flashed_messages()
+    html = """
+    <html>
+    <body>
+    <h1>Character #%(char_id)d</h1>
+    %(flash_messages)s
+    <form method='POST'>
+    <textarea rows=50 cols=80 name="code">%(code)s</textarea>
+    <br />
+    <input type="Submit">
+    </form>
+    </body>
+    </html>
+    """
+    return html % locals()
+@app.route('/IBC/characters/<int:char_id>', methods = ['POST'])
+def edit_characters(char_id):
+    characters[char_id] = request.form['code']
+    flash("Character code updated successfully")
+    return show_characters(char_id)
+
+##################
+# API
+##################
 @app.route('/IBC/api/v1.0/characters', methods = ['GET'])
 @auth.login_required
 def get_all_characters():
@@ -105,6 +119,31 @@ def delete_buff(buff_id):
     buffs.remove(buff[0])
     data.sync()
     return jsonify( { 'result': True } ), 201
+
+##################
+# Authentication and Error Handelers
+##################
+
+app.secret_key = '\xcf(d\x7f\x18\xef\x81\x16C\xdeT\xd4x\x0b\xb3\xf0\x8d\xcf2;\xdd\x05>\xbd'
+
+@auth.get_password
+def get_password(username):
+    if username == 'miguel':
+        return 'python'
+    return None
+
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify( { 'error': 'Unauthorized access' } ), 403)
+    # return 403 instead of 401 to prevent browsers from displaying the default auth dialog
+
+@app.errorhandler(400)
+def not_found(error):
+    return make_response(jsonify( { 'error': 'Bad request' } ), 400)
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
 if __name__ == '__main__':
     app.run(debug = True)
