@@ -441,9 +441,11 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
     max_value = StringProperty('100')
     counter_name = StringProperty('Counter')
 
-    def __init__(self, name='New Counter', max_value='100', **kwargs):
+    def __init__(self, counter_tabs, name='New Counter', max_value='100',
+                 **kwargs):
         super(CounterRow, self).__init__(**kwargs)
         web_counter_id = kwargs.get('web_counter_id', None)
+        self.counter_tab = counter_tabs
 
         self.max_value = max_value
         self.current_value = max_value
@@ -464,8 +466,9 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
     def go_rename_callback(self, new_name, *args):
         if new_name is None: return
         if new_name == 'DELETE':
+            self.counter_tab.save_counters()
             self.web_counter_delete()
-            self.parent.remove_widget(self)
+            self.counter_tab.rebuild_counters()
         else:
             self.counter_name = new_name
             #self.web_counter_put()
@@ -528,15 +531,16 @@ class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
         print "Add Row...",
         if web_id is not None:
             print "web"
-            self.ids.content.add_widget(CounterRow(web_counter_id=web_id),1)
+            self.ids.content.add_widget(CounterRow(self,web_counter_id=web_id),1)
         elif name is None or max_value is None:
             print "default"
-            self.ids.content.add_widget(CounterRow(),1)
+            self.ids.content.add_widget(CounterRow(self),1)
         else:
-            self.ids.content.add_widget(CounterRow(name, max_value),1)
+            self.ids.content.add_widget(CounterRow(self,name, max_value),1)
 
     def save_counters(self):
         """Saves counter states to web"""
+        print "SAVING ALL COUNTERS"
         for c in self.ids.content.children[:]:
             if isinstance(c, CounterRow):
                 c.web_counter_put()
@@ -616,6 +620,9 @@ class IBC_App(App):
         # Save counters
         self.tabs.counters_tab.save_counters()
         return True
+
+    def on_stop(self):
+        self.on_pause()
 
     def on_resume(self):
         pass
