@@ -164,3 +164,24 @@ class Toughness(Feat):
 toughness = Toughness("Toughness")
 c.feats.append(toughness)
 ```
+
+Installing and Using
+--------------------
+
+Right now, ItBuildsCharacter is alpha-quality software.  I develop it as I find
+new features I'd like to have.  However, I am interested in releasing it to a
+larger user base if other find it useful.  If you would like to use the program:
+  - Download the [Kivy Launcher](https://play.google.com/store/apps/details?id=org.kivy.pygame)
+  - Copy the contents of the [master branch](https://github.com/jsexauer/ItBuildsCharacter/zipball/master)
+    into a subdirectory of `/sdcard/kivy`.
+  - Launch the Kivy Launcher and select "ItBuildsCharacter"
+  - Very basic web support (editing the character definition) can be done at:
+  http://genericlifeform.pythonanywhere.com/IBC/characters/0 (Replace 0 with
+  any character id)
+  - Please feel free to [contact me](mailto:genericcarbonlifeform@gmail.com) for
+  additional help.
+
+Development
+-----------
+Right now [I](https://github.com/jsexauer) am the only developer.  Pull requests
+are welcome!  Developed for Python 2.7 and Android 4.1.2.
