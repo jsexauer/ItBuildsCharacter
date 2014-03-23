@@ -144,7 +144,7 @@ def get_all_counters(char_id):
 @auth.login_required
 def create_counter(char_id):
     try:
-        expected = ['name', 'max_value']
+        expected = ['counter_name', 'max_value', 'current_value']
         for k in expected:
             assert k in request.json.keys()
         assert len(expected) == len(request.json)
@@ -162,7 +162,7 @@ def edit_counter(char_id, count_id):
     except Exception, e:
         return jsonify( {'error': str(e)} )
     data.sync()
-    return jsonify( char_counters[char_id][count_id] )
+    return jsonify( char_counters[char_id][count_id] ), 201
 @app.route('/IBC/api/v1.0/characters/<int:char_id>/counters/<int:count_id>', methods = ['GET'])
 @auth.login_required
 def get_counter(char_id, count_id):
@@ -174,13 +174,13 @@ def get_counter(char_id, count_id):
     return jsonify( counter )
 @app.route('/IBC/api/v1.0/characters/<int:char_id>/counters/<int:count_id>', methods = ['DELETE'])
 @auth.login_required
-def get_counter(char_id, count_id):
+def delete_counter(char_id, count_id):
     try:
         counter = char_counters[char_id].pop(count_id)
     except Exception, e:
         return jsonify( {'error': str(e)} )
     data.sync()
-    return jsonify( counter )
+    return jsonify( counter ), 201
 
 
 ##@app.route('/IBC/api/v1.0/buffs/del/<int:buff_id>',methods = ['GET','POST'])

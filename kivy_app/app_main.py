@@ -5,7 +5,7 @@
 # IBC import
 
 from model import Character, Weapon, Attack, DamageRoll, Buff
-from kivy_app.web_interface import WebAPIMixin
+from kivy_app.web_interface import WebAPICharacterMixin, WebAPICounterMixin
 from popups import PopupOk, PopupAudit
 
 import os
@@ -59,7 +59,7 @@ class CharacterUIWrapper(UI_DataModel):
     _model_class = Character
 
 
-class CDM(WebAPIMixin):
+class CDM(WebAPICharacterMixin):
     """Character Data Mixin Object (to share character data across all classes
     and tabs that make up the application)"""
     c = Character()
@@ -88,10 +88,8 @@ class CDM(WebAPIMixin):
     @classmethod
     def build_character(cls, IBC_id=0):
         assert type(cls) is type, "Must call as classmethod"
-        # Read Henri from website
-        r = urlopen(r"http://genericlifeform.pythonanywhere.com/IBC/api/v1.0/characters/%s"%IBC_id)
         try:
-            r = json.load(r)
+            r = cls.web_load_character(IBC_id)
             IBC_def = r['def']
             success = cls._apply(IBC_def)
         except Exception, e:
@@ -455,25 +453,39 @@ class NewBuffPopup(Popup):
 class NewBuffRow(BoxLayout):
     pass
 
-class CounterRow(BoxLayout):
+class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
     current_value = StringProperty('0')
     max_value = StringProperty('100')
     counter_name = StringProperty('Counter')
 
     def __init__(self, name='New Counter', max_value='100', **kwargs):
         super(CounterRow, self).__init__(**kwargs)
+        web_counter_id = kwargs.get('web_counter_id', None)
+
         self.max_value = max_value
         self.current_value = max_value
         self.counter_name = name
+        self.web_char_id = self.IBC_id[-1]
 
+        if web_counter_id is None:
+            # We're a new counter, make us
+            self.web_counter_new()
+        else:
+            self.web_counter_id = int(web_counter_id)
+            self.web_counter_get()
 
     def go_rename(self, *args):
-        PopupOk("What would you like to name \nthis counter?",
-                            "Counter Name", input='text',
+        PopupOk("What would you like to name \nthis counter (type to DELETE "
+                "\nto delete)?", "Counter Name", input='text',
                             callback=self.go_rename_callback)
     def go_rename_callback(self, new_name, *args):
         if new_name is None: return
-        self.counter_name = new_name
+        if new_name == 'DELETE':
+            self.web_counter_delete()
+            self.parent.remove_widget(self)
+        else:
+            self.counter_name = new_name
+            self.web_counter_put()
 
     def go_max_value(self, *args):
         PopupOk("What would you like the max \nvalue of this counter to be?",
@@ -499,6 +511,7 @@ class CounterRow(BoxLayout):
         cv = int(self.current_value)
         mv = int(self.max_value)
         self.current_value = "%d" % min(cv+add_n, mv)
+        self.web_counter_put()
 
     def go_to_n(self):
         PopupOk("What would you like to set \nthe counter value to?",
@@ -511,16 +524,30 @@ class CounterRow(BoxLayout):
         self.go_add_n(delta)
 
 
-class CountersTab(TabbedPanelItem, CDM):
+class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
     def __init__(self, **kwargs):
         super(CountersTab, self).__init__(**kwargs)
         self.ids.content.bind(minimum_height=self.ids.content.setter('height'))
 
-        # Add HP counter
-        self.add_row('Hit Points', self.uic.HP)
+        self.on_press()
 
-    def add_row(self, name=None, max_value=None):
-        if name is None or max_value is None:
+    def on_press(self):
+        # Remove counters
+        for c in self.ids.content.children[:]:
+            if isinstance(c, CounterRow):
+                self.ids.content.remove_widget(c)
+        # Add existing counters
+        self.web_char_id = self.IBC_id[-1]
+        for c in self.web_counter_get_all().keys():
+            self.add_row(web_id=c)
+
+    def add_row(self, name=None, max_value=None, web_id=None):
+        print "Add Row...",
+        if web_id is not None:
+            print "web"
+            self.ids.content.add_widget(CounterRow(web_counter_id=web_id),1)
+        elif name is None or max_value is None:
+            print "default"
             self.ids.content.add_widget(CounterRow(),1)
         else:
             self.ids.content.add_widget(CounterRow(name, max_value),1)
