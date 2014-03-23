@@ -17,7 +17,7 @@
         $('#main_content').headsmart()
       })
     </script>
-    <title>It Builds Character</title>
+    <title>Itbuildscharacter by jsexauer</title>
   </head>
 
   <body>
@@ -27,8 +27,8 @@
       <header>
         <span class="ribbon-outer">
           <span class="ribbon-inner">
-            <h1>It Builds Character</h1>
-            <h2>Yet another app for the Pathfinder Roleplaying Game to manage characters and combat.</h2>
+            <h1>Itbuildscharacter</h1>
+            <h2>Android Python App with web management to Manage Pathfinder Characters</h2>
           </span>
           <span class="left-tail"></span>
           <span class="right-tail"></span>
@@ -47,24 +47,41 @@
 
       <section id="main_content">
         <h1>
+<a name="itbuildscharacter" class="anchor" href="#itbuildscharacter"><span class="octicon octicon-link"></span></a>ItBuildsCharacter</h1>
+
+<p>Yet another app for the <a href="http://paizo.com/pathfinderRPG">Pathfinder Roleplaying Game</a>
+to manage characters and combat.
+<a href="http://jsexauer.github.io/ItBuildsCharacter">http://jsexauer.github.io/ItBuildsCharacter</a></p>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
 
 <p>Some features that make ItBuildsCharacter unique over others:</p>
 
-<ul>
-<li>
-<strong>Andorid App</strong>: Android app built using <a href="http://www.kivy.org">kivy</a> framework.
-See pictures <a href="#app_ss">below</a>.</li>
-<li>
-<strong>Python Model</strong>: An extensive model has been created to allow the definition of characters
+<h3>
+<a name="andorid-app" class="anchor" href="#andorid-app"><span class="octicon octicon-link"></span></a>Andorid App</h3>
+
+<p>Android app built using <a href="http://www.kivy.org">kivy</a> framework.  It allows you to see all the basics statistics of your character, equip different weapons (which automatically updates the attacks), apply buffs to your character (see <a href="#Buffs">Buffs</a>), and roll attacks.  See pictures <a href="#app_ss">below</a>.</p>
+
+<h3>
+<a name="python-model" class="anchor" href="#python-model"><span class="octicon octicon-link"></span></a>Python Model</h3>
+
+<p>An extensive model has been created to allow the definition of characters
 as python objects.  An example is <a href="#char_def">presented below</a> and is
-the character used in the following examples.</li>
-<li>
-<strong>Auditing</strong>: Full auditing of all statistics to show how they were derived:</li>
-</ul><pre><code>&gt;&gt;&gt; with c.audit_context:
+the character used in the following examples.  I'll be honest, documentation is lacking, it's on the to-do list. 
+While we're being honest, the model greatly favors melee characters right now.  Spells lists aren't supported.
+Another thing for the to-do list...</p>
+
+<h3>
+<a name="auditing" class="anchor" href="#auditing"><span class="octicon octicon-link"></span></a>Auditing</h3>
+
+<p>This is my favorite feature.  Have you ever been looking at your charcter sheet and wondering "How exactly did I get a +7 reflex save?  +5 from the class, +1 from my cloak, but I must be forgetting something... maybe some trait or something?"  Wonder no longer!  I support full auditing of all statistics to show how they were derived.</p>
+
+<p>For example, here is how <a href="#char_def">the sample character's</a> hit point pool is calculated:</p>
+
+<pre><code>&gt;&gt;&gt; with c.audit_context:
 ...     print c.HP
+...
 hit_die + (level-1)*hp_per_level + con*level + favored_class + feats:
   con: +1
   level: +5
@@ -74,8 +91,13 @@ hit_die + (level-1)*hp_per_level + con*level + favored_class + feats:
     Toughness (HP: +5)
   hp_per_level: +6
 = +49
-&gt;&gt;&gt; with c.audit_context:
+</code></pre>
+
+<p>and here's how the attack and damage modifiers were calculated:</p>
+
+<pre><code>&gt;&gt;&gt; with c.audit_context:
 ...     print c.attacks[0]
+...
 Attack of...:
   attack: &lt;Attack Bonus at iterative + weapon:
             weapon: +2
@@ -92,17 +114,24 @@ Attack of...:
 = +11 for 2d6+8 damage
 </code></pre>
 
-<ul>
-<li>
-<strong>Buffs</strong>:  Toggle on buffs and conditions like flanking, rage, Bless,
-Inspire Courage, etc...  Statistics and attacks automatically update.  For
-example, let's say our <a href="#char_def">example Cavalier</a> is blessed and
-challenges his target:</li>
-</ul><pre><code>&gt;&gt;&gt; challenge = Buff('Challenge', dmg_mod=5)
-&gt;&gt;&gt; challenge.AC = 1
-&gt;&gt;&gt; c.buffs.append(challenge)
-&gt;&gt;&gt; c.buffs.append(Buff('Bless', atk_mod=1))
-&gt;&gt;&gt; with c.audit_context:
+<h3>
+<a name="buffs" class="anchor" href="#buffs"><span class="octicon octicon-link"></span></a>Buffs</h3>
+
+<p>Toggle on buffs and conditions like flanking, rage, Bless, Inspire Courage, etc...<br>
+Statistics and attacks automatically update.  </p>
+
+<p>For example, let's say our <a href="#char_def">example Cavalier</a> is blessed and
+challenges his target.  First let's build the buffs and apply them to the character</p>
+
+<div class="highlight highlight-python"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">challenge</span> <span class="o">=</span> <span class="n">Buff</span><span class="p">(</span><span class="s">'Challenge'</span><span class="p">,</span> <span class="n">dmg_mod</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">challenge</span><span class="o">.</span><span class="n">AC</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">buffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">challenge</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">buffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Buff</span><span class="p">(</span><span class="s">'Bless'</span><span class="p">,</span> <span class="n">atk_mod</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+<p>Now let's sett how that's affected his attack:</p>
+
+<pre><code>&gt;&gt;&gt; with c.audit_context:
 ...     print c.attacks[0]
 Attack of...:
   attack: &lt;Attack Bonus at iterative + weapon:
@@ -124,16 +153,22 @@ Attack of...:
 = +12 for 2d6+13 damage
 </code></pre>
 
-<ul>
-<li>
-<strong>Counters</strong>:  Track things like HP, gold, XP, ki pool, etc.  These are
-automatically saved to the sever, which brings us to...</li>
-<li>
-<strong>Website Integration</strong>:  The character definition and counter statuses are
-automatically synced between the phone app and the website.  Ultimately, I
+<h3>
+<a name="counters" class="anchor" href="#counters"><span class="octicon octicon-link"></span></a>Counters</h3>
+
+<p>Track things like HP, gold, XP, ki pool, etc.  You can add/subtract one at a time (the <kbd>+</kbd> and <kbd>-</kbd> buttons), add arbitrary value (<kbd>+n</kbd>), or set to arbitrary value (<kbd>n</kbd>). Counter values are
+automatically saved to the sever, which brings us to...</p>
+
+<h3>
+<a name="website-integration" class="anchor" href="#website-integration"><span class="octicon octicon-link"></span></a>Website Integration</h3>
+
+<p>The character definition and counter statuses are
+automatically synced between the phone app and the website.  This means you can view your character
+online, on different phones/devices, etc and you'll always be looking at the same character. Ultimately, I
 hope to build off of the web-ui of <a href="http://www.myth-weavers.com/sheetindex.php">MythWeavers</a>,
-which is based on the open-source project <a href="http://sourceforge.net/projects/rpgwebprofiler/">3EProfiler</a>.</li>
-</ul><p><a name="app_ss"></a></p>
+which is based on the open-source project <a href="http://sourceforge.net/projects/rpgwebprofiler/">3EProfiler</a>.</p>
+
+<p><a name="app_ss"></a></p>
 
 <h2>
 <a name="android-app-screenshots" class="anchor" href="#android-app-screenshots"><span class="octicon octicon-link"></span></a>Android App Screenshots</h2>
@@ -149,14 +184,15 @@ which is based on the open-source project <a href="http://sourceforge.net/projec
 <p><img src="http://jsexauer.github.io/ItBuildsCharacter/img/buffs.png" alt="Attacks/Buffs Screen"></p>
 
 <h3>
-<a name="counters" class="anchor" href="#counters"><span class="octicon octicon-link"></span></a>Counters</h3>
+<a name="counters-1" class="anchor" href="#counters-1"><span class="octicon octicon-link"></span></a>Counters</h3>
 
 <p><img src="http://jsexauer.github.io/ItBuildsCharacter/img/counters.png" alt="Counters Screen"></p>
 
 <h3>
 <a name="audits" class="anchor" href="#audits"><span class="octicon octicon-link"></span></a>Audits</h3>
 
-<p>A long-press on any dark-colored number will show its audit results</p>
+<p>A long-press on any darker-background numbers in the stats or attacks screen will show 
+an "audit" of how that value was calculated.  Attacks are among the most interesting:</p>
 
 <p><img src="http://jsexauer.github.io/ItBuildsCharacter/img/audit.png" alt="Audit Screen"></p>
 
@@ -239,9 +275,10 @@ hit points were calculated.</p>
 <h2>
 <a name="installing-and-using" class="anchor" href="#installing-and-using"><span class="octicon octicon-link"></span></a>Installing and Using</h2>
 
-<p>Right now, ItBuildsCharacter is alpha-quality software.  I develop it as I find
+<p>ItBuildsCharacter is alpha-quality software.  I develop it as I have time and think of
 new features I'd like to have.  However, I am interested in releasing it to a
-larger user base if other find it useful.  If you would like to use the program:</p>
+larger user base (eventually the general Android App Store) if other find it useful.<br>
+If you would like to use the program and/or help me test it:</p>
 
 <ul>
 <li>Download the <a href="https://play.google.com/store/apps/details?id=org.kivy.pygame">Kivy Launcher</a>
@@ -252,14 +289,16 @@ into a subdirectory of <code>/sdcard/kivy</code>.</li>
 <li>Very basic web support (editing the character definition) can be done at:
 <a href="http://genericlifeform.pythonanywhere.com/IBC/characters/0">http://genericlifeform.pythonanywhere.com/IBC/characters/0</a> (Replace 0 with
 any character id)</li>
+<li>There is no user autentication on the website half yet, so play nice :-)</li>
 <li>Please feel free to <a href="mailto:genericcarbonlifeform@gmail.com">contact me</a> for
-additional help.</li>
+additional help.  These insturctions are very general and I've probably left out
+important details.</li>
 </ul><h2>
 <a name="development" class="anchor" href="#development"><span class="octicon octicon-link"></span></a>Development</h2>
 
-<p>Right now <a href="https://github.com/jsexauer">I</a> am the only developer.  Pull requests
-are welcome!  Developed for Python 2.7 and Android 4.1.2.</p>
-
+<p>Right now I am the <a href="https://github.com/jsexauer">sole developer</a>.  But pull-requests
+are welcome!  Any bugs should be submitted through the <a href="https://github.com/jsexauer/ItBuildsCharacter/issues">issue tracker</a>.<br>
+Developed for Python 2.7 and Android 4.1.2.</p>
       </section>
 
       <footer>
