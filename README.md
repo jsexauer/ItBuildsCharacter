@@ -12,10 +12,12 @@ Some features that make ItBuildsCharacter unique over others:
   - **Python Model**: An extensive model has been created to allow the definition of characters
   as python objects.  An example is [presented below](#char_def) and is
   the character used in the following examples.
-  - **Auditing**: Full auditing of all statistics to show how they were derived:
+  - **Auditing**: Full auditing of all statistics to show how they were derived.  
+     - For example, here is how a character's hit point pool is calculated:
 ```
 >>> with c.audit_context:
 ...     print c.HP
+...
 hit_die + (level-1)*hp_per_level + con*level + favored_class + feats:
   con: +1
   level: +5
@@ -25,8 +27,12 @@ hit_die + (level-1)*hp_per_level + con*level + favored_class + feats:
     Toughness (HP: +5)
   hp_per_level: +6
 = +49
+```
+     - and here's how the attack and damage modifiers were calculated:
+```
 >>> with c.audit_context:
 ...     print c.attacks[0]
+...
 Attack of...:
   attack: <Attack Bonus at iterative + weapon:
             weapon: +2
@@ -43,14 +49,17 @@ Attack of...:
 = +11 for 2d6+8 damage
 ```
   - **Buffs**:  Toggle on buffs and conditions like flanking, rage, Bless,
-  Inspire Courage, etc...  Statistics and attacks automatically update.  For
-  example, let's say our [example Cavalier](#char_def) is blessed and
-  challenges his target:
-```
+  Inspire Courage, etc...  Statistics and attacks automatically update.  
+    - For example, let's say our [example Cavalier](#char_def) is blessed and
+      challenges his target.  First let's build the buffs and apply them to the character
+```python
 >>> challenge = Buff('Challenge', dmg_mod=5)
 >>> challenge.AC = 1
 >>> c.buffs.append(challenge)
 >>> c.buffs.append(Buff('Bless', atk_mod=1))
+```
+    - Now let's sett how that's affected his attack:
+```
 >>> with c.audit_context:
 ...     print c.attacks[0]
 Attack of...:
@@ -75,7 +84,8 @@ Attack of...:
   - **Counters**:  Track things like HP, gold, XP, ki pool, etc.  These are
   automatically saved to the sever, which brings us to...
   - **Website Integration**:  The character definition and counter statuses are
-  automatically synced between the phone app and the website.  Ultimately, I
+  automatically synced between the phone app and the website.  This means you can view your character
+  online, on different phones/devices, etc and you'll always be looking at the same character. Ultimately, I
   hope to build off of the web-ui of [MythWeavers](http://www.myth-weavers.com/sheetindex.php),
   which is based on the open-source project [3EProfiler](http://sourceforge.net/projects/rpgwebprofiler/).
 
@@ -90,7 +100,8 @@ Android App Screenshots
 ### Counters ###
 ![Counters Screen](http://jsexauer.github.io/ItBuildsCharacter/img/counters.png)
 ### Audits ###
-A long-press on any dark-colored number will show its audit results
+A long-press on any darker-background numbers in the stats or attacks screen will show 
+an "audit" of how that value was calculated.  Attacks are among the most interesting:
 
 ![Audit Screen](http://jsexauer.github.io/ItBuildsCharacter/img/audit.png)
 
@@ -168,9 +179,10 @@ c.feats.append(toughness)
 Installing and Using
 --------------------
 
-Right now, ItBuildsCharacter is alpha-quality software.  I develop it as I find
+ItBuildsCharacter is alpha-quality software.  I develop it as I have time and think of
 new features I'd like to have.  However, I am interested in releasing it to a
-larger user base if other find it useful.  If you would like to use the program:
+larger user base (eventually the general Android App Store) if other find it useful.  
+If you would like to use the program and/or help me test it:
   - Download the [Kivy Launcher](https://play.google.com/store/apps/details?id=org.kivy.pygame)
   - Copy the contents of the [master branch](https://github.com/jsexauer/ItBuildsCharacter/zipball/master)
     into a subdirectory of `/sdcard/kivy`.
@@ -178,10 +190,13 @@ larger user base if other find it useful.  If you would like to use the program:
   - Very basic web support (editing the character definition) can be done at:
   http://genericlifeform.pythonanywhere.com/IBC/characters/0 (Replace 0 with
   any character id)
+  - There is no user autentication on the website half yet, so play nice :-)
   - Please feel free to [contact me](mailto:genericcarbonlifeform@gmail.com) for
-  additional help.
+    additional help.  These insturctions are very general and I've probably left out
+    important details.
 
 Development
 -----------
-Right now [I](https://github.com/jsexauer) am the only developer.  Pull requests
-are welcome!  Developed for Python 2.7 and Android 4.1.2.
+Right now I am the [sole developer](https://github.com/jsexauer).  But pull-requests
+are welcome!  Any bugs should be submitted through the [issue tracker](https://github.com/jsexauer/ItBuildsCharacter/issues).  
+Developed for Python 2.7 and Android 4.1.2.
