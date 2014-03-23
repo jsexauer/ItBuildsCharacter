@@ -3,17 +3,28 @@ ItBuildsCharacter
 Yet another app for the [Pathfinder Roleplaying Game](http://paizo.com/pathfinderRPG)
 to manage characters and combat.
 http://jsexauer.github.io/ItBuildsCharacter
+
+
 Overview
 --------
 
 Some features that make ItBuildsCharacter unique over others:
-  - **Andorid App**: Android app built using [kivy](http://www.kivy.org) framework.
-    See pictures [below](#app_ss).
-  - **Python Model**: An extensive model has been created to allow the definition of characters
-  as python objects.  An example is [presented below](#char_def) and is
-  the character used in the following examples.
-  - **Auditing**: Full auditing of all statistics to show how they were derived.  
-     - For example, here is how a character's hit point pool is calculated:
+###Andorid App
+Android app built using [kivy](http://www.kivy.org) framework.  It allows you to see all the basics statistics of your character, equip different weapons (which automatically updates the attacks), apply buffs to your character (see [Buffs](#Buffs)), and roll attacks.  See pictures [below](#app_ss).
+
+###Python Model
+An extensive model has been created to allow the definition of characters
+as python objects.  An example is [presented below](#char_def) and is
+the character used in the following examples.  I'll be honest, documentation is lacking, it's on the to-do list. 
+While we're being honest, the model greatly favors melee characters right now.  Spells lists aren't supported.
+Another thing for the to-do list...
+  
+  
+###Auditing
+This is my favorite feature.  Have you ever been looking at your charcter sheet and wondering "How exactly did I get a +7 reflex save?  +5 from the class, +1 from my cloak, but I must be forgetting something... maybe some trait or something?"  Wonder no longer!  I support full auditing of all statistics to show how they were derived.
+
+For example, here is how [the sample character's](#char_def) hit point pool is calculated:
+
 ```
 >>> with c.audit_context:
 ...     print c.HP
@@ -28,7 +39,7 @@ hit_die + (level-1)*hp_per_level + con*level + favored_class + feats:
   hp_per_level: +6
 = +49
 ```
-     - and here's how the attack and damage modifiers were calculated:
+and here's how the attack and damage modifiers were calculated:
 ```
 >>> with c.audit_context:
 ...     print c.attacks[0]
@@ -48,17 +59,19 @@ Attack of...:
           = 2d6+8>
 = +11 for 2d6+8 damage
 ```
-  - **Buffs**:  Toggle on buffs and conditions like flanking, rage, Bless,
-  Inspire Courage, etc...  Statistics and attacks automatically update.  
-    - For example, let's say our [example Cavalier](#char_def) is blessed and
-      challenges his target.  First let's build the buffs and apply them to the character
+###Buffs
+Toggle on buffs and conditions like flanking, rage, Bless, Inspire Courage, etc...  
+Statistics and attacks automatically update.  
+
+For example, let's say our [example Cavalier](#char_def) is blessed and
+challenges his target.  First let's build the buffs and apply them to the character
 ```python
 >>> challenge = Buff('Challenge', dmg_mod=5)
 >>> challenge.AC = 1
 >>> c.buffs.append(challenge)
 >>> c.buffs.append(Buff('Bless', atk_mod=1))
 ```
-    - Now let's sett how that's affected his attack:
+Now let's sett how that's affected his attack:
 ```
 >>> with c.audit_context:
 ...     print c.attacks[0]
@@ -81,25 +94,35 @@ Attack of...:
           = 2d6+13>
 = +12 for 2d6+13 damage
 ```
-  - **Counters**:  Track things like HP, gold, XP, ki pool, etc.  These are
-  automatically saved to the sever, which brings us to...
-  - **Website Integration**:  The character definition and counter statuses are
-  automatically synced between the phone app and the website.  This means you can view your character
-  online, on different phones/devices, etc and you'll always be looking at the same character. Ultimately, I
-  hope to build off of the web-ui of [MythWeavers](http://www.myth-weavers.com/sheetindex.php),
-  which is based on the open-source project [3EProfiler](http://sourceforge.net/projects/rpgwebprofiler/).
+###Counters
+Track things like HP, gold, XP, ki pool, etc.  You can add/subtract one at a time (the <kbd>+</kbd> and <kbd>-</kbd> buttons), add arbitrary value (<kbd>+n</kbd>), or set to arbitrary value (<kbd>n</kbd>). Counter values are
+automatically saved to the sever, which brings us to...
+
+###Website Integration
+The character definition and counter statuses are
+automatically synced between the phone app and the website.  This means you can view your character
+online, on different phones/devices, etc and you'll always be looking at the same character. Ultimately, I
+hope to build off of the web-ui of [MythWeavers](http://www.myth-weavers.com/sheetindex.php),
+which is based on the open-source project [3EProfiler](http://sourceforge.net/projects/rpgwebprofiler/).
 
 
 <a name="app_ss"/>
 Android App Screenshots
 -----------------------
 ### Statistics Screen ###
+
 ![Stats Screen](http://jsexauer.github.io/ItBuildsCharacter/img/stats.png)
+
 ### Attacks/Buffs Screen ###
+
 ![Attacks/Buffs Screen](http://jsexauer.github.io/ItBuildsCharacter/img/buffs.png)
+
 ### Counters ###
+
 ![Counters Screen](http://jsexauer.github.io/ItBuildsCharacter/img/counters.png)
+
 ### Audits ###
+
 A long-press on any darker-background numbers in the stats or attacks screen will show 
 an "audit" of how that value was calculated.  Attacks are among the most interesting:
 
