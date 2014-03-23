@@ -84,15 +84,15 @@ Attack of...:
 Android App Screenshots
 -----------------------
 ### Statistics Screen ###
-![Stats Screen](https://jsexauer.github.io/img/stats.png)
+![Stats Screen](http://jsexauer.github.io/ItBuildsCharacter/img/stats.png)
 ### Attacks/Buffs Screen ###
-![Attacks/Buffs Screen](https://jsexauer.github.io/img/buffs.png)
+![Attacks/Buffs Screen](http://jsexauer.github.io/ItBuildsCharacter/img/buffs.png)
 ### Counters ###
-![Counters Screen](https://jsexauer.github.io/img/counters.png)
+![Counters Screen](http://jsexauer.github.io/ItBuildsCharacter/img/counters.png)
 ### Audits ###
 A long-press on any dark-colored number will show its audit results
 
-![Audit Screen](https://jsexauer.github.io/img/audit.png)
+![Audit Screen](http://jsexauer.github.io/ItBuildsCharacter/img/audit.png)
 
 <a name="char_def"/>
 Example Character Definition
