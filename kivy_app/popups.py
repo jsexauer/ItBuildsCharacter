@@ -1,6 +1,8 @@
 # Kivy Imports
 
 import kivy
+from model import AuditResult
+
 kivy.require('1.7.0')
 
 from kivy.config import Config
@@ -14,8 +16,25 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
+from kivy.properties import ObjectProperty,StringProperty,ListProperty
 from kivy.clock import Clock
 from kivy.base import EventLoop
+
+class ScrollableText(BoxLayout):
+    text = StringProperty('')
+    def go_top(self, *args):
+        print "IN GO TOP"
+        self.ids.text_input.cursor = (0,-5)
+    def go_up(self):
+        a = self.ids.text_input.cursor
+        pos = (a[0], a[1]-3)
+        print pos
+        self.ids.text_input.cursor = pos
+    def go_down(self):
+        a = self.ids.text_input.cursor
+        pos = (a[0], a[1]+3)
+        self.ids.text_input.cursor = pos
+
 
 def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')

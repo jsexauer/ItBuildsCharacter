@@ -225,23 +225,6 @@ class AbilityScore(AbilityScoreLabel, Button):
                 msg = c[key]
         PopupAudit(msg, key)
 
-class ScrollableText(BoxLayout):
-    text = StringProperty('')
-    def go_top(self, *args):
-        print "IN GO TOP"
-        self.ids.text_input.cursor = (0,-5)
-    def go_up(self):
-        a = self.ids.text_input.cursor
-        pos = (a[0], a[1]-3)
-        print pos
-        self.ids.text_input.cursor = pos
-    def go_down(self):
-        a = self.ids.text_input.cursor
-        pos = (a[0], a[1]+3)
-        self.ids.text_input.cursor = pos
-
-
-
 class StatsTab(TabbedPanelItem,CDM):
     def __init__(self, **kwargs):
         super(StatsTab, self).__init__(**kwargs)
