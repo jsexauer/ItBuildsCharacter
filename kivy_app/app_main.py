@@ -468,7 +468,7 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
             self.parent.remove_widget(self)
         else:
             self.counter_name = new_name
-            self.web_counter_put()
+            #self.web_counter_put()
 
     def go_max_value(self, *args):
         PopupOk("What would you like the max \nvalue of this counter to be?",
@@ -494,7 +494,7 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
         cv = int(self.current_value)
         mv = int(self.max_value)
         self.current_value = "%d" % min(cv+add_n, mv)
-        self.web_counter_put()
+        #self.web_counter_put()
 
     def go_to_n(self):
         PopupOk("What would you like to set \nthe counter value to?",
@@ -512,9 +512,9 @@ class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
         super(CountersTab, self).__init__(**kwargs)
         self.ids.content.bind(minimum_height=self.ids.content.setter('height'))
 
-        self.on_press()
+        self.rebuild_counters()
 
-    def on_press(self):
+    def rebuild_counters(self):
         # Remove counters
         for c in self.ids.content.children[:]:
             if isinstance(c, CounterRow):
@@ -535,6 +535,12 @@ class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
         else:
             self.ids.content.add_widget(CounterRow(name, max_value),1)
 
+    def save_counters(self):
+        """Saves counter states to web"""
+        for c in self.ids.content.children[:]:
+            if isinstance(c, CounterRow):
+                c.web_counter_put()
+
 class SkillsTab(TabbedPanelItem):
     pass
 
@@ -545,6 +551,10 @@ class SpellsTab(TabbedPanelItem):
     pass
 
 class CodeTab(TabbedPanelItem, CDM):
+
+    def __init__(self, counters_tab):
+        super(CodeTab, self).__init__()
+        self.counters_tab = counters_tab
 
     def save_and_apply(self):
         code = self.ids.code.text
@@ -565,6 +575,7 @@ class CodeTab(TabbedPanelItem, CDM):
     def open_IBC(self):
         if CDM.build_character(self.ids.IBC_id.text):
             self.on_press() # Update us
+            self.counters_tab.rebuild_counters()
             PopupOk("Loaded new character successfully")
         else:
             PopupOk("Unable to load character with that id")
@@ -586,19 +597,24 @@ class IBC_tabs(TabbedPanel, CDM):
         self.add_widget(tab1)
         self.attacks_tab = AttacksTab()
         self.add_widget(self.attacks_tab)
-        self.add_widget(CountersTab())
+        self.counters_tab = CountersTab()
+        self.add_widget(self.counters_tab)
         self.add_widget(SkillsTab())
         self.add_widget(FeatsTab())
         self.add_widget(SpellsTab())
-        self.add_widget(CodeTab())
+        self.add_widget(CodeTab(self.counters_tab))
 
 
 class IBC_App(App):
     def build(self):
-        return IBC_tabs(do_default_tab = False)
+        self.tabs = IBC_tabs(do_default_tab = False)
+        return self.tabs
 
     def on_pause(self):
         # TODO: Save character data off to cache
+
+        # Save counters
+        self.tabs.counters_tab.save_counters()
         return True
 
     def on_resume(self):
