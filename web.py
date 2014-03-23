@@ -99,7 +99,7 @@ def get_all_characters():
 def get_characters(id):
     try:
         ch = characters[id]
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     #if len(ch) == 0:
     #    abort(404)
@@ -110,7 +110,7 @@ def get_characters(id):
 def create_character():
     try:
         characters.append(request.json['def'])
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
     return jsonify( { 'new_character_id': len(characters)-1} ), 201
@@ -134,7 +134,7 @@ def update_character(id):
 def get_all_counters(char_id):
     try:
         counters = char_counters[char_id]
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     #if len(ch) == 0:
     #    abort(404)
@@ -149,7 +149,7 @@ def create_counter(char_id):
             assert k in request.json.keys()
         assert len(expected) == len(request.json)
         char_counters[char_id].append(request.json)
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
     return jsonify( { 'new_counter_id': len(char_counters[char_id])-1} ), 201
@@ -159,7 +159,7 @@ def create_counter(char_id):
 def edit_counter(char_id, count_id):
     try:
         char_counters[char_id][count_id].update(request.json)
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
     return jsonify( char_counters[char_id][count_id] ), 201
@@ -168,7 +168,7 @@ def edit_counter(char_id, count_id):
 def get_counter(char_id, count_id):
     try:
         counter = char_counters[char_id][count_id]
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
     return jsonify( counter )
@@ -177,7 +177,7 @@ def get_counter(char_id, count_id):
 def delete_counter(char_id, count_id):
     try:
         counter = char_counters[char_id].pop(count_id)
-    except Exception, e:
+    except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
     return jsonify( counter ), 201
