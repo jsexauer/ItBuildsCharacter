@@ -5,7 +5,7 @@ based on:  http://blog.miguelgrinberg.com/post/designing-a-restful-api-with-pyth
 """
 #!flask/bin/python
 from flask import (Flask, jsonify, abort, request, make_response, url_for,
-                    flash, get_flashed_messages)
+                    flash, get_flashed_messages, redirect)
 from model import Buff, DamageRoll
 from persistentDictionary import PersistentDict
 import shelve, os
@@ -67,7 +67,7 @@ def show_characters(char_id):
     %(counters)s
     <h3>Character Definition (ie, Code)</h3>
     <form method='POST'>
-    <textarea rows=50 cols=80 name="code">%(code)s</textarea>
+    <textarea rows=40 cols=80 name="code">%(code)s</textarea>
     <br />
     <input type="Submit">
     </form>
@@ -81,6 +81,37 @@ def edit_characters(char_id):
     data.sync()
     flash("Character code updated successfully")
     return show_characters(char_id)
+
+@app.route('/IBC/characters/new', methods = ['GET'])
+def new_character_form():
+    flash_messages = get_flashed_messages()
+    html = """
+    <html>
+    <body>
+    <h1>Create New Character</h1>
+    %(flash_messages)s
+    <h3>Character Definition (ie, Code)</h3>
+    <form method='POST'>
+    <textarea rows=40 cols=80 name="code"></textarea>
+    <br />
+    <input type="Submit">
+    </form>
+    </body>
+    </html>
+    """
+    return html % locals()
+
+@app.route('/IBC/characters/new', methods = ['POST'])
+def new_character_response():
+    try:
+        characters.append(request.form['code'])
+        char_counters.append([])
+    except Exception as e:
+        return jsonify( {'error': str(e)} )
+    data.sync()
+    new_id =  len(characters)-1
+    flash("Character created successfully under id %d" % new_id)
+    return redirect(url_for('edit_characters', char_id=new_id))
 
 ##################
 # API
@@ -110,6 +141,7 @@ def get_characters(id):
 def create_character():
     try:
         characters.append(request.json['def'])
+        char_counters.append([])
     except Exception as e:
         return jsonify( {'error': str(e)} )
     data.sync()
