@@ -272,6 +272,7 @@ class AttacksTab(TabbedPanelItem,CDM):
 
         # Bind ourselves to when the model changes
         self.update_hooks.append(self.build_buffs)
+        self.update_hooks.append(self.build_attacks)
 
         # Build GUI
         self.build_buffs()
