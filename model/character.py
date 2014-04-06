@@ -28,10 +28,10 @@ class CharacterList(list):
         list.remove(self, item)
 
     def pop(self, item):
-        raise NotImplementedError()
+        raise NotImplementedError("Use remove instead")
 
     def clear(self):
-        for i in self:
+        for i in self[:]:
             self.remove(i)
 
 class CharacterEquipmentList(CharacterList):
