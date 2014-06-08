@@ -35,10 +35,10 @@ version = 0.0.1
 requirements = kivy
 
 # (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = %(source.dir)s/kivy_app/res/splash.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = %(source.dir)s/kivy_app/res/splash.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = portrait
