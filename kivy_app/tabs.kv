@@ -185,6 +185,23 @@
     BoxLayout:
         orientation: 'vertical'
         spacing: 5
+        SubGridLayout:
+            cols: 3
+            spacing: [0,0]
+            cols_minimum: {2:200}
+            AbilityScoreLabel:
+                text: "AC:"
+            AbilityScore:
+                text: root.uic.AC
+                _audit_prop: 'AC'
+            HPCounter:
+                id: hp_counter
+        #    AbilityScoreLabel:
+        #        text: "HP:"
+        #    AbilityScore:
+        #        text: root.uic.HP
+        #        _audit_prop: 'HP'
+
         Label:
             text: "Buffs:"
             size_hint: 1, None

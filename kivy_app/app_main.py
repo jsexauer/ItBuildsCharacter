@@ -510,6 +510,45 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
         delta = int(new_n) - int(self.current_value)
         self.go_add_n(delta)
 
+class HPCounter(CounterRow):
+    """HP Counter for Attacks Screen"""
+    def __init__(self, **kwargs):
+        super(HPCounter, self).__init__(counter_tabs=None, name='HP',
+                                         max_value=str(self.c.HP), **kwargs)
+
+    def web_counter_put(self):
+        assert self.web_counter_id is not None
+        assert self.web_char_id is not None
+        url = r"characters/%d/counters/%d" % (self.web_char_id,
+                                              self.web_counter_id)
+
+        data = self._build_data()
+        response = self._build_request(url, data, request_type='PUT')
+        if response is not None:
+            error = response.get('error', False)
+        else:
+            error = 'Request is none'
+        if error:
+            PopupOk(
+                "Counter Value not saved to web: \n%s." % response,
+                "New Character Definition Loaded")
+
+    def web_counter_get(self):
+        # Hollow out the web interface
+        pass
+
+    def web_counter_new(self):
+        # Hollow out the web interface
+        pass
+
+    def web_counter_get_all(self):
+        # Hollow out the web interface
+        pass
+
+    def web_counter_delete(self):
+        # Hollow out the web interface
+        pass
+
 
 class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
     def __init__(self, **kwargs):
