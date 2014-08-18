@@ -40,7 +40,7 @@ def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
     btnclose = Button(text=btn_text, size_hint_y=None, height='50sp')
     content = BoxLayout(orientation='vertical')
     p = Popup(title=title, content=content, size=('300dp', '300dp'),
-                size_hint=(None, None))
+                size_hint=(None, None), pos_hint={'top':.95})
     content.add_widget(Label(text=text))
     if input is not None:
         assert callback is not None
