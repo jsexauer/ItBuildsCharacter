@@ -437,14 +437,14 @@ class NewBuffPopup(Popup):
 class NewBuffRow(BoxLayout):
     pass
 
-class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
+class CounterRowCode(BoxLayout, WebAPICounterMixin, CDM):
     current_value = StringProperty('0')
     max_value = StringProperty('100')
     counter_name = StringProperty('Counter')
 
     def __init__(self, counter_tabs, name='New Counter', max_value='100',
                  **kwargs):
-        super(CounterRow, self).__init__(**kwargs)
+        super(CounterRowCode, self).__init__(**kwargs)
         web_counter_id = kwargs.get('web_counter_id', None)
         self.counter_tab = counter_tabs
 
@@ -498,7 +498,7 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
         cv = int(self.current_value)
         mv = int(self.max_value)
         self.current_value = "%d" % min(cv+add_n, mv)
-        #self.web_counter_put()
+        self.web_counter_put()
 
     def go_to_n(self):
         PopupOk("What would you like to set \nthe counter value to?",
@@ -510,51 +510,37 @@ class CounterRow(BoxLayout, WebAPICounterMixin, CDM):
         delta = int(new_n) - int(self.current_value)
         self.go_add_n(delta)
 
-class HPCounter(CounterRow):
+class CounterRow(CounterRowCode):
+    pass
+
+class HPCounter(CounterRowCode):
     """HP Counter for Attacks Screen"""
     def __init__(self, **kwargs):
         super(HPCounter, self).__init__(counter_tabs=None, name='HP',
-                                         max_value=str(self.c.HP), **kwargs)
+                                         max_value=str(self.c.HP),
+                                         web_counter_id=0,  # Always id 0
+                                         **kwargs)
+        self.go_max_value_callback(str(self.c.HP))
 
-    def web_counter_put(self):
-        assert self.web_counter_id is not None
-        assert self.web_char_id is not None
-        url = r"characters/%d/counters/%d" % (self.web_char_id,
-                                              self.web_counter_id)
+    def go_subtract_n(self):
+        PopupOk("How much would you like to subtract?",
+                self.counter_name, input='number',
+                callback=self.go_subtract_n_callback)
 
-        data = self._build_data()
-        response = self._build_request(url, data, request_type='PUT')
-        if response is not None:
-            error = response.get('error', False)
-        else:
-            error = 'Request is none'
-        if error:
-            PopupOk(
-                "Counter Value not saved to web: \n%s." % response,
-                "New Character Definition Loaded")
-
-    def web_counter_get(self):
-        # Hollow out the web interface
-        pass
-
-    def web_counter_new(self):
-        # Hollow out the web interface
-        pass
-
-    def web_counter_get_all(self):
-        # Hollow out the web interface
-        pass
-
-    def web_counter_delete(self):
-        # Hollow out the web interface
-        pass
-
+    def go_subtract_n_callback(self, value):
+        if value is None:
+            return
+        self.go_add_n_callback('-'+value)
 
 class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
     def __init__(self, **kwargs):
         super(CountersTab, self).__init__(**kwargs)
         self.ids.content.bind(minimum_height=self.ids.content.setter('height'))
 
+        self.rebuild_counters()
+
+    def on_press(self, *args):
+        # Update the counters
         self.rebuild_counters()
 
     def rebuild_counters(self):
