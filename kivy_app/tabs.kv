@@ -185,13 +185,13 @@
     BoxLayout:
         orientation: 'vertical'
         spacing: 5
-        SubGridLayout:
+        GridLayout:
             id: hp_counter_container
             cols: 3
             spacing: [0,0]
             col_force_default: True
             cols_minimum: {0: 50, 1:50, 2:260}
-            size_hint: 1, None
+            size_hint: 1, .1
             AbilityScoreLabel:
                 text: "AC:"
             AbilityScore:
@@ -236,7 +236,7 @@
 
 <HPCounter>:
     orientation: 'horizontal'
-    height: '75sp'
+    height: '30sp'
     Label:
         id: name
         text: root.counter_name
