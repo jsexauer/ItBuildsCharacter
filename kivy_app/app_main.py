@@ -349,6 +349,13 @@ class AttacksTab(TabbedPanelItem,CDM):
         popup = NewBuffPopup(self)
         popup.open()
 
+    def rebuild_HP(self):
+        # Remove HP
+        for c in self.ids.hp_counter_container.children[:]:
+            if isinstance(c, HPCounter):
+                self.ids.hp_counter_container.remove_widget(c)
+        # Add existing counters
+        self.ids.hp_counter_container.add_widget(HPCounter())
 
 class AttackRow(BoxLayout):
     def __init__(self, atkNum, character, parent_uic):
@@ -582,9 +589,10 @@ class SpellsTab(TabbedPanelItem):
 
 class CodeTab(TabbedPanelItem, CDM):
 
-    def __init__(self, counters_tab):
+    def __init__(self, counters_tab, attacks_tab):
         super(CodeTab, self).__init__()
         self.counters_tab = counters_tab
+        self.attacks_tab = attacks_tab
 
     def save_and_apply(self):
         code = self.ids.code.text
@@ -606,6 +614,7 @@ class CodeTab(TabbedPanelItem, CDM):
         if CDM.build_character(self.ids.IBC_id.text):
             self.on_press() # Update us
             self.counters_tab.rebuild_counters()
+            self.attacks_tab.rebuild_HP()
             PopupOk("Loaded new character successfully")
         else:
             PopupOk("Unable to load character with that id")
@@ -632,7 +641,7 @@ class IBC_tabs(TabbedPanel, CDM):
         self.add_widget(SkillsTab())
         self.add_widget(FeatsTab())
         self.add_widget(SpellsTab())
-        self.add_widget(CodeTab(self.counters_tab))
+        self.add_widget(CodeTab(self.counters_tab, self.attacks_tab))
 
 
 class IBC_App(App):

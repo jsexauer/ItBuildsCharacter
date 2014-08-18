@@ -186,6 +186,7 @@
         orientation: 'vertical'
         spacing: 5
         SubGridLayout:
+            id: hp_counter_container
             cols: 3
             spacing: [0,0]
             col_force_default: True
@@ -196,9 +197,7 @@
             AbilityScore:
                 text: root.uic.AC
                 _audit_prop: 'AC'
-            HPCounter:
-                id: hp_counter
-
+            HPCounter
         Label:
             text: "Buffs:"
             size_hint: 1, None
