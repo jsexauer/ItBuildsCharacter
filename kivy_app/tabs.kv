@@ -185,19 +185,19 @@
     BoxLayout:
         orientation: 'vertical'
         spacing: 5
-        GridLayout:
+        BoxLayout:
             id: hp_counter_container
-            cols: 3
-            spacing: [0,0]
-            col_force_default: True
-            cols_minimum: {0: 50, 1:50, 2:260}
+            orientation: 'horizontal'
             size_hint: 1, .1
             AbilityScoreLabel:
                 text: "AC:"
+                size_hint: .175, 1
             AbilityScore:
                 text: root.uic.AC
                 _audit_prop: 'AC'
-            HPCounter
+                size_hint: .175, 1
+            HPCounter:
+                size_hint: .65, 1
         Label:
             text: "Buffs:"
             size_hint: 1, None
@@ -237,7 +237,15 @@
 <HPCounter>:
     orientation: 'horizontal'
     height: '30sp'
+    ## Background color (for debugging)
+    #canvas.before:
+    #    Color:
+    #        rgba: 0, 1, 0, 1
+    #    Rectangle:
+    #        pos: self.pos
+    #        size: self.size
     Label:
+        size_hint: .2, 1
         id: name
         text: root.counter_name
         font_size: '24sp'
@@ -245,6 +253,7 @@
         orientation: 'horizontal'
         halign: 'center'
         padding: [10,0,10,0]
+        size_hint: .4, 1
         canvas.before:
             Color:
                 rgba: .1, .1, .1, .3
@@ -266,15 +275,15 @@
             halign: 'center'
     Button:
         text: 'Hurt'
-        size_hint_x: None
+        size_hint: .2, 1
         markup: True
         on_release: root.go_subtract_n()
-        width: '50sp'
+        #width: '50sp'
     Button:
         text: 'Heal'
+        size_hint: .2, 1
         markup: True
-        size_hint_x: None
-        width: '50sp'
+        #width: '50sp'
         on_release: root.go_add_n()
 
 <AttackRow>:
