@@ -45,9 +45,14 @@ def PopupOk(text, title='', btn_text='Continue', input=None, callback=None):
     if input is not None:
         assert callback is not None
         ti = TextInput(height='50sp', font_size='30sp', input_type=input,
-                        multiline=False, size_hint_y = None)
+                        multiline=False, size_hint_y = None, focus=True)
         content.add_widget(ti)
         def _callback(*args):
+            try:
+                ti.hide_keyboard()
+            except AttributeError:
+                # On a real computer, not the phone
+                pass
             if ti.text == '':
                 callback(None)
             else:
