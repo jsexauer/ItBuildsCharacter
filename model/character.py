@@ -273,11 +273,23 @@ class Character(Attributes):
             return []
         # Figure out all the attacks
         _a = [self.BAB,]
-        while _a[-1] > 0:
+
+        _twf_feat, _twf_sum = has_sum(self.feats, 'twf_oh')
+        if len(_twf_feat) == 1:
+            _twf_feat = _twf_feat[0]
+        else:
+            _twf_feat = None
+
+        # Build iteratives (requires Improved TWF (ie, twf_oh2)
+        # and Greater TWF (ie, twf_oh3)
+        if _twf_feat and getattr(_twf_feat, 'twf_oh2', False):
             _a.append(_a[-1]-5)
-        if self.BAB > 0:
-            # At 0 BAB, we'll remove ourselves if we're not careful
-            _a = _a[:-1]
+        if _twf_feat and getattr(_twf_feat, 'twf_oh3', False):
+            _a.append(_a[-1]-5)
+
+        #if self.BAB > 0:
+        #    # At 0 BAB, we'll remove ourselves if we're not careful
+        #    _a = _a[:-1]
         _ans = []
         for _aa in _a:
             self._oh_single_atk__BAB = _aa

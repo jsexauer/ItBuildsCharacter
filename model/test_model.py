@@ -24,6 +24,8 @@ class Wardrobe(object):
         self.buckler.ACP = -1
         self.buckler.atk = -1
 
+        self.short_sword = Weapon("Short Sword", Attack(0, "1d6", [19,20]))
+
         ### Buffs
         self.greater_natural_armor_buff = Buff('Greater Natural Armor Buff')
         self.greater_natural_armor_buff.natural_armor = 4
@@ -291,6 +293,92 @@ class TestCharacter(object):
 
 
  ########### OFFESNIVE ATTRIBUTES ############################################
+    def test_twf(self):
+        # Two weapon fighting
+        self.c.lvl = 6
+        self.c.BAB = 6
+        self.c.equipment.main_hand = self.w.short_sword
+        self.c.equipment.off_hand = self.w.short_sword
+
+        ##
+        # No feat
+        ##
+        atks = self.c.attacks
+        assert_equals(len(atks), 3)
+        # first attack MH
+        #  at +6 -plus -4 penalty for TWF w/o feat
+        assert_equals(atks[0].atk, 6-4)
+        # iterative attack MH
+        #   at +1 plus -4 penalty for TWF w/o feat
+        assert_equals(atks[1].atk, 1-4)
+        # attack OH
+        #  at +6 plus -8 penalty for TWF w/o feat
+        assert_equals(atks[2].atk, 6-8)
+
+        ##
+        # Give ourselves two-weapon fighting
+        ##
+        twf = Feat("Two Weapon Fighting")
+        twf.twf_mh = +2
+        twf.twf_oh = +6
+        self.c.feats.append(twf)
+
+        atks = self.c.attacks
+        assert_equals(len(atks), 3)
+        # first attack MH
+        #  at +6 -plus -2 penalty for TWF w/ feat
+        assert_equals(atks[0].atk, 6-2)
+        # iterative attack MH
+        #   at +1 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[1].atk, 1-2)
+        # attack OH
+        #  at +6 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[2].atk, 6-2)
+
+        ##
+        # Give ourselves improved two-weapon fighting
+        ##
+        twf.twf_oh2 = True
+
+        atks = self.c.attacks
+        assert_equals(len(atks), 4)
+        # first attack MH
+        #  at +6 -plus -2 penalty for TWF w/ feat
+        assert_equals(atks[0].atk, 6-2)
+        # iterative attack MH
+        #   at +1 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[1].atk, 1-2)
+        # attack OH
+        #  at +6 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[2].atk, 6-2)
+        # iterative OH
+        #  at +1 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[3].atk, 1-2)
+
+
+        ##
+        # Give ourselves greater two-weapon fighting
+        ##
+        twf.twf_oh3 = True
+
+        atks = self.c.attacks
+        assert_equals(len(atks), 5)
+        # first attack MH
+        #  at +6 -plus -2 penalty for TWF w/ feat
+        assert_equals(atks[0].atk, 6-2)
+        # iterative attack MH
+        #   at +1 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[1].atk, 1-2)
+        # attack OH
+        #  at +6 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[2].atk, 6-2)
+        # iterative OH
+        #  at +1 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[3].atk, 1-2)
+        # iterative OH #2
+        #  at -4 plus -2 penalty for TWF w/ feat
+        assert_equals(atks[4].atk, -4-2)
+
     def test_mh_melee_atk_bonus(self):
         assert False
 
