@@ -79,10 +79,17 @@ class Attack(object):
                       (atk_roll, atk_roll+self.atk)
             # Roll to confirm
             conf_roll = roll_d(20) + self.atk
+            conf_note = ''
+            # See if we have Critical Focus feat
+            crit_focus = [f for f in self.character.feats if f.name == 'Critical Focus']
+            if len(crit_focus) > 0:
+                conf_roll += 4
+                conf_note = ' (includes critical focus)'
             crit_dmg = dmg + sum([self.dmg_roll.roll()
                                   for n in range(self.crit_mult-1)])
             s += "If a %d confirms, %d damage.\n" % (conf_roll, crit_dmg)
-            s += "            Else: %d damage" % dmg
+            s += "            Else: %d damage\n" % dmg
+            s += conf_note
         elif atk_roll == 1:
             # Critical Failure
             s += "Rolled a <1>.\nCritical Failure."
