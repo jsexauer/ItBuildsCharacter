@@ -505,6 +505,7 @@ class CounterRowCode(BoxLayout, WebAPICounterMixin, CDM):
         cv = int(self.current_value)
         mv = int(self.max_value)
         self.current_value = "%d" % min(cv+add_n, mv)
+        print "My [%d] current value is %s go_add_n_callback" % (id(self), self.current_value)
         self.web_counter_put()
 
     def go_to_n(self):
@@ -558,6 +559,7 @@ class CountersTab(TabbedPanelItem, CDM, WebAPICounterMixin):
         # Add existing counters
         self.web_char_id = self.IBC_id[-1]
         for c in self.web_counter_get_all().keys():
+            if c == '0': continue # Skip HP counter
             self.add_row(web_id=c)
 
     def add_row(self, name=None, max_value=None, web_id=None):

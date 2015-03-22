@@ -100,6 +100,7 @@ class WebAPICounterMixin(WebAPIInterfaceMixin):
         data = json.load(response)
         response.close()
         [setattr(self, k, str(v)) for k,v in data.iteritems()]
+        print "My [%d] current value is %s" % (id(self), self.current_value)
 
     def web_counter_new(self):
         assert self.web_counter_id is None
@@ -132,4 +133,5 @@ class WebAPICounterMixin(WebAPIInterfaceMixin):
         data = {'max_value': self.max_value,
                 'current_value': self.current_value,
                 'counter_name': self.counter_name}
+        print "My [%d] current value is %s _build_data" % (id(self), self.current_value)
         return data
